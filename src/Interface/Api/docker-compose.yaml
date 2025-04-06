@@ -1,0 +1,34 @@
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: timescale/timescaledb:latest-pg17
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    env_file:
+      - .env.docker
+    ports:
+      - "5432:5432"
+
+  ttx-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["/app/TTX.Interface.Api"]
+    restart: always
+    ports:
+      - "5062:8080"
+    env_file:
+      - .env.docker
+    volumes:
+      - ttx-dataprotection:/var/ttx/keys
+    depends_on:
+      - redis
+      - postgres
+
+volumes:
+  ttx-dataprotection: {}
+  pg-data: {}

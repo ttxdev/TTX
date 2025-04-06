@@ -1,0 +1,166 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-api
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-api
+  replicas: 8
+  template:
+    metadata:
+      labels:
+        app: ttx-api
+    spec:
+      volumes:
+        - name: dataprotection
+          persistentVolumeClaim:
+            claimName: ttx-dataprotection
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: api
+        image: ghcr.io/ttxdev/ttx-api:main
+        imagePullPolicy: Always
+        command: ["/app/TTX.TTX"]
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        envFrom:
+          - secretRef:
+              name: ttx-config
+        volumeMounts:
+          - name: dataprotection
+            mountPath: /var/ttx/keys
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 6379
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-frontend
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-frontend
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: ttx-frontend
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: api
+        image: ghcr.io/ttxdev/ttx-frontend:main
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-monitor-consumer
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-monitor-consumer
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ttx-monitor-consumer
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: consumer
+        image: ghcr.io/ttxdev/ttx-value-monitor:main
+        imagePullPolicy: Always
+        command: ["/app/TTX.ValueMonitor", "consumer"]
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: ttx-config
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-monitor-bot
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-monitor-bot
+  template:
+    metadata:
+      labels:
+        app: ttx-monitor-bot
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: bot
+        image: ghcr.io/ttxdev/ttx-value-monitor:main
+        imagePullPolicy: Always
+        command: ["/app/TTX.ValueMonitor", "bot"]
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: ttx-config
+      - name: stream-monitor
+        image: ghcr.io/ttxdev/ttx-stream-monitor:main
+        imagePullPolicy: Always
+        command: ["/app/TTX.ValueMonitor", "stream-monitor"]
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: ttx-config
