@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" class="min-h-screen">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+		%sveltekit.head%
+	</head>
+
+	<body
+		class="flex min-h-screen w-full flex-col from-40% via-transparent via-70%"
+		data-sveltekit-preload-data="hover"
+	>
+		<div
+			class="h-24"
+			style="
+				background: linear-gradient(
+					0deg,
+					hsla(277, 100%, 5%, 0) 5%,
+					hsla(278, 100%, 50%, 0.5) 100%
+				);
+			"
+		></div>
+
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

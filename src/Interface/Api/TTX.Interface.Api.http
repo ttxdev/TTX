@@ -1,0 +1,6 @@
+@TTX.Interface.Api_HostAddress = http://localhost:5116
+
+GET {{TTX.Interface.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

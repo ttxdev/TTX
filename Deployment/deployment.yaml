@@ -1,0 +1,165 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-api
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ttx-api
+    spec:
+      volumes:
+        - name: dataprotection
+          persistentVolumeClaim:
+            claimName: ttx-dataprotection
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: api
+        image: ghcr.io/ttxdev/ttx.interface.api:main
+        imagePullPolicy: Always
+        command: ["/app/TTX.Interface.Api"]
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        envFrom:
+          - secretRef:
+              name: ttx-config
+        volumeMounts:
+          - name: dataprotection
+            mountPath: /var/ttx/keys
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-web
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-web
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: ttx-web
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: api
+        image: ghcr.io/ttxdev/ttx.interface.web:main
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-bot-consumer
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-bot-consumer
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ttx-bot-consumer
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: consumer
+        image: ghcr.io/ttxdev/ttx.interface.bot:main
+        imagePullPolicy: Always
+        command: ["/app/TTX.Interface.Bot", "consumer"]
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: ttx-config
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-bot
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-bot
+  template:
+    metadata:
+      labels:
+        app: ttx-bot
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: ttx-bot
+        image: ghcr.io/ttxdev/ttx.interface.bot:main
+        imagePullPolicy: Always
+        command: ["/app/TTX.Interface.Bot", "bot"]
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: ttx-config
+      - name: ttx-streammonitor
+        image: ghcr.io/ttxdev/ttx.interface.streammonitor:main
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: ttx-config
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 6379
