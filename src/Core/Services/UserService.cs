@@ -8,7 +8,7 @@ namespace TTX.Core.Services;
 public interface IUserService
 {
     Task<User> FindOrCreate(string twitchUsername);
-    Task<User> OAuthOnboard(string oauthCode);
+    Task<User> ProcessOAuth(string oauthCode);
     Task<User?> GetDetails(string username);
     Task<Transaction> PlaceOrder(Creator creator, TransactionAction action, int amount);
     Task<LootBoxResult> Gamba();
@@ -22,14 +22,18 @@ public interface IUserService
 
 public class UserService(ISessionService sessionService, ITwitchService twitchService, ICreatorRepository creatorRepository, IUserRepository repo) : Service<User>(repo), IUserService
 {
-    public async Task<User> OAuthOnboard(string oauthCode)
+    public async Task<User> ProcessOAuth(string oauthCode)
     {
         var tUser = await twitchService.GetByOAuth(oauthCode) ?? throw new TwitchUserNotFoundException();
-        var user = User.Create(tUser);
-        repository.Add(user);
+        var user = await repo.GetDetails(tUser.Login);
+        if (user is not null)
+            return user;
+
+        var newUser = User.Create(tUser);
+        repository.Add(newUser);
         await repository.SaveChanges();
 
-        return user;
+        return newUser;
     }
 
     public async Task<Transaction> PlaceOrder(Creator creator, TransactionAction action, int amount)
