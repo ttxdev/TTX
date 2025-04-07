@@ -3,7 +3,8 @@
 	import { Chart } from 'chart.js/auto';
 	import type { UserStats } from '../../routes/+page.server';
 
-	let { creator }: { creator: UserStats } = $props();
+	const props: { creator: UserStats } = $props();
+	const creator = $derived(props.creator);
 
 	let canvas: HTMLCanvasElement | null = null;
 	let chart: Chart | null = null;
