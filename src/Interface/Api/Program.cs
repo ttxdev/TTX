@@ -13,10 +13,17 @@ using TTX.Core.Interfaces;
 using TTX.Interface.Api.Services;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
+using dotenv.net;
+
 [assembly: ApiController]
 
 
 var builder = WebApplication.CreateBuilder(args);
+if (builder.Environment.IsDevelopment())
+{
+    DotEnv.Load();
+}
+
 builder.Configuration.AddEnvironmentVariables("TTX_");
 var config = new ConfigProvider(builder.Configuration);
 

@@ -6,6 +6,7 @@
 
 - Check it out at https://ttx.gg
 - API Documentation https://api.ttx.gg/swagger/index.html
+- See `CONTRIBUTING.md` for Development
 
 ## How it Works
 
@@ -21,24 +22,15 @@ Perform up to the minute statistical pricing analysis to time your purchases and
 
 **Our algorithm is a proprietary technology and thus is not opensource to avoid any unfair manipulation. To ensure fairness, it is audited thoroughly by our independent partner [Clancy Research](https://github.com/Clancy-Research/about/blob/main/README.md).**
 
-
 ## Meet the team:
 
-**Chai** Chief Executive Officer
-
-**Solid** Chief Technology Officer
-
-**Nate** Chief Idea Catalyst 
-
-**Bey** Chief Baking Officer 
-
-**Rub** Lead Frontend Developer
-
-
-**Goob-Dev** Video Editor
-
-
-**highsecurity** Graphic Designer
+- **Chai** Chief Executive Officer
+- **Solid** Chief Technology Officer
+- **Nate** Chief Idea Catalyst 
+- **Bey** Chief Baking Officer 
+- **Rub** Lead Frontend Developer
+- **Goob-Dev** Video Editor
+- **highsecurity** Graphic Designer
 
 ## Discord 
 
