@@ -50,9 +50,9 @@ export function getTwitchRedirect(): string {
 
 export async function handleTwitchCallback(code: string, state: string): Promise<string> {
 	const client = getApiClient('');
-	const { token } = await client.twitchCallback(code, state);
+	const { access_token } = await client.twitchCallback(code);
 
-	return token;
+	return access_token;
 }
 
 export function requestLogin(cookies: Cookies, redir = '/') {
