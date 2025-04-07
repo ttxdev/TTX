@@ -1,4 +1,4 @@
-name: Docker Publish TTX.Interface.Api
+name: Docker Publish TTX.Interface.StreamMonitor
 
 on:
   schedule:
@@ -11,8 +11,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ttxdev/ttx.interface.api
-  SRC_PATH: ./src/Interface/Api
+  IMAGE_NAME: ttxdev/ttx.interface.streammonitor
+  SRC_PATH: ./src/Interface/StreamMonitor
 
 jobs:
   build:
