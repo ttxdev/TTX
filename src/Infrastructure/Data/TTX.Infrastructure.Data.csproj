@@ -19,8 +19,4 @@
     <PackageReference Include="TTX.Core" Version="0.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\TTX.Core.csproj" />
-  </ItemGroup>
-
 </Project>
