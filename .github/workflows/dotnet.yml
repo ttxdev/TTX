@@ -21,7 +21,7 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Configure NuGet source
-      run: dotnet nuget update source ttxdev --username USERNAME --password ${{ secrets.NUGET_TOKEN }} --store-password-in-clear-text
+      run: dotnet nuget update source ttxdev --username ttxdev --password ${{ secrets.NUGET_TOKEN }} --store-password-in-clear-text
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
