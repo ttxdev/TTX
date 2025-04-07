@@ -1,5 +1,5 @@
 import type { LayoutServerLoad } from './$types';
-import { getToken, getUserData, logout } from '$lib/auth';
+import { getToken, getUserData } from '$lib/auth';
 import { getApiClient } from '$lib';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
@@ -29,8 +29,6 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 			liveHoldings
 		};
 	} catch (error) {
-		logout(cookies);
-
 		return {
 			user,
 			token,
