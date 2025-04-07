@@ -65,7 +65,7 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
         var creator = await r.GetDetails(slug);
         if (creator is null) return null;
 
-        creator.History = [.. voteRepo.GetAll(creator.Id, TimeStep.Minute).Result];
+        creator.History = [.. voteRepo.GetAll(creator.Id, TimeStep.Minute, DateTimeOffset.UtcNow.AddDays(-1)).Result];
         return creator;
     }
 
