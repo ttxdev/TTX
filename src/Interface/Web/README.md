@@ -1,9 +1,31 @@
-![image](https://github.com/user-attachments/assets/98d451ea-bb3d-4a78-b6ef-0c86ea0c29bb)
+# Web
 
-# TTX Frontend
+Primary TTX frontend https://ttx.gg
 
-```bash
-npm run dev
+# Setup
+
+- [Download NodeJS](https://nodejs.org/)
+
+```sh
+npm i
 ```
 
-Check it out here https://ttx.gg
+## Setup Environment Variables
+
+Copy the `.env.example` into `.env` and fill out the required variables.
+
+```sh
+cp .env.example .env
+# fill out env
+```
+
+## Setting up Accessories
+
+By default, the environment is pointed at production which is perfectly fine. However, if you want to run
+the API checkout [Api](https://github.com/ttxdev/TTX/tree/main/src/Interface/Api)
+
+##  Run!
+
+```sh
+npm run dev
+```
