@@ -12,17 +12,11 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		const token = getToken(cookies);
 		const client = getApiClient(token || '');
 		const creator = await client.getCreator(channelSlug);
-		const history = await client.getCreatorValueHistory(channelSlug, TimeStep._0);
 
 		return {
-			creator: {
-				...creator.toJSON(),
-				history: history.history.map((d) => d.toJSON()) as Vote[]
-			},
-			holders: await client.getCreatorShares(channelSlug).then((r) => r.map((h) => h.toJSON())),
-			transactions: await client
-				.getCreatorTransactions(channelSlug)
-				.then((r) => r.data.map((t) => t.toJSON()))
+			creator: creator.toJSON(),
+			shares: creator.shares.map((d) => d.toJSON()),
+			transactions: creator.transactions.map((d) => d.toJSON()), 
 		};
 	} catch {
 		error(404, 'Channel not found');

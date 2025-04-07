@@ -1,21 +1,21 @@
 <script lang="ts">
-	import type { ShareDto } from '$lib/api';
+	import type { CreatorShareDto } from '$lib/api';
 	import { formatShareAmount, formatValue } from '$lib/util';
 	import Card from '../shared/Card.svelte';
 	import PlayerPlacement from '../shared/PlayerPlacement.svelte';
 
-	let { holders, price }: { holders: ShareDto[]; price: number } = $props();
-	const sortedHolders = $derived(holders.sort((a, b) => b.quantity - a.quantity));
+	let { shares, price }: { shares: CreatorShareDto[]; price: number } = $props();
+	const sortedHolders = $derived(shares.sort((a, b) => b.quantity - a.quantity));
 
 	let total = $derived(
 		Object.fromEntries(
-			holders.map((holder) => [holder.user.name, formatValue(holder.quantity * price)])
+			shares.map((holder) => [holder.user.name, formatValue(holder.quantity * price)])
 		)
 	);
 </script>
 
 <Card title="Largest Holders">
-	{#if holders.length !== 0}
+	{#if shares.length !== 0}
 		<table class="table">
 			<tbody>
 				{#each sortedHolders as holder, index (holder.user.id)}

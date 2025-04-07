@@ -3,14 +3,14 @@
 	import Chart from 'chart.js/auto';
 	import { goto } from '$app/navigation';
 	import { formatTicker, formatValue } from '$lib/util';
-	import type { ICreatorDto } from '$lib/api';
+	import { OrderDirection, type ICreatorDto } from '$lib/api';
 
 	type TableProps = {
 		channels: ICreatorDto[];
 		total: number;
 		currentPage: number;
 		sortField: string;
-		sortDirection: string;
+		sortDirection: OrderDirection;
 	};
 
 	let {
@@ -18,14 +18,14 @@
 		total = 0,
 		currentPage = 1,
 		sortField = 'name',
-		sortDirection = 'asc'
+		sortDirection = OrderDirection.Ascending
 	}: TableProps = $props();
 
 	let chartElements: { [key: string]: HTMLCanvasElement } = {};
 
 	// Update sort function to use server-side sorting
 	function sortChannels(field: 'Name' | 'Value' | 'IsLive') {
-		const newDirection = field === sortField && sortDirection === 'asc' ? 'desc' : 'asc';
+		const newDirection = field === sortField && sortDirection === OrderDirection.Ascending ? 'desc' : 'asc';
 		const searchParams = new URLSearchParams(window.location.search);
 		const search = searchParams.get('search') || '';
 
@@ -163,7 +163,7 @@
 				>
 					Creator
 					{#if sortField === 'Name'}
-						<span class="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+						<span class="ml-1">{sortDirection === OrderDirection.Ascending ? '↑' : '↓'}</span>
 					{/if}
 				</th>
 				<th
@@ -172,7 +172,7 @@
 				>
 					Price
 					{#if sortField === 'Value'}
-						<span class="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+						<span class="ml-1">{sortDirection === OrderDirection.Ascending ? '↑' : '↓'}</span>
 					{/if}
 				</th>
 				<th
@@ -181,7 +181,7 @@
 				>
 					Live
 					{#if sortField === 'IsLive'}
-						<span class="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+						<span class="ml-1">{sortDirection === OrderDirection.Ascending ? '↑' : '↓'}</span>
 					{/if}
 				</th>
 				<th class="py-4 text-center max-md:hidden">Chart</th>
@@ -218,7 +218,7 @@
 					</td>
 					<td class="py-4 text-center max-md:w-12 max-md:px-2 max-md:text-xs">
 						<a href="/channels/{channel.slug}" rel="noopener noreferrer" aria-label="Channel Chart">
-							{#if channel.is_live}
+							{#if channel.stream_status.is_live}
 								<span
 									class="-mt-2.5 h-fit w-fit rounded-full bg-red-400 px-2 text-xs font-bold text-white"
 								>

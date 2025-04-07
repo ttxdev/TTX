@@ -2,14 +2,19 @@
 	import CreatorCard from '$lib/components/channel/CreatorCard.svelte';
 	import BiggestHolders from '$lib/components/channel/LargestCreatorHolders.svelte';
 	import LatestTransactions from '$lib/components/channel/LatestCreatorTransactions.svelte';
-	import type { PageProps } from './$types';
 	import BuySellModal from '$lib/components/channel/BuySellModal.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { getApiClient } from '$lib';
-	import { TimeStep, Vote } from '$lib/api';
+	import { CreatorDto, CreatorShareDto, CreatorTransactionDto, TimeStep, Vote } from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
 
-	let { data }: PageProps = $props();
+	let { data }: { 
+		data: {
+			creator: CreatorDto,
+			shares: CreatorShareDto[],
+			transactions: CreatorTransactionDto[],
+		}
+	} = $props();
 	let creator = $state(data.creator);
 
 	let history = $state<Vote[]>(data.creator.history);
@@ -40,12 +45,13 @@
 
 		pullTask = setInterval(async () => {
 			const data = await client
-				.getCreatorValueHistory(creator.slug, TimeStep._0, last)
-				.then((res) => res.history);
+				.getCreatorValueHistory(creator.slug, TimeStep.Minute, last)
+				.then((history) => history.map(v => v.toJSON()));
 			last = new Date();
 			if (data.length === 0) return;
 
 			history = [...history, ...data];
+			// @ts-ignore
 			creator.value = data[data.length - 1].value;
 		}, 1_000);
 	});
@@ -100,7 +106,7 @@
 
 <section class="mx-auto flex w-full max-w-[1000px] flex-col gap-4 px-4">
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-		<BiggestHolders holders={data.holders} price={creator.value} />
+		<BiggestHolders shares={data.shares} price={creator.value} />
 		<LatestTransactions transactions={data.transactions} />
 	</div>
 </section>

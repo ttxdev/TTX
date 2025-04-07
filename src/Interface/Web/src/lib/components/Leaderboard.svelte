@@ -2,7 +2,8 @@
 	import Chart from 'chart.js/auto';
 	import type { UserStats } from '../../routes/proxy+page.server';
 
-	let { creators }: { creators: UserStats[] } = $props();
+	const props: { creators: UserStats[] } = $props();
+	const creators = $derived(props.creators);
 
 	function createMiniChart(element: HTMLCanvasElement, history: { time: number; value: number }[]) {
 		const values = history.map((d) => d.value);
@@ -60,7 +61,7 @@
 			<div class="flex-1">
 				<div class="flex-1 max-md:mt-4 max-md:w-full">
 					<div class="h-[40px] w-full">
-						<canvas use:createMiniChart={creator.history}></canvas>
+						<canvas use:createMiniChart={creator.history.map(v => ({ time: v.time.getTime(), value: v.value }))}></canvas>
 					</div>
 				</div>
 			</div>
