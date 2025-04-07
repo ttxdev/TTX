@@ -13,12 +13,14 @@ using TTX.Core.Interfaces;
 using TTX.Infrastructure.Twitch;
 using TTX.Interface.Api.Services;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 [assembly: ApiController]
 
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("TTX_");
 var config = new ConfigProvider(builder.Configuration);
+
 
 builder.Services
     .AddLogging()
@@ -57,7 +59,7 @@ builder.Services
     .AddTransient<ICreatorService, CreatorService>()
     .AddHttpLogging()
     .AddHttpClient()
-    .AddControllers();
+    .AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
