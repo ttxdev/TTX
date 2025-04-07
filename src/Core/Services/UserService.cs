@@ -38,7 +38,7 @@ public class UserService(ISessionService sessionService, ITwitchService twitchSe
 
     public async Task<Transaction> PlaceOrder(Creator creator, TransactionAction action, int amount)
     {
-        var user = RequireUser();
+        var user = await RequireUser();
         var tx = action == TransactionAction.Buy
           ? user.Buy(creator, amount)
           : user.Sell(creator, amount);
@@ -51,7 +51,7 @@ public class UserService(ISessionService sessionService, ITwitchService twitchSe
 
     public async Task<LootBoxResult> Gamba()
     {
-        var user = RequireUser();
+        var user = await RequireUser();
         var creators = await creatorRepository.GetAllAbove(100);
         var lootBox = user.Gamba(creators);
 
@@ -63,7 +63,7 @@ public class UserService(ISessionService sessionService, ITwitchService twitchSe
 
     public Task<User?> GetDetails(string username) => repo.GetDetails(username);
 
-    private User RequireUser() => sessionService.CurrentUser ?? throw new AuthenticationRequiredException();
+    private async Task<User> RequireUser() => await sessionService.GetUser() ?? throw new AuthenticationRequiredException();
 
     public async Task<User> FindOrCreate(string twitchUsername)
     {

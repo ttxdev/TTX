@@ -4,6 +4,7 @@ namespace TTX.Core.Interfaces;
 
 public interface ISessionService
 {
-    User? CurrentUser { get; set; }
+    int? CurrentUserId { get; set; }
     bool IsAdmin();
+    Task<User?> GetUser();
 }
