@@ -21,7 +21,7 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
             SELECT
                 votes.creator_id AS ""CreatorId"", 
                 time_bucket('{interval}', votes.time) AS ""Bucket"", 
-                locf(last(votes.value, votes.time)) AS ""Value""
+                last(votes.value, votes.time) AS ""Value""
             FROM votes
             WHERE votes.creator_id = {creatorId}
                 AND votes.time <= now()
@@ -61,13 +61,13 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
             SELECT
                 votes.creator_id AS ""CreatorId"", 
                 time_bucket('{interval}', votes.time) AS ""Bucket"", 
-                locf(last(votes.value, votes.time)) AS ""Value""
+                last(votes.value, votes.time) AS ""Value""
             FROM votes
             WHERE votes.creator_id IN ({creatorIdsStr})
                 AND votes.time <= now()
                 AND votes.time > '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}'
             GROUP BY ""CreatorId"", ""Bucket""
-            ORDER BY ""CreatorId"", ""Bucket"" ASC";
+            ORDER BY ""Bucket"" ASC";
 
         using var command = context.Database.GetDbConnection().CreateCommand();
         command.CommandText = sql;
