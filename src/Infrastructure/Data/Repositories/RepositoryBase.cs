@@ -11,7 +11,7 @@ public class RepositoryBase<T>(ApplicationDbContext context) : IRepository<T> wh
     public void Update(T entity) => DbSet.Update(entity);
     public void Remove(T entity) => DbSet.Remove(entity);
     public Task SaveChanges(CancellationToken cancellationToken = default) => context.SaveChangesAsync(cancellationToken);
-    public async Task<Pagination<T>> GetPaginated(int page = 1, int limit = 10, Order[]? order = null, Search? search = null)
+    public virtual async Task<Pagination<T>> GetPaginated(int page = 1, int limit = 10, Order[]? order = null, Search? search = null)
     {
         var query = DbSet.AsQueryable();
 

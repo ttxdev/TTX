@@ -27,4 +27,39 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
     }
 
   public Task<Creator?> Find(int creatorId) => DbSet.FirstOrDefaultAsync(c => c.Id == creatorId);
+
+  public override async Task<Pagination<Creator>> GetPaginated(int page = 1, int limit = 10, Order[]? order = null, Search? search = null)
+  {
+      var query = DbSet.AsQueryable();
+
+      if (search is not null)
+          query = query.Where(e => EF.Property<string>(e, search.By)!.ToLower().Contains(search.Value.ToLower()));
+
+      if (order is not null)
+          foreach (var o in order)
+          {
+            // TODO(dylhack): This is a hack to get around the fact that EF Core doesn't support
+            //                ordering by a nested property. We should probably fix this in the future.
+            if (o.By == "IsLive")
+            {
+                query = o.Dir == OrderDirection.Ascending
+                    ? query.OrderBy(e => e.StreamStatus.IsLive)
+                    : query.OrderByDescending(e => e.StreamStatus.IsLive);
+            } else
+            {
+              query = o.Dir == OrderDirection.Ascending
+                  ? query.OrderBy(e => EF.Property<object>(e, o.By!))
+                  : query.OrderByDescending(e => EF.Property<object>(e, o.By!));
+            }
+          }
+
+      var total = await query.CountAsync();
+      var data = query.Skip((page - 1) * limit).Take(limit);
+
+      return new Pagination<Creator>
+      {
+          Total = total,
+          Data = await data.ToArrayAsync()
+      };
+  }
 }
