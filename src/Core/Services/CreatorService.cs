@@ -29,7 +29,7 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
     )
     {
         var creators = await r.GetPaginated(page, limit, order, search);
-        var creatorHistories = await voteRepo.GetAllFor([.. creators.Data.Select(c => c.Id)], TimeStep.Hour);
+        var creatorHistories = await voteRepo.GetAllFor([.. creators.Data.Select(c => c.Id)], TimeStep.Hour, DateTimeOffset.UtcNow.AddDays(-1));
         foreach (var entry in creatorHistories)
         {
             var creator = creators.Data.FirstOrDefault(c => c.Id == entry.Key);
