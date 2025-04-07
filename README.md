@@ -20,7 +20,6 @@ Oh.. how does the pricing work? You don't know how the NYSE works, ya know... so
 - **Chai** Chief Executive Officer (Project Lead)
 - **Solid** Chief Technology Officer (Backend and Structure)
 - **Nate** Chief Idea Catalyst (Backend and Frontend)
-- **Nate** Chief Idea Catalyst
 - **Bey** Chief Baking Officer (Frontend)
 - **Rub** Lead Frontend Developer (Frontend)
 - **Goob-Dev** Video Editor
