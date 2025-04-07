@@ -1,5 +1,5 @@
 import type { LayoutServerLoad } from './$types';
-import { getToken, getUserData } from '$lib/auth';
+import { getToken, getUserData, logout } from '$lib/auth';
 import { getApiClient } from '$lib';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
@@ -14,17 +14,26 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 		};
 	}
 
-	const self = await client.getSelf();
-	const liveHoldings = self.shares.map((s) => ({
-		creator: s.creator.name,
-		slug: s.creator.slug,
-		avatar: s.creator.avatar_url,
-		isLive: s.creator.stream_status.is_live
-	}));
+	try {
+		const self = await client.getSelf();
+		const liveHoldings = self.shares.map((s) => ({
+			creator: s.creator.name,
+			slug: s.creator.slug,
+			avatar: s.creator.avatar_url,
+			isLive: s.creator.stream_status.is_live
+		}));
 
-	return {
-		user,
-		token,
-		liveHoldings
-	};
+		return {
+			user,
+			token,
+			liveHoldings
+		};
+	} catch (error) {
+		logout(cookies);
+
+		return {
+			user,
+			token,
+		};
+	}
 };
