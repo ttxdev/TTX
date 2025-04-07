@@ -55,7 +55,7 @@
 			history = [...history, ...data];
 			// @ts-ignore
 			creator.value = data[data.length - 1].value;
-		}, 1_000);
+		}, 1_500);
 	});
 
 	$effect(() => {

@@ -18,7 +18,8 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 			shares: creator.shares.map((d) => d.toJSON()),
 			transactions: creator.transactions.map((d) => d.toJSON())
 		};
-	} catch {
+	} catch (err) {
+		console.error(err);
 		error(404, 'Channel not found');
 	}
 };
