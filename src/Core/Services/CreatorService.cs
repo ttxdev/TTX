@@ -43,7 +43,8 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
 
     public async Task<Creator> Onboard(string username, string ticker)
     {
-        if (!sessionService.IsAdmin()) throw new UnauthorizedException();
+        var user = await sessionService.GetUser();
+        if (user is null || !user.IsAdmin()) throw new UnauthorizedException();
 
         var creator = await twitch.Find(username).ContinueWith(t =>
         {
