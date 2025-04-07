@@ -143,8 +143,7 @@
 				client = getApiClient(token);
 				const user = await client.getSelf();
 				userBalance = user.credits;
-				const shares = await client.getUserShares(user.name);
-				userOwns = shares.find((share) => share.creator.slug === slug)?.quantity || 0;
+				userOwns = user.shares.find((share) => share.creator.slug === slug)?.quantity || 0;
 				animatedUserBalance.set(userBalance);
 				animatedUserOwns.set(userOwns);
 			} catch (error) {

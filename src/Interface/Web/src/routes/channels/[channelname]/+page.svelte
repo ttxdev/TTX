@@ -8,12 +8,14 @@
 	import { CreatorDto, CreatorShareDto, CreatorTransactionDto, TimeStep, Vote } from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
 
-	let { data }: { 
+	let {
+		data
+	}: {
 		data: {
-			creator: CreatorDto,
-			shares: CreatorShareDto[],
-			transactions: CreatorTransactionDto[],
-		}
+			creator: CreatorDto;
+			shares: CreatorShareDto[];
+			transactions: CreatorTransactionDto[];
+		};
 	} = $props();
 	let creator = $state(data.creator);
 
@@ -46,7 +48,7 @@
 		pullTask = setInterval(async () => {
 			const data = await client
 				.getCreatorValueHistory(creator.slug, TimeStep.Minute, last)
-				.then((history) => history.map(v => v.toJSON()));
+				.then((history) => history.map((v) => v.toJSON()));
 			last = new Date();
 			if (data.length === 0) return;
 

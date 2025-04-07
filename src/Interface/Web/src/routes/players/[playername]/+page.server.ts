@@ -15,7 +15,7 @@ export const load = (async ({ cookies, params }) => {
 			url: `https://www.twitch.tv/${player.name}`,
 			history: []
 		},
-		shares: player.shares.map(s => s.toJSON()),
-		transactions: player.transactions.map(t => t.toJSON())
+		shares: player.shares.map((s) => s.toJSON()),
+		transactions: player.transactions.map((t) => t.toJSON())
 	};
 }) satisfies PageServerLoad;

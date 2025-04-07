@@ -7,7 +7,8 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	const client = getApiClient(getToken(cookies) ?? '');
 	const page = Number(url.searchParams.get('page')) || 1;
 	const orderBy = url.searchParams.get('orderBy') || 'Name';
-	const order = url.searchParams.get('order') == 'desc' ? OrderDirection.Descending : OrderDirection.Ascending;
+	const order =
+		url.searchParams.get('order') == 'desc' ? OrderDirection.Descending : OrderDirection.Ascending;
 	const search = url.searchParams.get('search') || '';
 
 	let safeOrderBy = [new Order({ by: 'Name', dir: order })];
@@ -16,10 +17,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	} else if (orderBy === 'Value') {
 		safeOrderBy = [new Order({ by: 'Value', dir: order })];
 	} else if (orderBy === 'IsLive') {
-		safeOrderBy = [
-			new Order({ by: 'Name', dir: order }),
-			new Order({ by: 'IsLive', dir: order })
-		];
+		safeOrderBy = [new Order({ by: 'Name', dir: order }), new Order({ by: 'IsLive', dir: order })];
 	}
 
 	// Ensure order is valid
@@ -30,7 +28,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		20,
 		search ? 'Slug' : undefined, // Changed from 'All' to 'Slug'
 		search,
-		safeOrderBy,
+		safeOrderBy
 	);
 
 	return {

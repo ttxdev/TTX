@@ -61,7 +61,12 @@
 			<div class="flex-1">
 				<div class="flex-1 max-md:mt-4 max-md:w-full">
 					<div class="h-[40px] w-full">
-						<canvas use:createMiniChart={creator.history.map(v => ({ time: v.time.getTime(), value: v.value }))}></canvas>
+						<canvas
+							use:createMiniChart={creator.history.map((v) => ({
+								time: v.time.getTime(),
+								value: v.value
+							}))}
+						></canvas>
 					</div>
 				</div>
 			</div>

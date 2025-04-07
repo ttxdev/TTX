@@ -25,7 +25,8 @@
 
 	// Update sort function to use server-side sorting
 	function sortChannels(field: 'Name' | 'Value' | 'IsLive') {
-		const newDirection = field === sortField && sortDirection === OrderDirection.Ascending ? 'desc' : 'asc';
+		const newDirection =
+			field === sortField && sortDirection === OrderDirection.Ascending ? 'desc' : 'asc';
 		const searchParams = new URLSearchParams(window.location.search);
 		const search = searchParams.get('search') || '';
 

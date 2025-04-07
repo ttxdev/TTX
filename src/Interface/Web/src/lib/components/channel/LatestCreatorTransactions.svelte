@@ -22,7 +22,9 @@
 								<img alt={tx.user.name} src={tx.user.avatar_url} class="size-10 rounded-full" />
 							</a>
 							<div class="flex flex-col">
-								<span class="text-xl font-semibold">{tx.action == TransactionAction.Buy ? 'Bought' : 'Sold'}</span>
+								<span class="text-xl font-semibold"
+									>{tx.action == TransactionAction.Buy ? 'Bought' : 'Sold'}</span
+								>
 								<a href="/players/{tx.user.name}" class="text-sm text-violet-500 hover:underline">
 									{tx.user.name}
 								</a>
