@@ -39,7 +39,6 @@ public class TwitchStreamMonitor : IStreamService
 
         await OnReady();
         _liveStreamMonitor.Start();
-        while (!cancellationToken.IsCancellationRequested) ;
     }
 
     private async Task OnReady()
@@ -61,6 +60,7 @@ public class TwitchStreamMonitor : IStreamService
                 {
                     if (liveStreams.TryGetValue(creator.Slug.ToLower(), out var stream))
                     {
+                        logger.LogInformation("Stream online: {Slug}", creator.Slug);
                         OnStreamUpdate.Invoke(this, new StreamStatusUpdate
                         {
                             CreatorId = creator.Id,
@@ -70,6 +70,7 @@ public class TwitchStreamMonitor : IStreamService
                     }
                     else if (creator.StreamStatus.IsLive)
                     {
+                        logger.LogInformation("Stream offline: {Slug}", creator.Slug);
                         OnStreamUpdate.Invoke(this, new StreamStatusUpdate
                         {
                             CreatorId = creator.Id,
