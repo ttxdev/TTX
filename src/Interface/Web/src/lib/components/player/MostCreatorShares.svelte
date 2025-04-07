@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { ShareDto } from '$lib/api';
 	import { formatShareAmount, formatValue, formatCreatorString } from '$lib/util';
 	import Card from '$lib/components/shared/Card.svelte';
+	import type { UserShareDto } from '$lib/api';
 
-	let { shares }: { shares: ShareDto[] } = $props();
+	let { shares }: { shares: UserShareDto[] } = $props();
 	shares = shares.sort((a, b) => b.creator.value * b.quantity - a.creator.value * a.quantity);
 </script>
 

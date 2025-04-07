@@ -27,7 +27,7 @@
 							class="h-12 w-12 rounded-full border-2 border-white object-cover shadow-lg"
 						/>
 					</a>
-					{#if creator.is_live}
+					{#if creator.stream_status.is_live}
 						<span
 							class="-mt-2.5 h-fit w-fit rounded-full bg-red-400 px-2 text-xs font-bold text-white"
 						>

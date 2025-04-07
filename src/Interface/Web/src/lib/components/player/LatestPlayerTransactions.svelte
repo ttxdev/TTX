@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { TransactionDto } from '$lib/api';
+	import { TransactionAction, type UserTransactionDto } from '$lib/api';
 	import TimeStamp from '$lib/components/shared/TimeStamp.svelte';
 	import { formatCreatorString, formatShareAmount, formatValue } from '$lib/util';
 	import Card from '../shared/Card.svelte';
 
-	let { transactions }: { transactions: TransactionDto[] } = $props();
+	let { transactions }: { transactions: UserTransactionDto[] } = $props();
 </script>
 
 <Card title="Latest Transactions">
@@ -26,7 +26,7 @@
 								/>
 							</a>
 							<div class="flex flex-col">
-								<span class="text-xl font-semibold">{tx.action == 0 ? 'Bought' : 'Sold'}</span>
+								<span class="text-xl font-semibold">{tx.action == TransactionAction.Buy ? 'Bought' : 'Sold'}</span>
 								<a
 									href="/channels/{tx.creator.slug}"
 									class="text-sm text-violet-500 hover:underline"
