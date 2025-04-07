@@ -34,6 +34,8 @@ public class Creator : ModelBase, IValidatableObject
 
             if (tx.IsBuy()) share.Quantity += tx.Quantity;
             else share.Quantity -= tx.Quantity;
+
+            shares[tx.User.Id] = share;
         }
 
         return [.. shares.Values.Where(s => s.Quantity > 0)];
