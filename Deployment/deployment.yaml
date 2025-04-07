@@ -113,7 +113,7 @@ spec:
         - name: ttx-regcreds
       containers:
       - name: consumer
-        image: ghcr.io/ttxdev/ttx-value-monitor:main
+        image: ghcr.io/ttxdev/ttx.interface.bot:main
         imagePullPolicy: Always
         command: ["/app/TTX.ValueMonitor", "consumer"]
         resources:
@@ -143,7 +143,7 @@ spec:
         - name: ttx-regcreds
       containers:
       - name: bot
-        image: ghcr.io/ttxdev/ttx-value-monitor:main
+        image: ghcr.io/ttxdev/ttx.interface.bot:main
         imagePullPolicy: Always
         command: ["/app/TTX.ValueMonitor", "bot"]
         resources:
@@ -154,7 +154,7 @@ spec:
           - secretRef:
               name: ttx-config
       - name: stream-monitor
-        image: ghcr.io/ttxdev/ttx-stream-monitor:main
+        image: ghcr.io/ttxdev/ttx.interface.streammonitor:main
         imagePullPolicy: Always
         command: ["/app/TTX.ValueMonitor", "stream-monitor"]
         resources:
