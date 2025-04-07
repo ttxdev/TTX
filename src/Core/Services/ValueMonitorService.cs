@@ -1,6 +1,5 @@
 using TTX.Core.Interfaces;
 using TTX.Core.Models;
-using TTX.Core.Repositories;
 
 namespace TTX.Core.Services;
 
@@ -12,7 +11,6 @@ public interface IValueMonitorService
 }
 
 public class ValueMonitorService(
-    ICreatorRepository creatorRepository,
     ICreatorValueService valEvalService,
     IBotService botService,
     int bufferTime
@@ -21,9 +19,6 @@ public class ValueMonitorService(
     public async Task Start(CancellationToken token)
     {
         botService.OnMessage += (s, e) => valEvalService.Process(e.Creator, e.Content);
-
-        var creators = await creatorRepository.GetAll();
-        foreach (var creator in creators) botService.AddCreator(creator);
 
         await botService.Start(token);
         while (!token.IsCancellationRequested)
