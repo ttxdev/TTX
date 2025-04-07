@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using TTX.Core.Repositories;
 using TTX.Interface.Api.Provider;
 using TTX.Core.Interfaces;
-using TTX.Infrastructure.Twitch;
 using TTX.Interface.Api.Services;
 using System.Security.Claims;
 using System.Text.Json.Serialization;

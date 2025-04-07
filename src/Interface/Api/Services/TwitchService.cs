@@ -2,7 +2,7 @@ using TTX.Core.Interfaces;
 using TTX.Core.Models;
 using TwitchLib.Api;
 
-namespace TTX.Infrastructure.Twitch;
+namespace TTX.Interface.Api.Services;
 
 public class TwitchService : ITwitchService
 {
@@ -17,11 +17,10 @@ public class TwitchService : ITwitchService
         this.redirectUri = redirectUri;
         twitch = new TwitchAPI
         {
-            Settings =
-      {
-        ClientId = clientId,
-        Secret = clientSecret
-      }
+            Settings = {
+                ClientId = clientId,
+                Secret = clientSecret
+            }
         };
     }
 

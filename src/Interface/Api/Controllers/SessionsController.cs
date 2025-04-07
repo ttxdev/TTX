@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Annotations;
 using TTX.Core;
 using TTX.Core.Models;
 using TTX.Core.Services;
@@ -15,13 +16,26 @@ namespace TTX.Interface.Api.Controllers;
 [Route("sessions")]
 public class SessionsController(IConfigProvider config, IUserService userService) : ControllerBase
 {
+    [HttpGet("login")]
+    [SwaggerIgnore]
+    public ActionResult Login()
+    {
+        var redirectUri = config.GetTwitchRedirectUri();
+        var clientId = config.GetTwitchClientId();
+        var scope = "";
+        var state = Guid.NewGuid().ToString();
+        var url = $"https://id.twitch.tv/oauth2/authorize?client_id={clientId}&redirect_uri={redirectUri}&response_type=code&scope={scope}&state={state}";
+        return Redirect(url);
+    }
+
+
     [HttpGet("twitch/callback")]
     [EndpointName("TwitchCallback")]
     public async Task<ActionResult<TokenDto>> TwitchCallback([FromQuery] string code)
     {
         try
         {
-            var user = await userService.OAuthOnboard(code);
+            var user = await userService.ProcessOAuth(code);
             return new TokenDto { Token = CreateSession(user) };
         }
         catch (DomainException e)
