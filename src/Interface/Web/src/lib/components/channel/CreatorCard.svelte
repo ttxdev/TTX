@@ -10,7 +10,7 @@
 	} = $props();
 	let creator = $derived(props.creator);
 	let history = $derived<Vote[]>(props.history);
-	let currentValue = $derived(history[history.length - 1]?.value ?? 0);
+	let currentValue = $derived(history[history.length - 1]?.value ?? creator.value);
 </script>
 
 <div
