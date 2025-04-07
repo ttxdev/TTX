@@ -11,6 +11,6 @@ public class CreatorTransactionDto(Transaction tx) : BaseDto<Transaction>(tx)
     public long Value { get; } = tx.Value;
     [JsonPropertyName("action")]
     public TransactionAction Action { get; } = tx.Action;
-    [JsonPropertyName("creator")]
+    [JsonPropertyName("user")]
     public UserPartialDto User { get; } = new UserPartialDto(tx.User);
 }
