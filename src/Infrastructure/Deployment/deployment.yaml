@@ -57,7 +57,7 @@ spec:
       imagePullSecrets:
         - name: ttx-regcreds
       containers:
-      - name: api
+      - name: web
         image: ghcr.io/ttxdev/ttx.interface.web:main
         imagePullPolicy: Always
         resources:
@@ -116,7 +116,7 @@ spec:
       imagePullSecrets:
         - name: ttx-regcreds
       containers:
-      - name: ttx-bot
+      - name: bot
         image: ghcr.io/ttxdev/ttx.interface.bot:main
         imagePullPolicy: Always
         command: ["/app/TTX.Interface.Bot", "bot"]
@@ -127,7 +127,26 @@ spec:
         envFrom:
           - secretRef:
               name: ttx-config
-      - name: ttx-streammonitor
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-streammonitor
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-streammonitor
+  template:
+    metadata:
+      labels:
+        app: ttx-streammonitor
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: streammonitor
         image: ghcr.io/ttxdev/ttx.interface.streammonitor:main
         imagePullPolicy: Always
         resources:
