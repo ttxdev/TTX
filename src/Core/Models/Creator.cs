@@ -47,7 +47,7 @@ public class Creator : ModelBase, IValidatableObject
         return new Vote
         {
             CreatorId = Id,
-            Value = value,
+            Value = Value,
             Time = DateTimeOffset.UtcNow
         };
     }
