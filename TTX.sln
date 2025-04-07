@@ -21,10 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{0508FAB5-D91
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTX.Interface.Api", "src\Interface\Api\TTX.Interface.Api.csproj", "{38BDF22F-889D-48C9-9BAA-B3F4F2642F06}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bot", "Bot", "{2B67C707-9472-D2EF-768E-8AE127CAC016}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTX.Interface.Bot", "src\Interface\Bot\TTX.Interface.Bot.csproj", "{DA8A2823-8424-45B4-B102-16B896E9F6C3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StreamMonitor", "StreamMonitor", "{6BB958CE-3BF8-5421-C4FB-C26209EF3509}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTX.Interface.StreamMonitor", "src\Interface\StreamMonitor\TTX.Interface.StreamMonitor.csproj", "{4B1DD5A0-D741-4E65-B5E4-4A87BFF784B4}"
