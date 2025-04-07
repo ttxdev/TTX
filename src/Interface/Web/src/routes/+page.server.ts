@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const featuredCreators = await client
 		.getCreators(1, 3, undefined, undefined, [
 			new Order({
-				by: 'Name',
+				by: 'IsLive',
 				dir: OrderDirection.Descending
 			})
 		])
