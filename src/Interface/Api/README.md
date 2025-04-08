@@ -34,6 +34,25 @@ For this we can utilize Docker, but you will at least need an instance of Postgr
 docker compose up -d postgres
 ```
 
+## Setup Credentials for API
+
+1. Register Application at https://dev.twitch.tv/console/apps/create
+
+> [!NOTE]
+> Must have Multi-Factor Authentication enabled to complete this step
+
+- Name: TTX
+- OAuth Redirect URL:http://localhost:5116/sessions/twitch/callback
+- Category: Application/Website Integration
+- Client Type: Confidential
+
+2. Fill in TTX_TWITCH_CLIENT_ID and TTX_TWITCH_CLIENT_SECRET in .env with the values from the registration
+
+> [!NOTE]
+> Must Remove "#REQUIRED" comments in the file
+
+3. Access `http://localhost:5116/sessions/login` from a browser
+
 ##  Run!
 
 ```sh
