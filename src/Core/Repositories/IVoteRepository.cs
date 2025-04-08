@@ -17,7 +17,7 @@ public enum TimeStep
 public interface IVoteRepository
 {
     Task RecordVote(Vote vote);
-    Task<Vote[]> GetAll(int creatorId, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null);
-    Task<Dictionary<int, Vote[]>> GetAllFor(int[] creatorIds, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null);
+    Task<Vote[]> GetAll(int creatorId, TimeStep step, DateTimeOffset after);
+    Task<Dictionary<int, Vote[]>> GetAllFor(int[] creatorIds, TimeStep step, DateTimeOffset after);
     Task<Vote[]> GetLatestVotes(int creatorId, DateTimeOffset after, TimeStep step = TimeStep.Hour);
 }

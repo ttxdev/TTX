@@ -30,7 +30,7 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
     )
     {
         var creators = await r.GetPaginated(page, limit, order, search);
-        var creatorHistories = await voteRepo.GetAllFor([.. creators.Data.Select(c => c.Id)], TimeStep.Hour, DateTimeOffset.UtcNow.AddDays(-1));
+        var creatorHistories = await voteRepo.GetAllFor([.. creators.Data.Select(c => c.Id)], TimeStep.ThirtyMinute, DateTimeOffset.UtcNow.AddDays(-1));
         foreach (var entry in creatorHistories)
         {
             var creator = creators.Data.FirstOrDefault(c => c.Id == entry.Key);
@@ -76,15 +76,15 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
     }
 
 
-    public async Task<Vote[]?> GetHistory(string slug, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null)
+    public async Task<Vote[]?> GetHistory(string slug, TimeStep step = TimeStep.Minute, DateTimeOffset? after = null)
     {
         var creatorId = await r.GetId(slug);
         if (creatorId is null) return null;
 
-        return await voteRepo.GetAll(creatorId.Value!, step, after);
+        return await voteRepo.GetAll(creatorId.Value!, step, after ?? DateTimeOffset.UtcNow.AddHours(-1));
     }
 
-    public async Task<Vote[]?> GetLatestVotes(string slug, DateTimeOffset after, TimeStep step = TimeStep.Hour)
+    public async Task<Vote[]?> GetLatestVotes(string slug, DateTimeOffset after, TimeStep step = TimeStep.Minute)
     {
         var creatorId = await r.GetId(slug);
         if (creatorId is null) return null;
