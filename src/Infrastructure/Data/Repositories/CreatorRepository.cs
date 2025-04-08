@@ -69,4 +69,9 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
     {
         return await DbSet.Where(c => c.Slug == slug).Select(c => c.Id).FirstOrDefaultAsync();
     }
+
+  public Task<Creator?> FindBySlug(string slug)
+  {
+    return DbSet.FirstOrDefaultAsync(c => c.Slug == slug);
+  }
 }
