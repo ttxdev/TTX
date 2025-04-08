@@ -11,7 +11,6 @@ using TTX.Core.Repositories;
 using TTX.Interface.Api.Provider;
 using TTX.Core.Interfaces;
 using TTX.Interface.Api.Services;
-using System.Security.Claims;
 using System.Text.Json.Serialization;
 using dotenv.net;
 [assembly: ApiController]
@@ -52,11 +51,11 @@ builder.Services
             redirectUri: config.GetTwitchRedirectUri()
         );
     })
-    .AddTransient<IVoteRepository, VoteRepository>()
     .AddTransient<ICreatorRepository, CreatorRepository>()
     .AddTransient<IUserRepository, UserRepository>()
+    .AddTransient<IOrderService, OrderService>()
+    .AddTransient<IGambaService, GambaService>()
     .AddTransient<IUserService, UserService>()
-    .AddTransient<ISessionService, SessionService>()
     .AddTransient<ICreatorService, CreatorService>()
     .AddHttpLogging()
     .AddHttpClient()

@@ -6,13 +6,14 @@ using TTX.Core.Models;
 using TTX.Core.Repositories;
 using TTX.Core.Services;
 using TTX.Interface.Api.Dto;
+using TTX.Interface.Api.Services;
 
 namespace TTX.Interface.Api.Controllers;
 
 [ApiController]
 [Route("users")]
 [Produces(MediaTypeNames.Application.Json)]
-public class UsersController(ISessionService sessionService, IUserService userService) : ControllerBase
+public class UsersController(SessionService sessionService, IGambaService gambaService, IUserService userService) : ControllerBase
 {
     [HttpGet]
     [EndpointName("GetUsers")]
@@ -50,7 +51,10 @@ public class UsersController(ISessionService sessionService, IUserService userSe
     [EndpointName("GetSelf")]
     public async Task<ActionResult<UserDto>> GetMe()
     {
-        var user = await sessionService.GetUser();
+        if (sessionService.CurrentUserSlug is null)
+            return Unauthorized();
+
+        var user = await userService.GetDetails(sessionService.CurrentUserSlug);
         if (user is null)
             return NotFound();
 
@@ -75,7 +79,11 @@ public class UsersController(ISessionService sessionService, IUserService userSe
     [EndpointName("Gamba")]
     public async Task<ActionResult<LootBoxResultDto>> Gamba()
     {
-        var result = await userService.Gamba();
+        if (sessionService.CurrentUserSlug is null)
+            return Unauthorized();
+
+        var result = await gambaService.Gamba(sessionService.CurrentUserSlug);
+
         return Ok(new LootBoxResultDto(result));
     }
 

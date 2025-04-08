@@ -10,6 +10,7 @@ public class TwitchService : ITwitchService
     private readonly string clientId;
     private readonly string clientSecret;
     private readonly string redirectUri;
+
     public TwitchService(string clientId, string clientSecret, string redirectUri)
     {
         this.clientId = clientId;
@@ -23,7 +24,6 @@ public class TwitchService : ITwitchService
             }
         };
     }
-
 
     public async Task<TwitchUser?> Find(string username)
     {
