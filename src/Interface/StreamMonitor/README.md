@@ -24,14 +24,6 @@ cp .env.example .env
 # fill out env
 ```
 
-## Setting up Accessories
-
-For this we can utilize Docker, but you will at least need an instance of Redis.
-
-```sh
-docker compose up -d redis
-```
-
 ##  Run!
 
 ```sh
