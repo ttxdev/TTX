@@ -1,11 +1,12 @@
 <script lang="ts">
 	import Chart from 'chart.js/auto';
 	import type { UserStats } from '../../routes/proxy+page.server';
+	import type { Vote } from '$lib/api';
 
 	const props: { creators: UserStats[] } = $props();
 	const creators = $derived(props.creators);
 
-	function createMiniChart(element: HTMLCanvasElement, history: { time: number; value: number }[]) {
+	function createMiniChart(element: HTMLCanvasElement, history: Vote[]) {
 		const values = history.map((d) => d.value);
 		const isUpward = values[values.length - 1] > values[0];
 		const lineColor = isUpward ? '#22c55e' : '#ef4444'; // green-500 or red-500
@@ -62,10 +63,7 @@
 				<div class="flex-1 max-md:mt-4 max-md:w-full">
 					<div class="h-[40px] w-full">
 						<canvas
-							use:createMiniChart={creator.history.map((v) => ({
-								time: v.time.getTime(),
-								value: v.value
-							}))}
+							use:createMiniChart={creator.history}
 						></canvas>
 					</div>
 				</div>
