@@ -12,9 +12,48 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
             $"INSERT INTO votes (creator_id, value, time) VALUES ({vote.CreatorId}, {vote.Value}, {vote.Time})");
     }
 
-    public async Task<Vote[]> GetAll(int creatorId, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null)
+    public async Task<Vote[]> GetLatestVotes(int creatorId, DateTimeOffset after, TimeStep step)
     {
-        after ??= DateTimeOffset.UtcNow.AddDays(-7);
+        var interval = GetInterval(step);
+        var sql = $@"
+            SELECT
+                votes.creator_id AS ""CreatorId"", 
+                time_bucket(
+                    '{interval}', 
+                    votes.time
+                ) AS ""Bucket"", 
+                last (votes.value, votes.time) AS ""Value""
+            FROM votes
+            WHERE votes.creator_id = {creatorId}
+                AND votes.time >= '{after.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz
+                AND votes.time <= now()
+            GROUP BY ""CreatorId"", ""Bucket""
+            ORDER BY ""Bucket"" ASC";
+
+        using var command = context.Database.GetDbConnection().CreateCommand();
+        command.CommandText = sql;
+
+        if (command.Connection!.State != System.Data.ConnectionState.Open)
+            await command.Connection.OpenAsync();
+
+        using var rows = await command.ExecuteReaderAsync();
+        var result = new List<Vote>();
+
+        while (await rows.ReadAsync())
+        {
+            result.Add(new Vote
+            {
+                CreatorId = rows.GetInt32(0),
+                Time = rows.GetDateTime(1),  // Maps "Bucket" to "Time"
+                Value = rows.GetInt32(2)
+            });
+        }
+
+        return [.. result];
+    }
+
+    public async Task<Vote[]> GetAll(int creatorId, TimeStep step, DateTimeOffset after)
+    {
         var interval = GetInterval(step);
 
         var sql = $@"
@@ -23,7 +62,7 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
                 time_bucket_gapfill(
                     '{interval}', 
                     votes.time,
-                    '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}',
+                    '{after.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
                     now()
                 ) AS ""Bucket"", 
                 locf (last (votes.value, votes.time)) AS ""Value""
@@ -54,12 +93,11 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
         return [.. result];
     }
 
-    public async Task<Dictionary<int, Vote[]>> GetAllFor(int[] creatorIds, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null)
+    public async Task<Dictionary<int, Vote[]>> GetAllFor(int[] creatorIds, TimeStep step, DateTimeOffset after)
     {
         if (creatorIds.Length == 0)
             return [];
 
-        after ??= DateTimeOffset.UtcNow.AddDays(-7);
         var interval = GetInterval(step);
 
         var creatorIdsStr = string.Join(", ", creatorIds);
@@ -69,7 +107,7 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
                 time_bucket_gapfill(
                     '{interval}', 
                     votes.time,
-                    '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}',
+                    '{after.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
                     now()
                 ) AS ""Bucket"", 
                 locf (last (votes.value, votes.time)) AS ""Value""
@@ -109,6 +147,7 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
         return step switch
         {
             TimeStep.Minute => "1 minute",
+            TimeStep.FiveMinute => "5 minute",
             TimeStep.FifteenMinute => "15 minute",
             TimeStep.ThirtyMinute => "30 minute",
             TimeStep.Hour => "1 hour",

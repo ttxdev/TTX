@@ -64,4 +64,9 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
             Data = await data.ToArrayAsync()
         };
     }
+
+    public async Task<int?> GetId(string slug)
+    {
+        return await DbSet.Where(c => c.Slug == slug).Select(c => c.Id).FirstOrDefaultAsync();
+    }
 }
