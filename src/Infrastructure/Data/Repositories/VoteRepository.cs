@@ -53,6 +53,9 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
 
     public async Task<Dictionary<int, Vote[]>> GetAllFor(int[] creatorIds, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null)
     {
+        if (creatorIds.Length == 0)
+            return [];
+
         after ??= DateTimeOffset.UtcNow.AddDays(-7);
         var interval = GetInterval(step);
 
