@@ -30,9 +30,9 @@ the API checkout [Api](https://github.com/ttxdev/TTX/tree/main/src/Interface/Api
 npm run dev
 ```
 
-### Generating the API Client
+### Generating the API Client (optional)
 
-The API is generated using [NSwag](https://github.com/RicoSuter/NSwag), [dotnet](https://dotnet.microsoft.com/en-us/) is required.
+The API client is generated using [NSwag](https://github.com/RicoSuter/NSwag), [dotnet](https://dotnet.microsoft.com/en-us/) is required.
 
 - If you want to point to your own API instance, open the `ttx.nswag` file and update the URL.
 
