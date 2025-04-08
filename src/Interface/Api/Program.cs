@@ -14,7 +14,6 @@ using TTX.Interface.Api.Services;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using dotenv.net;
-
 [assembly: ApiController]
 
 
@@ -53,15 +52,11 @@ builder.Services
             redirectUri: config.GetTwitchRedirectUri()
         );
     })
-    .AddTransient<ISessionService, SessionService>(provider =>
-    {
-        var config = provider.GetRequiredService<IConfigProvider>();
-        return new SessionService(config);
-    })
     .AddTransient<IVoteRepository, VoteRepository>()
     .AddTransient<ICreatorRepository, CreatorRepository>()
     .AddTransient<IUserRepository, UserRepository>()
     .AddTransient<IUserService, UserService>()
+    .AddTransient<ISessionService, SessionService>()
     .AddTransient<ICreatorService, CreatorService>()
     .AddHttpLogging()
     .AddHttpClient()
@@ -100,28 +95,6 @@ builder.Services
             ValidIssuer = "ttx.gg",
             ValidAudience = "ttx.gg",
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSecretKey())),
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnTokenValidated = async (context) =>
-            {
-                if (context.Principal is null)
-                    return;
-
-                var sessionService = context.HttpContext.RequestServices.GetService<ISessionService>();
-                if (sessionService is null)
-                    return;
-
-                var userId = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
-                    return;
-
-                var userRepository = context.HttpContext.RequestServices.GetService<IUserRepository>();
-                if (userRepository is null)
-                    return;
-
-                sessionService.CurrentUser = await userRepository.GetDetails(userId);
-            }
         };
     });
 

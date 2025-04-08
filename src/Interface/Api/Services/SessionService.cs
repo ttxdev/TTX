@@ -1,47 +1,22 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
 using TTX.Core.Interfaces;
 using TTX.Core.Models;
+using TTX.Core.Repositories;
 using TTX.Interface.Api.Provider;
 
 namespace TTX.Interface.Api.Services;
 
-public class SessionService(IConfigProvider config) : ISessionService
+public class SessionService(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor) : ISessionService
 {
-    public User? CurrentUser { get; set; }
+    public int? CurrentUserId { get; set; }
 
-    public bool IsAdmin()
+    private string? Slug => httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.Name);
+
+    public async Task<User?> GetUser()
     {
-        if (CurrentUser is null)
-            return false;
+        if (Slug is null)
+            return null;
 
-        return CurrentUser.IsAdmin();
-    }
-
-    public string CreateSession(User user)
-    {
-        var claims = new[]
-        {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Name, user.Name),
-        new Claim("AvatarUrl", user.AvatarUrl),
-        new Claim(ClaimTypes.Role, user.Type.ToString()),
-        new Claim("UpdatedAt", user.UpdatedAt.ToString("o"))
-    };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSecretKey()));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-          issuer: "ttx.gg",
-          audience: "ttx.gg",
-          claims: claims,
-          expires: DateTime.Now.AddDays(7),
-          signingCredentials: creds
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return await userRepository.GetDetails(Slug);
     }
 }

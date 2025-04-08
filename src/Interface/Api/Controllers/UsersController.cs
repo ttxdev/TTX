@@ -50,11 +50,7 @@ public class UsersController(ISessionService sessionService, IUserService userSe
     [EndpointName("GetSelf")]
     public async Task<ActionResult<UserDto>> GetMe()
     {
-        var session = sessionService.CurrentUser;
-        if (session is null)
-            return NotFound();
-
-        var user = await userService.GetDetails(session.Name);
+        var user = await sessionService.GetUser();
         if (user is null)
             return NotFound();
 
