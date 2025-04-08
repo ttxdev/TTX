@@ -10,7 +10,9 @@ using TTX.Infrastructure.Data;
 using TTX.Infrastructure.Data.Repositories;
 using TTX.Interface.StreamMonitor.Provider;
 using TTX.Interface.StreamMonitor.Services;
+using dotenv.net;
 
+DotEnv.Load();
 var config = new ConfigProvider(new ConfigurationBuilder().AddEnvironmentVariables("TTX_").Build());
 var serviceProvider = new ServiceCollection()
   .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(config.GetConnectionString()))
