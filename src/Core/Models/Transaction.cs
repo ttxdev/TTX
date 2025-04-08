@@ -36,7 +36,7 @@ public class Transaction : ModelBase, IValidatableObject
 
         var valResults = new List<ValidationResult>();
         var validationContext = new ValidationContext(tx);
-        if (!Validator.TryValidateObject(user, validationContext, valResults, true))
+        if (!Validator.TryValidateObject(tx, validationContext, valResults, true))
             throw new ModelValidationException(valResults);
 
         return tx;
