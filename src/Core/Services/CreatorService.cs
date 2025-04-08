@@ -11,6 +11,7 @@ public interface ICreatorService
     Task<Creator[]> GetAllAbove(long value);
     Task<Creator?> GetDetails(string slug);
     Task<Vote[]> GetHistory(int creatorId, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null);
+    Task<Vote[]> GetLatestVotes(int creatorId, DateTimeOffset after, TimeStep step = TimeStep.Hour);
     Task<Pagination<Creator>> GetPaginated(
         int page = 1,
         int limit = 10,
@@ -74,5 +75,10 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
     public Task<Vote[]> GetHistory(int creatorId, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null)
     {
         return voteRepo.GetAll(creatorId, step, after);
+    }
+
+    public Task<Vote[]> GetLatestVotes(int creatorId, DateTimeOffset after, TimeStep step = TimeStep.Hour)
+    {
+        return voteRepo.GetLatestVotes(creatorId, after, step);
     }
 }
