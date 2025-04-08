@@ -5,11 +5,11 @@
 	import { formatTicker, formatValue } from '$lib/util';
 	import { getApiClient } from '$lib';
 	import { invalidateAll } from '$app/navigation';
-	import type { TTXClient } from '$lib/api';
+	import { TransactionAction, type TTXClient } from '$lib/api';
 	import { Tween } from 'svelte/motion';
 
 	type ModalProps = {
-		type: string;
+		type: TransactionAction | null;
 		slug: string;
 		ticker: string;
 		price: number;
@@ -48,12 +48,12 @@
 	$effect(() => {
 		const amt = amount === undefined ? 0 : amount;
 		if (amount !== undefined) {
-			const max = type === 'buy' ? getMaxBuyable() : getMaxSellable();
+			const max = type === TransactionAction.Buy ? getMaxBuyable() : getMaxSellable();
 			amount = Math.min(Math.max(amt, 1), max);
 		}
 		animatedCost.set(amt * animatedPrice.target);
 		animatedAmount.set(amt);
-		if (type === 'buy') {
+		if (type === TransactionAction.Buy) {
 			animatedFee.set(amt * animatedPrice.target * FEE_RATE);
 			animatedTotal.set(amt * animatedPrice.target * (1 + FEE_RATE));
 		} else {
@@ -65,7 +65,7 @@
 	let cannotAfford: boolean = $derived(
 		amount === undefined
 			? true
-			: type === 'buy'
+			: type === TransactionAction.Buy
 				? amount * animatedPrice.target * (1 + FEE_RATE) > userBalance ||
 					userOwns + amount > buyLimit
 				: amount > userOwns
@@ -92,11 +92,11 @@
 			return;
 		}
 		try {
-			const data = await client.createTransaction(slug, type, amount);
-			if (type === 'buy') {
+			const data = await client.createTransaction(slug, type!, amount);
+			if (type === TransactionAction.Buy) {
 				userBalance -= data.value * data.quantity;
 				userOwns += data.quantity;
-			} else if (type === 'sell') {
+			} else if (type === TransactionAction.Sell) {
 				userBalance += data.value * data.quantity;
 				userOwns -= data.quantity;
 			}
@@ -110,7 +110,7 @@
 		} catch (error) {
 			console.error('Error creating transaction:', error);
 			errorToast('An error occurred while processing your request. Please try again.');
-			type = 'none';
+			type = null;
 		} finally {
 			invalidateAll();
 			isLoading = false;
@@ -124,7 +124,7 @@
 	}
 
 	function setAmount(percentage: 'max' | 'half' | 'quarter'): void {
-		const max = type === 'buy' ? getMaxBuyable() : getMaxSellable();
+		const max = type === TransactionAction.Buy ? getMaxBuyable() : getMaxSellable();
 		if (percentage === 'max') {
 			amount = max;
 		} else if (percentage === 'half') {
@@ -149,19 +149,19 @@
 			} catch (error) {
 				console.error('Error fetching user data:', error);
 				errorToast('Error fetching user data. Please try again.');
-				type = 'none';
+				type = null;
 			} finally {
 				isLoading = false;
 			}
 		} else {
 			errorToast(`You need to be logged in to ${type} shares`);
-			type = 'none';
+			type = null;
 		}
 	}
 
 	function cancel(): void {
 		if (isLoading) return;
-		type = 'none';
+		type = null;
 	}
 
 	onMount(() => {
@@ -170,7 +170,7 @@
 	});
 </script>
 
-{#if type !== 'none'}
+{#if type !== null}
 	<div class="modal modal-open z-100">
 		<button onclick={cancel} aria-label="close">
 			<div class="fixed inset-0 bg-black/30 backdrop-blur-md"></div>
@@ -204,10 +204,10 @@
 						</svg>
 						<div class="rounded-xl p-6 text-center shadow-lg">
 							<h3 class="mb-2 text-2xl font-bold">
-								{type === 'buy' ? 'Purchase Successful' : 'Sale Successful'}
+								{type === TransactionAction.Buy ? 'Purchase Successful' : 'Sale Successful'}
 							</h3>
 							<p class="mb-4">
-								You {type === 'buy' ? 'bought' : 'sold'}
+								You {type === TransactionAction.Buy ? 'bought' : 'sold'}
 								{transactionAmount} share{transactionAmount !== 1 ? 's' : ''} of {formatTicker(
 									ticker
 								)} at {formatValue(transactionPrice)} per share.
@@ -226,11 +226,11 @@
 					</div>
 				{:else}
 					<h3 class="mb-4 text-2xl font-bold">
-						{type === 'buy' ? 'Buy Shares' : 'Sell Shares'} - {formatTicker(ticker)}
+						{type === TransactionAction.Buy ? 'Buy Shares' : 'Sell Shares'} - {formatTicker(ticker)}
 					</h3>
 					<div class="flex flex-col space-y-4">
 						<div class="flex justify-between text-sm text-gray-500">
-							{#if type === 'buy'}
+							{#if type === TransactionAction.Buy}
 								<span>You have <strong>{formatValue(userBalance)}</strong> available</span>
 							{:else}
 								<span>You own <strong>{userOwns}</strong> shares</span>
@@ -238,7 +238,7 @@
 						</div>
 						<div>
 							<label class="mb-2 block text-sm font-semibold text-gray-700" for="amount-input">
-								{type === 'buy' ? 'Amount to Buy' : 'Amount to Sell'}
+								{type === TransactionAction.Buy ? 'Amount to Buy' : 'Amount to Sell'}
 							</label>
 							<div class="join flex items-center justify-center" id="amount-input">
 								<div class="relative">
@@ -342,16 +342,16 @@
 							{:else if amount === 0}
 								Cant buy less than 1 share
 							{:else}
-								{type === 'buy' ? 'Buy Shares' : 'Sell Shares'}
+								{type === TransactionAction.Buy ? 'Buy Shares' : 'Sell Shares'}
 							{/if}
 						</button>
 						{#if !isLoading && amount !== undefined}
 							<p class="text-center text-sm text-red-500">
-								{#if type === 'buy' && userOwns === buyLimit}
+								{#if type === TransactionAction.Buy && userOwns === buyLimit}
 									You have reached the maximum share limit ({buyLimit} shares)
-								{:else if cannotAfford && type === 'buy'}
+								{:else if cannotAfford && type === TransactionAction.Buy}
 									You do not have enough balance to complete this purchase.
-								{:else if cannotAfford && type === 'sell'}
+								{:else if cannotAfford && type === TransactionAction.Sell}
 									You do not own enough shares to sell this amount.
 								{/if}
 							</p>

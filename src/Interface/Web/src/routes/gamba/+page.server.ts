@@ -1,12 +1,12 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
 import { getToken } from '$lib/auth';
-import type { CreatorDto } from '$lib/api';
+import { Rarity, type CreatorDto } from '$lib/api';
 
-export type Rarity = 'pennies' | 'normal' | 'rare' | 'epic';
+export type RarityClass = 'pennies' | 'normal' | 'rare' | 'epic';
 
 export type CreatorBox = CreatorDto & {
-	rarity_class: Rarity;
+	rarity_class: RarityClass;
 };
 
 export const load: PageServerLoad = async ({ cookies, depends }) => {
@@ -19,16 +19,16 @@ export const load: PageServerLoad = async ({ cookies, depends }) => {
 		.map<CreatorBox>((channel) => {
 			let rarity_class;
 			switch (channel.rarity) {
-				case 0:
+				case Rarity.Pennies:
 					rarity_class = 'pennies';
 					break;
-				case 1:
+				case Rarity.Common:
 					rarity_class = 'normal';
 					break;
-				case 2:
+				case Rarity.Rare:
 					rarity_class = 'rare';
 					break;
-				case 3:
+				case Rarity.Epic:
 					rarity_class = 'epic';
 					break;
 			}

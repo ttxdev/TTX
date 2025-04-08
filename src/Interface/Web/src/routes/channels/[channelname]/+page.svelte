@@ -5,7 +5,7 @@
 	import BuySellModal from '$lib/components/channel/BuySellModal.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { getApiClient } from '$lib';
-	import { CreatorDto, CreatorShareDto, CreatorTransactionDto, TimeStep, Vote } from '$lib/api';
+	import { CreatorDto, CreatorShareDto, CreatorTransactionDto, TimeStep, TransactionAction, Vote } from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
 
 	let {
@@ -20,10 +20,10 @@
 	let creator = $state(data.creator);
 
 	let history = $state<Vote[]>(data.creator.history);
-	let buySellModal: string = $state('none');
+	let buySellModal: TransactionAction | null = $state(null);
 	let pullTask: number | null = null;
 
-	function setModal(modal: string) {
+	function setModal(modal: TransactionAction) {
 		buySellModal = modal;
 	}
 
@@ -70,7 +70,7 @@
 	<meta name="description" content="TTX Creator Page" />
 </svelte:head>
 
-{#if buySellModal !== 'none'}
+{#if buySellModal !== null}
 	<BuySellModal
 		bind:type={buySellModal}
 		slug={creator.slug}
@@ -87,13 +87,13 @@
 			<div class="join mt-2 md:mt-0">
 				<button
 					class="btn btn-lg h-10 rounded-l-2xl border-2 p-4 text-green-400"
-					onclick={() => setModal('buy')}
+					onclick={() => setModal(TransactionAction.Buy)}
 				>
 					Buy
 				</button>
 				<button
 					class="btn btn-lg h-10 rounded-r-2xl p-4 text-red-400"
-					onclick={() => setModal('sell')}
+					onclick={() => setModal(TransactionAction.Sell)}
 				>
 					Sell
 				</button>
