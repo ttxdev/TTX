@@ -10,8 +10,8 @@ public interface ICreatorService
     Task<Creator> Onboard(string username, string ticker);
     Task<Creator[]> GetAllAbove(long value);
     Task<Creator?> GetDetails(string slug, TimeStep step = TimeStep.FiveMinute, DateTimeOffset? after = null);
-    Task<Vote[]> GetHistory(int creatorId, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null);
-    Task<Vote[]> GetLatestVotes(int creatorId, DateTimeOffset after, TimeStep step = TimeStep.Hour);
+    Task<Vote[]?> GetHistory(string slug, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null);
+    Task<Vote[]?> GetLatestVotes(string slug, DateTimeOffset after, TimeStep step = TimeStep.Hour);
     Task<Pagination<Creator>> GetPaginated(
         int page = 1,
         int limit = 10,
@@ -76,13 +76,19 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
     }
 
 
-    public Task<Vote[]> GetHistory(int creatorId, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null)
+    public async Task<Vote[]?> GetHistory(string slug, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null)
     {
-        return voteRepo.GetAll(creatorId, step, after);
+        var creatorId = await r.GetId(slug);
+        if (creatorId is null) return null;
+
+        return await voteRepo.GetAll(creatorId.Value!, step, after);
     }
 
-    public Task<Vote[]> GetLatestVotes(int creatorId, DateTimeOffset after, TimeStep step = TimeStep.Hour)
+    public async Task<Vote[]?> GetLatestVotes(string slug, DateTimeOffset after, TimeStep step = TimeStep.Hour)
     {
-        return voteRepo.GetLatestVotes(creatorId, after, step);
+        var creatorId = await r.GetId(slug);
+        if (creatorId is null) return null;
+
+        return await voteRepo.GetLatestVotes(creatorId.Value, after, step);
     }
 }
