@@ -95,7 +95,10 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
 
     public async Task<Vote[]?> PullLatestHistory(string slug, HistoryParams history)
     {
-        var creator = FindBySlug(slug);
+        var creator = await FindBySlug(slug);
+        if (creator is null)
+            return null;
+
         var interval = GetInterval(history.Step);
         var sql = $@"
             SELECT
