@@ -126,10 +126,15 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
 
         while (await rows.ReadAsync())
         {
+            // TODO(dylhack): update the query so we don't have to check out of window timestamps
+            var time = rows.GetDateTime(1);  // Maps "Bucket" to "Time"
+            if (time < history.After)
+                continue;
+
             result.Add(new Vote
             {
                 CreatorId = rows.GetInt32(0),
-                Time = rows.GetDateTime(1),  // Maps "Bucket" to "Time"
+                Time = time,
                 Value = rows.GetInt32(2)
             });
         }
@@ -182,11 +187,16 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
             var creatorId = rows.GetInt32(0);
             if (!result.ContainsKey(creatorId))
                 result[creatorId] = [];
+            
+            // TODO(dylhack): update the query so we don't have to check out of window timestamps
+            var time = rows.GetDateTime(1);  // Maps "Bucket" to "Time"
+            if (time < after)
+                continue;
 
             result[creatorId].Add(new Vote
             {
                 CreatorId = creatorId,
-                Time = rows.GetDateTime(1),  // Maps "Bucket" to "Time"
+                Time = time,
                 Value = rows.GetInt32(2)
             });
         }
