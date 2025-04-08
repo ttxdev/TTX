@@ -20,12 +20,15 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
         var sql = $@"
             SELECT
                 votes.creator_id AS ""CreatorId"", 
-                time_bucket('{interval}', votes.time) AS ""Bucket"", 
-                last(votes.value, votes.time) AS ""Value""
+                time_bucket_gapfill(
+                    '{interval}', 
+                    votes.time,
+                    now(),
+                    '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}'
+                ) AS ""Bucket"", 
+                locf (last (votes.value, votes.time)) AS ""Value""
             FROM votes
             WHERE votes.creator_id = {creatorId}
-                AND votes.time <= now()
-                AND votes.time > '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}'
             GROUP BY ""CreatorId"", ""Bucket""
             ORDER BY ""Bucket"" ASC";
 
@@ -63,12 +66,15 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
         var sql = $@"
             SELECT
                 votes.creator_id AS ""CreatorId"", 
-                time_bucket('{interval}', votes.time) AS ""Bucket"", 
-                last(votes.value, votes.time) AS ""Value""
+                time_bucket_gapfill(
+                    '{interval}', 
+                    votes.time,
+                    now(),
+                    '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}'
+                ) AS ""Bucket"", 
+                locf (last (votes.value, votes.time)) AS ""Value""
             FROM votes
             WHERE votes.creator_id IN ({creatorIdsStr})
-                AND votes.time <= now()
-                AND votes.time > '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}'
             GROUP BY ""CreatorId"", ""Bucket""
             ORDER BY ""Bucket"" ASC";
 
