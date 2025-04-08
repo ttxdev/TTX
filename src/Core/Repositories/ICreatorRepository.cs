@@ -9,6 +9,7 @@ public interface ICreatorRepository : IRepository<Creator>
     public Task<Creator[]> GetAll();
     public Task<Creator[]> GetAllByIds(int[] ids);
     public Task<Creator?> GetDetails(string slug);
+    public Task<Creator?> FindBySlug(string slug);
     public Task<int?> GetId(string slug);
     public Task<Creator?> UpdateStreamInfo(int id, StreamStatus status);
     Task<Pagination<Creator>> GetPaginated(

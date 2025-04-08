@@ -18,6 +18,8 @@ public interface ICreatorService
         Order[]? order = null,
         Search? search = null
     );
+
+    Task RecordValue(string slug, int value);
 }
 
 public class CreatorService(ISessionService sessionService, ITwitchService twitch, IVoteRepository voteRepo, ICreatorRepository r) : Service<Creator>(r), ICreatorService
@@ -90,5 +92,14 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
         if (creatorId is null) return null;
 
         return await voteRepo.GetLatestVotes(creatorId.Value, after, step);
+    }
+
+    public async Task RecordValue(string slug, int value)
+    {
+        var creator = await r.FindBySlug(slug) ?? throw new CreatorNotFoundException();
+        var vote = creator.CreateVote(value);
+        r.Update(creator);
+        await voteRepo.RecordVote(vote);
+        await r.SaveChanges();
     }
 }
