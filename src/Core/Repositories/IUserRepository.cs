@@ -6,8 +6,8 @@ public interface IUserRepository : IRepository<User>
 {
     Task<User?> GetDetails(string name);
     Task<Pagination<User>> GetPaginated(
-        int page = 1,
-        int limit = 10,
+        int page,
+        int limit,
         Order[]? order = null,
         Search? search = null
     );

@@ -7,22 +7,19 @@ namespace TTX.Core.Services;
 
 public interface ICreatorService
 {
-    Task<Creator> Onboard(string username, string ticker);
-    Task<Creator[]> GetAllAbove(long value);
+    Task<Creator> Onboard(string twitchUsername, string ticker);
     Task<Creator?> GetDetails(string slug, TimeStep step = TimeStep.FiveMinute, DateTimeOffset? after = null);
-    Task<Vote[]?> GetHistory(string slug, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null);
-    Task<Vote[]?> GetLatestVotes(string slug, DateTimeOffset after, TimeStep step = TimeStep.Hour);
     Task<Pagination<Creator>> GetPaginated(
         int page = 1,
         int limit = 10,
         Order[]? order = null,
         Search? search = null
     );
-
     Task RecordValue(string slug, int value);
+    Task<Vote[]?> PullLatestHistory(string slug, DateTimeOffset after, TimeStep step = TimeStep.Hour);
 }
 
-public class CreatorService(ISessionService sessionService, ITwitchService twitch, IVoteRepository voteRepo, ICreatorRepository r) : Service<Creator>(r), ICreatorService
+public class CreatorService(ITwitchService twitch, ICreatorRepository repository) : ICreatorService
 {
     public async Task<Pagination<Creator>> GetPaginated(
       int page = 1,
@@ -31,25 +28,23 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
       Search? search = null
     )
     {
-        var creators = await r.GetPaginated(page, limit, order, search);
-        var creatorHistories = await voteRepo.GetAllFor([.. creators.Data.Select(c => c.Id)], TimeStep.ThirtyMinute, DateTimeOffset.UtcNow.AddDays(-1));
-        foreach (var entry in creatorHistories)
-        {
-            var creator = creators.Data.FirstOrDefault(c => c.Id == entry.Key);
-            if (creator is null) continue;
-
-            creator.History = [.. entry.Value];
-        }
+        var creators = await repository.GetPaginated(
+            page,
+            limit,
+            new HistoryParams
+            {
+                Step = TimeStep.FiveMinute,
+                After = DateTimeOffset.UtcNow.AddHours(-1)
+            },
+            order,
+            search);
 
         return creators;
     }
 
-    public async Task<Creator> Onboard(string username, string ticker)
+    public async Task<Creator> Onboard(string twitchUsername, string ticker)
     {
-        var user = await sessionService.GetUser();
-        if (user is null || !user.IsAdmin()) throw new UnauthorizedException();
-
-        var creator = await twitch.Find(username).ContinueWith(t =>
+        var creator = await twitch.Find(twitchUsername).ContinueWith(t =>
         {
             if (t.Result is null)
                 throw new TwitchUserNotFoundException();
@@ -63,43 +58,35 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
         return creator;
     }
 
-    public Task<Creator[]> GetAllAbove(long value) => r.GetAllAbove(value);
     public async Task<Creator?> GetDetails(
         string slug,
         TimeStep step = TimeStep.Minute,
         DateTimeOffset? after = null
     )
     {
-        var creator = await r.GetDetails(slug);
+        var creator = await repository.GetDetails(slug, new HistoryParams
+        {
+            Step = step,
+            After = after ?? DateTimeOffset.UtcNow.AddHours(-1)
+        });
         if (creator is null) return null;
 
-        creator.History = [.. voteRepo.GetAll(creator.Id, step, after ?? DateTimeOffset.UtcNow.AddHours(-1)).Result];
         return creator;
     }
 
-
-    public async Task<Vote[]?> GetHistory(string slug, TimeStep step = TimeStep.Minute, DateTimeOffset? after = null)
+    public Task<Vote[]?> PullLatestHistory(string slug, DateTimeOffset after, TimeStep step = TimeStep.Minute)
     {
-        var creatorId = await r.GetId(slug);
-        if (creatorId is null) return null;
-
-        return await voteRepo.GetAll(creatorId.Value!, step, after ?? DateTimeOffset.UtcNow.AddHours(-1));
+        return repository.PullLatestHistory(slug, new HistoryParams
+        {
+            Step = step,
+            After = after
+        });
     }
 
-    public async Task<Vote[]?> GetLatestVotes(string slug, DateTimeOffset after, TimeStep step = TimeStep.Minute)
+    public async Task RecordValue(string slug, int netChange)
     {
-        var creatorId = await r.GetId(slug);
-        if (creatorId is null) return null;
-
-        return await voteRepo.GetLatestVotes(creatorId.Value, after, step);
-    }
-
-    public async Task RecordValue(string slug, int value)
-    {
-        var creator = await r.FindBySlug(slug) ?? throw new CreatorNotFoundException();
-        var vote = creator.CreateVote(value);
-        r.Update(creator);
-        await voteRepo.RecordVote(vote);
-        await r.SaveChanges();
+        var creator = await repository.FindBySlug(slug) ?? throw new CreatorNotFoundException();
+        var vote = creator.CreateVote(netChange);
+        await repository.RecordValue(creator, vote);
     }
 }

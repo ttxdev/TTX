@@ -41,9 +41,9 @@ public class Creator : ModelBase, IValidatableObject
         return [.. shares.Values.Where(share => share.Quantity > 0)];
     }
 
-    public Vote CreateVote(long value)
+    public Vote CreateVote(long netChange)
     {
-        Value = Math.Max(MIN_VALUE, Value + value);
+        Value = Math.Max(MIN_VALUE, Value + netChange);
         return new Vote
         {
             CreatorId = Id,
