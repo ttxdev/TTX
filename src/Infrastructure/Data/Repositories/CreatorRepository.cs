@@ -126,15 +126,10 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
 
         while (await rows.ReadAsync())
         {
-            // TODO(dylhack): update the query so we don't have to check out of window timestamps
-            var time = rows.GetDateTime(1);  // Maps "Bucket" to "Time"
-            if (time < history.After)
-                continue;
-
             result.Add(new Vote
             {
                 CreatorId = rows.GetInt32(0),
-                Time = time,
+                Time = rows.GetDateTime(1), // Maps "Bucket" to "Time"
                 Value = rows.GetInt32(2)
             });
         }
