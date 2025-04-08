@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	} else if (orderBy === 'Value') {
 		safeOrderBy = [new Order({ by: 'Value', dir: order })];
 	} else if (orderBy === 'IsLive') {
-		safeOrderBy = [new Order({ by: 'Name', dir: OrderDirection.Ascending }), new Order({ by: 'IsLive', dir: order })];
+		safeOrderBy = [new Order({ by: 'IsLive', dir: order }), new Order({ by: 'Name', dir: OrderDirection.Ascending })];
 	}
 
 	// Ensure order is valid
