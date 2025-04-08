@@ -5,6 +5,7 @@ namespace TTX.Core.Repositories;
 public enum TimeStep
 {
     Minute,
+    FiveMinute,
     FifteenMinute,
     ThirtyMinute,
     Hour,

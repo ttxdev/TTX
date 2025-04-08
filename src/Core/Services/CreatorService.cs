@@ -9,7 +9,7 @@ public interface ICreatorService
 {
     Task<Creator> Onboard(string username, string ticker);
     Task<Creator[]> GetAllAbove(long value);
-    Task<Creator?> GetDetails(string slug);
+    Task<Creator?> GetDetails(string slug, TimeStep step = TimeStep.FiveMinute, DateTimeOffset? after = null);
     Task<Vote[]> GetHistory(int creatorId, TimeStep step = TimeStep.Hour, DateTimeOffset? after = null);
     Task<Vote[]> GetLatestVotes(int creatorId, DateTimeOffset after, TimeStep step = TimeStep.Hour);
     Task<Pagination<Creator>> GetPaginated(
@@ -62,12 +62,16 @@ public class CreatorService(ISessionService sessionService, ITwitchService twitc
     }
 
     public Task<Creator[]> GetAllAbove(long value) => r.GetAllAbove(value);
-    public async Task<Creator?> GetDetails(string slug)
+    public async Task<Creator?> GetDetails(
+        string slug,
+        TimeStep step = TimeStep.Minute,
+        DateTimeOffset? after = null
+    )
     {
         var creator = await r.GetDetails(slug);
         if (creator is null) return null;
 
-        creator.History = [.. voteRepo.GetAll(creator.Id, TimeStep.Minute, DateTimeOffset.UtcNow.AddDays(-1)).Result];
+        creator.History = [.. voteRepo.GetAll(creator.Id, step, after ?? DateTimeOffset.UtcNow.AddHours(-1)).Result];
         return creator;
     }
 
