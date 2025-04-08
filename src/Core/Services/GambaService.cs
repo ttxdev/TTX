@@ -5,10 +5,10 @@ namespace TTX.Core.Services;
 
 public interface IGambaService
 {
-  public Task<LootBoxResult> Gamba();
+  public Task<LootBoxResult> Gamba(User user);
 }
 
-public class GambaService(ICreatorRepository creatorRepo, IUserRepository repository)
+public class GambaService(ICreatorRepository creatorRepo, IUserRepository repository) : IGambaService
 {
     public async Task<LootBoxResult> Gamba(User user)
     {
