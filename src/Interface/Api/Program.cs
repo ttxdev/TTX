@@ -57,6 +57,7 @@ builder.Services
     .AddTransient<IGambaService, GambaService>()
     .AddTransient<IUserService, UserService>()
     .AddTransient<ICreatorService, CreatorService>()
+    .AddTransient<SessionService>()
     .AddHttpLogging()
     .AddHttpClient()
     .AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
