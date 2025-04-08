@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net.Sockets;
 using TTX.Core.Exceptions;
 
 namespace TTX.Core.Models;
@@ -40,7 +41,7 @@ public class User : ModelBase, IValidatableObject
             shares[tx.CreatorId] = share;
         }
 
-        return [.. shares.Values.Where(share => share.Quantity > 100)];
+        return [.. shares.Values.Where(share => share.Quantity > 0)];
     }
 
     public Transaction Buy(Creator creator, int amount)
@@ -103,6 +104,14 @@ public class User : ModelBase, IValidatableObject
             yield return new ValidationResult($"Credits must be greater than or equal to {MIN_CREDITS}.", [nameof(Credits)]);
     }
 
+    public LootBox AddLootBox()
+    {
+        var lootBox = LootBox.Create(this);
+        LootBoxes.Add(lootBox);
+
+        return lootBox;
+    }
+
     public static User Create(TwitchUser tUser)
     {
         var user = new User
@@ -112,7 +121,7 @@ public class User : ModelBase, IValidatableObject
             Name = tUser.DisplayName,
             Credits = 100
         };
-        user.LootBoxes.Add(LootBox.Create(user));
+        user.AddLootBox();
 
         var validatorResults = new List<ValidationResult>();
         var validationContext = new ValidationContext(user);
