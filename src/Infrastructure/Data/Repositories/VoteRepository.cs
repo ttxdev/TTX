@@ -23,8 +23,8 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
                 time_bucket_gapfill(
                     '{interval}', 
                     votes.time,
-                    now(),
-                    '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}'
+                    '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}',
+                    now()
                 ) AS ""Bucket"", 
                 locf (last (votes.value, votes.time)) AS ""Value""
             FROM votes
@@ -69,8 +69,8 @@ public class VoteRepository(ApplicationDbContext context) : IVoteRepository
                 time_bucket_gapfill(
                     '{interval}', 
                     votes.time,
-                    now(),
-                    '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}'
+                    '{after.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss}',
+                    now()
                 ) AS ""Bucket"", 
                 locf (last (votes.value, votes.time)) AS ""Value""
             FROM votes
