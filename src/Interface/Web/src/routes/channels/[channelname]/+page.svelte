@@ -47,7 +47,7 @@
 
 		pullTask = setInterval(async () => {
 			const data = await client
-				.getCreatorValueHistory(creator.slug, TimeStep.Minute, last)
+				.getLatestCreatorValue(creator.slug, last, TimeStep.Minute)
 				.then((history) => history.map((v) => v.toJSON()));
 			last = new Date();
 			if (data.length === 0) return;

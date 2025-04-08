@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { scale } from 'svelte/transition';
 	import ChannelTable from '$lib/components/ChannelTable.svelte';
 	import type { PageProps } from './$types';
 	import { afterNavigate } from '$app/navigation';
