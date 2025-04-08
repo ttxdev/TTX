@@ -127,15 +127,29 @@ public class CreatorsController(ICreatorService creatorService, IUserService use
     [EndpointName("GetCreatorValueHistory")]
     public async Task<ActionResult<Vote[]>> GetValueHistory(
       [FromRoute] string creatorSlug,
-      [FromQuery] TimeStep step = TimeStep.Hour,
+      [FromQuery] TimeStep step = TimeStep.Minute,
       [FromQuery] DateTime? after = null
     )
     {
-        var creator = await creatorService.GetDetails(creatorSlug);
-        if (creator == null)
+        var votes = await creatorService.GetHistory(creatorSlug, step, after);
+        if (votes is null)
             return NotFound("Creator not found.");
 
-        var votes = await creatorService.GetHistory(creator.Id, step, after);
+        return Ok(votes);
+    }
+
+    [HttpGet("{creatorSlug}/value/latest")]
+    [EndpointName("GetLatestCreatorValue")]
+    public async Task<ActionResult<Vote[]>> GetLatestValues(
+      [FromRoute] string creatorSlug,
+      [FromQuery] DateTime after,
+      [FromQuery] TimeStep step = TimeStep.Minute
+    )
+    {
+        var votes = await creatorService.GetLatestVotes(creatorSlug, after, step);
+        if (votes is null)
+            return NotFound("Creator not found.");
+
         return Ok(votes);
     }
 }
