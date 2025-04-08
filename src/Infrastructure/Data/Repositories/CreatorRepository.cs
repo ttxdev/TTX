@@ -33,7 +33,7 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
       var query = DbSet.AsQueryable();
 
       if (search is not null)
-          query = query.Where(e => EF.Property<string>(e, search.By)!.ToLower().Contains(search.Value.ToLower()));
+          query = query.Where(e => EF.Property<string>(e, search.By)!.Contains(search.Value, StringComparison.OrdinalIgnoreCase));
 
       if (order is not null)
           foreach (var o in order)
