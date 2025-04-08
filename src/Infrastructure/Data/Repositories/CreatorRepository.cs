@@ -26,40 +26,42 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
         return creator;
     }
 
-  public Task<Creator?> Find(int creatorId) => DbSet.FirstOrDefaultAsync(c => c.Id == creatorId);
+    public Task<Creator?> Find(int creatorId) => DbSet.FirstOrDefaultAsync(c => c.Id == creatorId);
 
-  public override async Task<Pagination<Creator>> GetPaginated(int page = 1, int limit = 10, Order[]? order = null, Search? search = null)
-  {
-      var query = DbSet.AsQueryable();
+    public override async Task<Pagination<Creator>> GetPaginated(int page = 1, int limit = 10, Order[]? order = null, Search? search = null)
+    {
+        var query = DbSet.AsQueryable();
 
-      if (search is not null)
-          query = query.Where(e => EF.Property<string>(e, search.By)!.ToLower().Contains(search.Value.ToLower()));
+        if (search is not null)
+            query = query.Where(e => EF.Property<string>(e, search.By)!.ToLower().Contains(search.Value.ToLower()));
 
-      if (order is not null)
-          foreach (var o in order)
-          {
-            // TODO(dylhack): This is a hack to get around the fact that EF Core doesn't support
+        if (order?.Length > 0)
+        {
+            // NOTE(dylhack): This is a hack to get around the fact that EF Core doesn't support
             //                ordering by a nested property. We should probably fix this in the future.
-            if (o.By == "IsLive")
+            IOrderedQueryable<Creator> orderedQuery = order[0].By == "IsLive"
+                    ? (order[0].Dir == OrderDirection.Ascending ? query.OrderBy(e => e.StreamStatus.IsLive) : query.OrderByDescending(e => e.StreamStatus.IsLive))
+                    : (order[0].Dir == OrderDirection.Ascending ? query.OrderBy(e => EF.Property<object>(e, order[0].By!)) : query.OrderByDescending(e => EF.Property<object>(e, order[0].By!)));
+
+            for (int i = 1; i < order.Length; i++)
             {
-                query = o.Dir == OrderDirection.Ascending
-                    ? query.OrderBy(e => e.StreamStatus.IsLive)
-                    : query.OrderByDescending(e => e.StreamStatus.IsLive);
-            } else
-            {
-              query = o.Dir == OrderDirection.Ascending
-                  ? query.OrderBy(e => EF.Property<object>(e, o.By!))
-                  : query.OrderByDescending(e => EF.Property<object>(e, o.By!));
+                var o = order[i];
+                orderedQuery = o.By == "IsLive"
+                    ? (o.Dir == OrderDirection.Ascending ? orderedQuery.ThenBy(e => e.StreamStatus.IsLive) : orderedQuery.ThenByDescending(e => e.StreamStatus.IsLive))
+                    : (o.Dir == OrderDirection.Ascending ? orderedQuery.ThenBy(e => EF.Property<object>(e, o.By!)) : orderedQuery.ThenByDescending(e => EF.Property<object>(e, o.By!)));
             }
-          }
 
-      var total = await query.CountAsync();
-      var data = query.Skip((page - 1) * limit).Take(limit);
+            query = orderedQuery;
+        }
 
-      return new Pagination<Creator>
-      {
-          Total = total,
-          Data = await data.ToArrayAsync()
-      };
-  }
+        var total = await query.CountAsync();
+        var data = query.Skip((page - 1) * limit).Take(limit);
+
+        Console.WriteLine(data.ToQueryString());
+        return new Pagination<Creator>
+        {
+            Total = total,
+            Data = await data.ToArrayAsync()
+        };
+    }
 }

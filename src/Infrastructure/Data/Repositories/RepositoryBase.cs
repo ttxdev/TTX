@@ -18,11 +18,22 @@ public class RepositoryBase<T>(ApplicationDbContext context) : IRepository<T> wh
         if (search is not null)
             query = query.Where(e => EF.Property<string>(e, search.By)!.ToLower().Contains(search.Value.ToLower()));
 
-        if (order is not null)
-            foreach (var o in order)
-                query = o.Dir == OrderDirection.Ascending
-                    ? query.OrderBy(e => EF.Property<object>(e, o.By!))
-                    : query.OrderByDescending(e => EF.Property<object>(e, o.By!));
+        if (order is not null && order.Length > 0)
+        {
+            IOrderedQueryable<T> orderedQuery = order[0].Dir == OrderDirection.Ascending 
+                ? query.OrderBy(e => EF.Property<object>(e, order[0].By!)) 
+                : query.OrderByDescending(e => EF.Property<object>(e, order[0].By!));
+
+            for (int i = 1; i < order.Length; i++)
+            {
+                var o = order[i];
+                orderedQuery = o.Dir == OrderDirection.Ascending 
+                    ? orderedQuery.ThenBy(e => EF.Property<object>(e, o.By!)) 
+                    : orderedQuery.ThenByDescending(e => EF.Property<object>(e, o.By!));
+            }
+
+            query = orderedQuery;
+        }
 
         var total = await query.CountAsync();
         var data = query.Skip((page - 1) * limit).Take(limit);
