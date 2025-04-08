@@ -19,7 +19,6 @@ var serviceProvider = new ServiceCollection()
   .AddLogging(options => options.AddConsole())
   .AddSingleton<IConfigProvider>(config)
   .AddScoped<ICreatorRepository, CreatorRepository>()
-  .AddScoped<IVoteRepository, VoteRepository>()
   .AddScoped<IStreamService, TwitchStreamMonitor>()
   .AddScoped<IStreamMonitorService, StreamMonitorService>()
   .BuildServiceProvider();
