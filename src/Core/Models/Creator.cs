@@ -25,7 +25,7 @@ public class Creator : ModelBase, IValidatableObject
         var shares = new Dictionary<int, Share>();
         foreach (var tx in Transactions)
         {
-            var share = shares.GetValueOrDefault(tx.Creator.Id, new Share
+            var share = shares.GetValueOrDefault(tx.User.Id, new Share
             {
                 Creator = this,
                 User = tx.User,
@@ -38,7 +38,7 @@ public class Creator : ModelBase, IValidatableObject
             shares[tx.User.Id] = share;
         }
 
-        return [.. shares.Values.Where(s => s.Quantity > 0)];
+        return [.. shares.Values.Where(share => share.Quantity > 0)];
     }
 
     public Vote CreateVote(long value)
@@ -59,6 +59,7 @@ public class Creator : ModelBase, IValidatableObject
             Name = tUser.DisplayName,
             Slug = tUser.Login,
             AvatarUrl = tUser.AvatarUrl,
+            Value = MIN_VALUE,
             Ticker = ticker,
         };
 

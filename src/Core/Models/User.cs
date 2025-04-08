@@ -18,6 +18,7 @@ public class User : ModelBase, IValidatableObject
     public required string Name { get; set; }
     public required string TwitchId { get; set; }
     public required string AvatarUrl { get; set; }
+    [Range(MIN_CREDITS, long.MaxValue)]
     public long Credits { get; private set; } = 100;
     public UserType Type { get; set; } = UserType.User;
     public ICollection<Transaction> Transactions { get; set; } = [];
@@ -109,6 +110,7 @@ public class User : ModelBase, IValidatableObject
             TwitchId = tUser.Id,
             AvatarUrl = tUser.AvatarUrl,
             Name = tUser.DisplayName,
+            Credits = 100
         };
         user.LootBoxes.Add(LootBox.Create(user));
 
