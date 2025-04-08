@@ -14,7 +14,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
     <PackageReference Include="TTX.Core" Version="0.0.12" />
-    <PackageReference Include="TTX.Infrastructure.Data" Version="0.0.5" />
+    <PackageReference Include="TTX.Infrastructure.Data" Version="0.0.6" />
     <PackageReference Include="TwitchLib.Api" Version="3.9.0" />
   </ItemGroup>
 
