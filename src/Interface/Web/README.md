@@ -34,16 +34,16 @@ npm run dev
 
 The API is generated using [NSwag](https://github.com/RicoSuter/NSwag), [dotnet](https://dotnet.microsoft.com/en-us/) is required.
 
+- If you want to point to your own API instance, open the `ttx.nswag` file and update the URL.
+
 ```sh
 npm run genapi
 ```
 
-- and then we must make a change to the `api.ts` to point to the global `fetch` function instead of window.
+and then we must make a change to the `api.ts` to point to the global `fetch` function instead of window.
 
 ```diff
 # this should be around line 17
 -        this.http = http ? http : window as any;
 +        this.http = http ? http : { fetch };
 ```
-  
-- If you want to point to your own API instance, open the `ttx.nswag` file and update the URL.
