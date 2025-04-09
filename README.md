@@ -35,3 +35,11 @@ Perform up to the minute statistical pricing analysis to time your purchases and
 ## Discord 
 
 [Join here](https://discord.com/invite/DEn7sAcDE6)
+
+## Community Projects
+
+Checkout these awesome projects built by the community!
+
+- [Chrome Extension](https://github.com/AntiParty/ttx-extension) by @AntiParty
+- [Twitch Stream Overlay](https://antiparty.github.io/ttx-overlay/) by @AntiParty
+- [Discord Activity](https://discord.com/activities/1359360376763842782?referrer_id=164837347156951040) by @VortexHero
