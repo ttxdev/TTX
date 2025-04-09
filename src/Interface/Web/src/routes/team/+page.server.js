@@ -12,7 +12,7 @@ export async function load() {
 			['Nick', 'https://twitch.tv/crouton888'],
 			['Scum', 'https://twitch.tv/scumble__'],
 			['Swinda', 'https://twitch.tv/swinda_'],
-			['t1zz', 'https://twitch.tv/t1zzz_y'],
+			['t1zz', 'https://twitch.tv/t1zz_tv'],
 			['whodat950', 'https://twitch.tv/whodat950']
 		],
 		teamMembers: [
