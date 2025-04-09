@@ -17,9 +17,21 @@
         type="button"
         onclick={async () => {
             if (discordSdk) {
-                await discordSdk.commands.openExternalLink({
-                    url: href,
-                });
+                try {
+                    new URL(href);
+
+                    await discordSdk.commands.openExternalLink({
+                        url: href,
+                    });
+                } catch {
+                    try {
+                        new URL(href, window.location.origin);
+
+                        await discordSdk.commands.openExternalLink({
+                            url: window.location.origin + href,
+                        });
+                    }  catch {}
+                }
             }
         }}
     >

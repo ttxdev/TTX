@@ -4,6 +4,7 @@
 	import { user } from '$lib/stores/data';
 	import { page } from '$app/state';
 	import { Spring } from 'svelte/motion';
+	import { discordSdk } from '$lib/discord';
 
 	let { searchModal = $bindable() }: { searchModal: boolean } = $props();
 
@@ -297,7 +298,7 @@
 							<span>Logout</span>
 						</div>
 					</a>
-				{:else}
+				{:else if !discordSdk}
 					<a
 						href="/api/login?from={page.url.pathname}"
 						class="flex items-center justify-center gap-2"

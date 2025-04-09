@@ -31,3 +31,9 @@
         });
     });
 </script>
+
+<div class="modal visible w-full max-h-full bg-black text-white overflow-y-auto pointer-events-auto block">
+    <span class="w-full h-full flex items-center justify-center">
+        Connecting to Twitch...
+    </span>
+</div>

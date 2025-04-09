@@ -36,9 +36,9 @@
 			class="mx-auto flex w-full max-w-[600px] flex-row flex-wrap items-center gap-3 text-center"
 		>
 			{#each thankYou as entry (entry[0])}
-				<a target="_blank" href={entry[1]} class="hover:text-violet-400">
+				<ExternalLink target="_blank" href={entry[1]} clasName="hover:text-violet-400">
 					{entry[0]}
-				</a>
+				</ExternalLink>
 			{/each}
 			<span>and the original ATX Team.</span>
 		</div>
