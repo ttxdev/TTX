@@ -4,20 +4,20 @@
 	import { quintOut } from 'svelte/easing';
 	import WinnerModal from '$lib/components/WinnerModal.svelte';
 	import { onMount } from 'svelte';
-	import type { Rarity } from './+page.server';
+	import type { RarityClass } from './+page.server';
 
 	type GameState = 'idle' | 'spinning' | 'complete' | 'showing_modal';
 
 	const { data }: { data: PageData } = $props();
 
-	const rarityColors: Record<Rarity, string> = {
+	const rarityColors: Record<RarityClass, string> = {
 		pennies: '#9e9e9e',
 		normal: '#00E676',
 		rare: '#2979FF',
 		epic: '#FFD700'
 	};
 
-	const rarityGlow: Record<Rarity, string> = {
+	const rarityGlow: Record<RarityClass, string> = {
 		pennies: '0px 0px 8px 2px',
 		normal: '0px 0px 15px 5px',
 		rare: '0px 0px 20px 8px',

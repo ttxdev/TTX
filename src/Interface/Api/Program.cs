@@ -11,7 +11,7 @@ using TTX.Core.Repositories;
 using TTX.Interface.Api.Provider;
 using TTX.Core.Interfaces;
 using TTX.Interface.Api.Services;
-using System.Security.Claims;
+using TTX.Infrastructure.Twitch.Services;
 using System.Text.Json.Serialization;
 using dotenv.net;
 [assembly: ApiController]
@@ -42,31 +42,34 @@ builder.Services
         options.SupportNonNullableReferenceTypes();
         options.NonNullableReferenceTypesAsRequired();
     })
-    .AddTransient<ITwitchService, TwitchService>(provider =>
+    .AddTransient<ITwitchAuthService, TwitchAuthService>(provider =>
     {
         var config = provider.GetRequiredService<IConfigProvider>();
 
-        return new TwitchService(
+        return new TwitchAuthService(
             clientId: config.GetTwitchClientId(),
             clientSecret: config.GetTwitchClientSecret(),
             redirectUri: config.GetTwitchRedirectUri()
         );
     })
-    .AddTransient<IDiscordService, DiscordService>(provider =>
+    .AddTransient<IDiscordAuthService, DiscordAuthService>(provider =>
     {
         var config = provider.GetRequiredService<IConfigProvider>();
 
-        return new DiscordService(
+        return new DiscordAuthService(
+            twitchService: provider.GetRequiredService<ITwitchAuthService>(),
             clientId: config.GetDiscordClientId(),
             clientSecret: config.GetDiscordClientSecret()
         );
     })
-    .AddTransient<IVoteRepository, VoteRepository>()
     .AddTransient<ICreatorRepository, CreatorRepository>()
     .AddTransient<IUserRepository, UserRepository>()
+    .AddTransient<IOrderService, OrderService>()
+    .AddTransient<IGambaService, GambaService>()
+    .AddTransient<IIdentityService, IdentityService>()
     .AddTransient<IUserService, UserService>()
-    .AddTransient<ISessionService, SessionService>()
     .AddTransient<ICreatorService, CreatorService>()
+    .AddTransient<SessionService>()
     .AddHttpLogging()
     .AddHttpClient()
     .AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));

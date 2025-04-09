@@ -1,21 +1,13 @@
+using System.Net.Http.Headers;
+using System.Text.Json;
 using TTX.Core.Interfaces;
 using TTX.Core.Models;
-using System.Text.Json;
-using System.Net.Http.Headers;
 
-namespace TTX.Interface.Api.Services;
+namespace TTX.Infrastructure.Discord.Services;
 
-public class DiscordService : IDiscordService
+public class DiscordAuthService(ITwitchAuthService twitch, string clientId, string clientSecret) : IDiscordAuthService
 {
-    private readonly string clientId;
-    private readonly string clientSecret;
-    public DiscordService(string clientId, string clientSecret)
-    {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-    }
-
-    public async Task<DiscordUser?> GetByOAuth(string code, ITwitchService twitchService)
+    public async Task<DiscordUser?> GetByOAuth(string code)
     {
         using var httpClient = new HttpClient();
 
@@ -44,7 +36,7 @@ public class DiscordService : IDiscordService
             return null;
         foreach (var connection in twitchConnections)
         {
-            var twitchUser = await twitchService.FindById(connection.id);
+            var twitchUser = await twitch.FindById(connection.id);
             if (twitchUser is null)
                 continue;
             twitchUsers.Add(twitchUser);
@@ -56,7 +48,7 @@ public class DiscordService : IDiscordService
         };
     }
 
-    public async Task<TwitchUser?> GetByOAuthToTwitch(string access_token, string twitchId, ITwitchService twitchService)
+    public async Task<TwitchUser?> GetByOAuthToTwitch(string access_token, string twitchId)
     {
         using var httpClient = new HttpClient();
 
@@ -70,7 +62,7 @@ public class DiscordService : IDiscordService
         if (connection is null)
             return null;
 
-        var user = await twitchService.FindById(connection.id);
+        var user = await twitch.FindById(connection.id);
 
         return user;
     }

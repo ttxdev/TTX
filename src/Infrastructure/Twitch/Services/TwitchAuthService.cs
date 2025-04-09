@@ -2,15 +2,16 @@ using TTX.Core.Interfaces;
 using TTX.Core.Models;
 using TwitchLib.Api;
 
-namespace TTX.Interface.Api.Services;
+namespace TTX.Infrastructure.Twitch.Services;
 
-public class TwitchService : ITwitchService
+public class TwitchAuthService : ITwitchAuthService
 {
     private readonly TwitchAPI twitch;
     private readonly string clientId;
     private readonly string clientSecret;
     private readonly string redirectUri;
-    public TwitchService(string clientId, string clientSecret, string redirectUri)
+
+    public TwitchAuthService(string clientId, string clientSecret, string redirectUri)
     {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -23,7 +24,6 @@ public class TwitchService : ITwitchService
             }
         };
     }
-
 
     public async Task<TwitchUser?> Find(string username)
     {

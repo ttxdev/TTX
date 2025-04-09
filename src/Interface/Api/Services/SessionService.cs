@@ -1,22 +1,50 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using TTX.Core.Interfaces;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using TTX.Core.Models;
-using TTX.Core.Repositories;
 using TTX.Interface.Api.Provider;
 
 namespace TTX.Interface.Api.Services;
 
-public class SessionService(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor) : ISessionService
+public class SessionService(
+    IConfigProvider config, 
+    IHttpContextAccessor httpContextAccessor
+)
 {
-    public int? CurrentUserId { get; set; }
+    public string? CurrentUserSlug => httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.Name);
 
-    private string? Slug => httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.Name);
-
-    public async Task<User?> GetUser()
+    public string GetTwitchLoginUrl()
     {
-        if (Slug is null)
-            return null;
+        var redirectUri = config.GetTwitchRedirectUri();
+        var clientId = config.GetTwitchClientId();
+        var scope = "";
+        var state = Guid.NewGuid().ToString();
+        return $"https://id.twitch.tv/oauth2/authorize?client_id={clientId}&redirect_uri={redirectUri}&response_type=code&scope={scope}&state={state}";
+    }
 
-        return await userRepository.GetDetails(Slug);
+    public string CreateSession(User user)
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Name),
+            new Claim("AvatarUrl", user.AvatarUrl),
+            new Claim(ClaimTypes.Role, user.Type.ToString()),
+            new Claim("UpdatedAt", user.UpdatedAt.ToString("o"))
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSecretKey()));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+          issuer: "ttx.gg",
+          audience: "ttx.gg",
+          claims: claims,
+          expires: DateTime.Now.AddDays(7),
+          signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

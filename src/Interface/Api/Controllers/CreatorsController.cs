@@ -6,13 +6,15 @@ using TTX.Core.Models;
 using TTX.Core;
 using TTX.Core.Repositories;
 using TTX.Interface.Api.Dto;
+using TTX.Interface.Api.Services;
+using TTX.Core.Interfaces;
 
 namespace TTX.Interface.Api.Controllers;
 
 [ApiController]
 [Route("creators")]
 [Produces(MediaTypeNames.Application.Json)]
-public class CreatorsController(ICreatorService creatorService, IUserService userService) : ControllerBase
+public class CreatorsController(SessionService sessionService, IOrderService orderService, ITwitchAuthService twitch, ICreatorService creatorService) : ControllerBase
 {
     [HttpGet]
     [EndpointName("GetCreators")]
@@ -48,9 +50,9 @@ public class CreatorsController(ICreatorService creatorService, IUserService use
 
     [HttpGet("{slug}")]
     [EndpointName("GetCreator")]
-    public async Task<ActionResult<CreatorDto>> Get(string slug)
+    public async Task<ActionResult<CreatorDto>> Get(string slug, [FromQuery] TimeStep step = TimeStep.FiveMinute, [FromQuery] DateTimeOffset? after = null)
     {
-        var creator = await creatorService.GetDetails(slug);
+        var creator = await creatorService.GetDetails(slug, step, after);
         if (creator is null)
             return NotFound();
 
@@ -64,7 +66,11 @@ public class CreatorsController(ICreatorService creatorService, IUserService use
     {
         try
         {
-            return Ok(new CreatorDto(await creatorService.Onboard(username, ticker)));
+            var tUser = await twitch.Find(username);
+            if (tUser is null)
+                return BadRequest("Twitch user not found.");
+
+            return Ok(new CreatorDto(await creatorService.Onboard(tUser, ticker)));
         }
         catch (DomainException e)
         {
@@ -97,21 +103,17 @@ public class CreatorsController(ICreatorService creatorService, IUserService use
     [Authorize]
     [HttpPost("{creatorSlug}/transactions")]
     [EndpointName("CreateTransaction")]
-    public async Task<ActionResult<CreatorTransactionDto>> PlaceOrder(string creatorSlug, [FromQuery] string action, [FromQuery] int amount)
+    public async Task<ActionResult<CreatorTransactionDto>> PlaceOrder(string creatorSlug, [FromQuery] TransactionAction action, [FromQuery] int amount)
     {
-        if (action != "buy" && action != "sell")
-            return BadRequest("Invalid action. Only 'buy' and 'sell' are allowed.");
+        if (sessionService.CurrentUserSlug is null)
+            return Unauthorized();
 
         try
         {
-            var creator = await creatorService.GetDetails(creatorSlug);
-            if (creator == null)
-                return NotFound("Creator not found.");
-
-            var tx = await userService.PlaceOrder(
-                creator,
-                action == "buy" ? TransactionAction.Buy : TransactionAction.Sell,
-                amount
+            var tx = await orderService.PlaceOrder(
+                username: sessionService.CurrentUserSlug,
+                creatorSlug: creatorSlug,
+                action, amount
             );
 
             return Ok(new CreatorTransactionDto(tx));
@@ -120,22 +122,6 @@ public class CreatorsController(ICreatorService creatorService, IUserService use
         {
             return BadRequest(e.Message);
         }
-
-    }
-
-    [HttpGet("{creatorSlug}/value")]
-    [EndpointName("GetCreatorValueHistory")]
-    public async Task<ActionResult<Vote[]>> GetValueHistory(
-      [FromRoute] string creatorSlug,
-      [FromQuery] TimeStep step = TimeStep.Minute,
-      [FromQuery] DateTime? after = null
-    )
-    {
-        var votes = await creatorService.GetHistory(creatorSlug, step, after);
-        if (votes is null)
-            return NotFound("Creator not found.");
-
-        return Ok(votes);
     }
 
     [HttpGet("{creatorSlug}/value/latest")]
@@ -146,7 +132,7 @@ public class CreatorsController(ICreatorService creatorService, IUserService use
       [FromQuery] TimeStep step = TimeStep.Minute
     )
     {
-        var votes = await creatorService.GetLatestVotes(creatorSlug, after, step);
+        var votes = await creatorService.PullLatestHistory(creatorSlug, after, step);
         if (votes is null)
             return NotFound("Creator not found.");
 
