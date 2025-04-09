@@ -71,37 +71,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ttx-bot-consumer
-  namespace: ttx
-spec:
-  selector:
-    matchLabels:
-      app: ttx-bot-consumer
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: ttx-bot-consumer
-    spec:
-      imagePullSecrets:
-        - name: ttx-regcreds
-      containers:
-      - name: consumer
-        image: ghcr.io/ttxdev/ttx.interface.bot:main
-        imagePullPolicy: Always
-        command: ["/app/TTX.Interface.Bot", "consumer"]
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        envFrom:
-          - secretRef:
-              name: ttx-config
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: ttx-bot
   namespace: ttx
 spec:
