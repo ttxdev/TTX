@@ -7,14 +7,14 @@ using TwitchLib.Api.Services.Events.LiveStreamMonitor;
 
 namespace TTX.Infrastructure.Twitch.Services;
 
-public class TwitchStreamMonitor : IStreamService
+public class TwitchStreamService : IStreamService
 {
     private readonly TwitchAPI _twitchApi;
     private readonly LiveStreamMonitorService _liveStreamMonitor;
     private readonly Dictionary<string, Creator> _creators = [];
     public event EventHandler<StreamStatusUpdate> OnStreamUpdate = delegate { };
 
-    public TwitchStreamMonitor(string clientId, string clientSecret)
+    public TwitchStreamService(string clientId, string clientSecret)
     {
         _twitchApi = new TwitchAPI();
         _twitchApi.Settings.ClientId = clientId;
