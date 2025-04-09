@@ -17,6 +17,7 @@ public interface ICreatorService
     );
     Task RecordValue(string slug, int value);
     Task<Vote[]?> PullLatestHistory(string slug, DateTimeOffset after, TimeStep step = TimeStep.Hour);
+    Task<Creator?> UpdateStreamInfo(int id, StreamStatus status);
 }
 
 public class CreatorService(ITwitchService twitch, ICreatorRepository repository) : ICreatorService
@@ -89,4 +90,7 @@ public class CreatorService(ITwitchService twitch, ICreatorRepository repository
         var vote = creator.CreateVote(netChange);
         await repository.RecordValue(creator, vote);
     }
+
+    public Task<Creator?> UpdateStreamInfo(int id, StreamStatus status) =>
+      repository.UpdateStreamInfo(id, status);
 }
