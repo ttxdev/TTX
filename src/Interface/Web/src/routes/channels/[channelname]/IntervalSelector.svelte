@@ -5,7 +5,6 @@
 	const { interval }: { interval: Interval } = $props();
 
 	const intervals: { label: string; value: Interval }[] = [
-		{ label: 'All', value: 'all' },
 		{ label: '24h', value: '24h' },
 		{ label: '12h', value: '12h' },
 		{ label: '6h', value: '6h' },

@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ cookies, params, url }) => {
 	try {
 		const channelSlug = params.channelname.toLowerCase();
 		const interval = (url.searchParams.get('interval') || '1h') as Interval;
-		const hours = interval === 'all' ? 1000000 : interval === '24h' ? 24 : interval === '12h' ? 12 : interval === '6h' ? 6 : 1;
+		const hours = interval === '24h' ? 24 : interval === '12h' ? 12 : interval === '6h' ? 6 : 1;
 
 		const token = getToken(cookies);
 		const client = getApiClient(token || '');
