@@ -126,11 +126,12 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
 
         while (await rows.ReadAsync())
         {
+            var value = rows.IsDBNull(2) ? Creator.MIN_VALUE : rows.GetInt32(2);
             result.Add(new Vote
             {
                 CreatorId = rows.GetInt32(0),
                 Time = rows.GetDateTime(1), // Maps "Bucket" to "Time"
-                Value = rows.GetInt32(2)
+                Value = value
             });
         }
 
@@ -188,11 +189,12 @@ public class CreatorRepository(ApplicationDbContext context) : RepositoryBase<Cr
             if (time < after)
                 continue;
 
+            var value = rows.IsDBNull(2) ? Creator.MIN_VALUE : rows.GetInt32(2);
             result[creatorId].Add(new Vote
             {
                 CreatorId = creatorId,
                 Time = time,
-                Value = rows.GetInt32(2)
+                Value = value
             });
         }
 
