@@ -3,11 +3,14 @@
 	import Navbar from '$lib/components/Navbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import type { LayoutProps } from './$types';
-	import { setContext } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import { ProgressBar } from '@prgm/sveltekit-progress-bar';
 	import { Toaster } from 'svelte-french-toast';
 	import Search from '$lib/components/Search.svelte';
 	import Drawer from '$lib/components/shared/Drawer.svelte';
+	import { PUBLIC_API_BASE_URL as apiBaseUrl } from '$env/static/public';
+	import { patchUrlMappings } from '@discord/embedded-app-sdk';
+	import { discordSdk } from '$lib/discord';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -33,6 +36,21 @@
 			searchModal = true;
 		}
 	}
+
+	onMount(() => {
+		if (discordSdk) {
+			const url = new URL(apiBaseUrl);
+
+			patchUrlMappings([{ prefix: '/external-api', target: url.hostname }]);
+
+			patchUrlMappings([
+				{ prefix: '/twitch-cdn', target: 'static-cdn.jtvnw.net' },
+				{ prefix: '/github-cdn', target: 'avatars.githubusercontent.com' },
+			], {
+				patchSrcAttributes: true
+			});
+		}
+	});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />

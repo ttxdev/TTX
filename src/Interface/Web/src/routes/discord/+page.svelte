@@ -8,9 +8,9 @@
 	import { discordSdk } from "$lib/discord";
 	import { onMount } from "svelte";
     import { PUBLIC_DISCORD_CLIENT_ID as discordClientId } from '$env/static/public';
-	import { handleDiscordCallback, parseJwt } from "$lib/auth";
-	import { patchUrlMappings, RPCCloseCodes } from "@discord/embedded-app-sdk";
-    import { PUBLIC_API_BASE_URL as apiBaseUrl } from "$env/static/public";
+	import { handleDiscordCallback } from "$lib/auth";
+	import { RPCCloseCodes } from "@discord/embedded-app-sdk";
+	import { goto } from "$app/navigation";
 
     onMount(async () => {
         if (!discordSdk) {
@@ -18,10 +18,6 @@
         }
 
         await discordSdk.ready();
-
-        const url = new URL(apiBaseUrl)
-
-        patchUrlMappings([{prefix: '/external-api', target: url.hostname}]);
 
         const { code } = await discordSdk.commands.authorize({
             client_id: discordClientId,
@@ -56,11 +52,12 @@
         // TODO: Create a UI to select which user to use
         const user = users[0];
         
-        window.location.href = 
+        goto(
             '/api/discord/callback?' + 
             new URLSearchParams({
                 access_token,
                 user: user.id
-            });
+            })
+        );
     });
 </script>

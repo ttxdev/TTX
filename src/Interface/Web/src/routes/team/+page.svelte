@@ -1,4 +1,6 @@
 <script>
+	import { PUBLIC_DISCORD_URL } from '$env/static/public';
+	import ExternalLink from '$lib/components/ExternalLink.svelte';
 	/** @type {{ data: import('./$types').PageData }} */
 	import TeamMemberCard from '$lib/components/TeamMemberCard.svelte';
 
@@ -41,13 +43,13 @@
 			<span>and the original ATX Team.</span>
 		</div>
 		<div class="my-6 flex w-full flex-row justify-center md:my-10">
-			<a
-				href="https://discord.gg/DEn7sAcDE6"
+			<ExternalLink
+				href={PUBLIC_DISCORD_URL}
 				target="_blank"
-				class="rounded bg-violet-500 px-6 py-3 text-center font-bold text-white transition hover:bg-violet-600"
+				className="rounded bg-violet-500 px-6 py-3 text-center font-bold text-white transition hover:bg-violet-600"
 			>
 				Join our Discord!
-			</a>
+			</ExternalLink>
 		</div>
 	</section>
 </div>
