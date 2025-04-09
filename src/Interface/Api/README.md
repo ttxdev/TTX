@@ -34,6 +34,21 @@ For this we can utilize Docker, but you will at least need an instance of Postgr
 docker compose up -d postgres
 ```
 
+## Authentication Setup
+
+1. Register a Twitch Application at https://dev.twitch.tv/console/apps/create
+
+- Name: TTX
+- OAuth Redirect URL: http://localhost:5116/sessions/twitch/callback
+- Category: Application/Website Integration
+- Client Type: Confidential
+
+2. Fill in `TTX_TWITCH_CLIENT_ID` and `TTX_TWITCH_CLIENT_SECRET` in `.env` with the values from the registration
+
+3. Access `http://localhost:5116/sessions/login` from a browser
+
+Then after a successful OAuth flow it should return a JWT.
+
 ##  Run!
 
 ```sh
