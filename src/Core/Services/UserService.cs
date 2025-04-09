@@ -18,7 +18,7 @@ public interface IUserService
     );
 }
 
-public class UserService(IUserRepository repository, ITwitchService twitchService) : IUserService
+public class UserService(IUserRepository repository, ITwitchAuthService twitchService) : IUserService
 {
     public Task<User?> GetDetails(string username) => repository.GetDetails(username);
 

@@ -20,7 +20,7 @@ public interface ICreatorService
     Task<Creator?> UpdateStreamInfo(int id, StreamStatus status);
 }
 
-public class CreatorService(ITwitchService twitch, ICreatorRepository repository) : ICreatorService
+public class CreatorService(ITwitchAuthService twitch, ICreatorRepository repository) : ICreatorService
 {
     public async Task<Pagination<Creator>> GetPaginated(
       int page = 1,
