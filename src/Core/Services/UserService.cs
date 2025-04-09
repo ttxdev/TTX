@@ -27,8 +27,7 @@ public class UserService(ISessionService sessionService, ITwitchService twitchSe
     public async Task<User> ProcessOAuth(string oauthCode)
     {
         var tUser = await twitchService.GetByOAuth(oauthCode) ?? throw new TwitchUserNotFoundException();
-        Console.WriteLine($"Twitch user: {tUser.Login}");
-        var user = await repo.GetDetails(tUser.Login);
+        var user = await repo.GetDetails(tUser.DisplayName);
         if (user is not null)
             return user;
 
@@ -47,8 +46,7 @@ public class UserService(ISessionService sessionService, ITwitchService twitchSe
     public async Task<User> ProcessDiscordToTwitchOAuth(string oauthCode, string twitchId)
     {
         var tUser = await discordService.GetByOAuthToTwitch(oauthCode, twitchId, twitchService) ?? throw new TwitchUserNotFoundException();
-        Console.WriteLine($"Discord user: {tUser.Login}");
-        var user = await repo.GetDetails(tUser.Login);
+        var user = await repo.GetDetails(tUser.DisplayName);
         if (user is not null)
             return user;
 
