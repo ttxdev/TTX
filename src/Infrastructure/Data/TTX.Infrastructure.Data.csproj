@@ -16,7 +16,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="TTX.Core" Version="0.0.19" />
+    <PackageReference Include="TTX.Core" Version="0.0.26" />
   </ItemGroup>
 
 </Project>

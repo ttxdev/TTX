@@ -4,6 +4,7 @@
 	import CreatorChart from '$lib/components/CreatorChart.svelte';
 	import type { PageProps } from './$types';
 	import { PUBLIC_DISCORD_URL } from '$env/static/public';
+	import ExternalLink from '$lib/components/ExternalLink.svelte';
 	let { data }: PageProps = $props();
 </script>
 
@@ -44,9 +45,9 @@
 				<span class="italic">don't call the SEC</span>. TTX, be truly invested in your streamer.
 			</p>
 			<div class="flex flex-row justify-center">
-				<a href={PUBLIC_DISCORD_URL} target="_blank" class="w-fit text-purple-500 hover:underline">
+				<ExternalLink href={PUBLIC_DISCORD_URL} target="_blank" className="w-fit text-purple-500 hover:underline">
 					Join our Discord!
-				</a>
+				</ExternalLink>
 			</div>
 		</div>
 		<div class="flex w-1/2 flex-col items-center justify-center max-md:w-full">

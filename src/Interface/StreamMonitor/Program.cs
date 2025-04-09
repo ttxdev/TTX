@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TTX.Core.Interfaces;
 using TTX.Core.Models;
 using TTX.Core.Repositories;
 using TTX.Infrastructure.Data;

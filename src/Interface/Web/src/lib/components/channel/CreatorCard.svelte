@@ -3,6 +3,7 @@
 	import CreatorValueChart from './CreatorValueChart.svelte';
 	import CreatorCurrentValue from './CreatorCurrentValue.svelte';
 	import type { ICreatorDto, Vote } from '$lib/api';
+	import ExternalLink from '../ExternalLink.svelte';
 
 	let props: {
 		creator: ICreatorDto;
@@ -20,13 +21,13 @@
 		<div class="flex w-full flex-row items-center justify-between px-3">
 			<div class="flex flex-row gap-3">
 				<div class="flex flex-col items-center">
-					<a href={creator.url} target="_blank">
+					<ExternalLink href={creator.url} target="_blank">
 						<img
 							src={creator.avatar_url}
 							alt=""
 							class="h-12 w-12 rounded-full border-2 border-white object-cover shadow-lg"
 						/>
-					</a>
+					</ExternalLink>
 					{#if creator.stream_status.is_live}
 						<span
 							class="-mt-2.5 h-fit w-fit rounded-full bg-red-400 px-2 text-xs font-bold text-white"
@@ -42,10 +43,10 @@
 					{/if}
 				</div>
 				<div class="flex flex-col">
-					<a
+					<ExternalLink
 						href={creator.url}
 						target="_blank"
-						class="text-lg font-semibold text-purple-500 hover:underline">{creator.name}</a
+						className="text-lg font-semibold text-purple-500 hover:underline">{creator.name}</ExternalLink
 					>
 					<span class="text-opacity-60 font-mono text-sm">{formatTicker(creator.ticker)}</span>
 				</div>

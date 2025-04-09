@@ -1,5 +1,3 @@
-using TTX.Core.Exceptions;
-using TTX.Core.Interfaces;
 using TTX.Core.Models;
 using TTX.Core.Repositories;
 

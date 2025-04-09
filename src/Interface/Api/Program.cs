@@ -52,6 +52,16 @@ builder.Services
             redirectUri: config.GetTwitchRedirectUri()
         );
     })
+    .AddTransient<IDiscordAuthService, DiscordAuthService>(provider =>
+    {
+        var config = provider.GetRequiredService<IConfigProvider>();
+
+        return new DiscordAuthService(
+            twitchService: provider.GetRequiredService<ITwitchAuthService>(),
+            clientId: config.GetDiscordClientId(),
+            clientSecret: config.GetDiscordClientSecret()
+        );
+    })
     .AddTransient<ICreatorRepository, CreatorRepository>()
     .AddTransient<IUserRepository, UserRepository>()
     .AddTransient<IOrderService, OrderService>()

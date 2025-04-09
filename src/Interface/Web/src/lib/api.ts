@@ -426,6 +426,95 @@ export class TTXClient {
     }
 
     /**
+     * @param code (optional) 
+     * @return OK
+     */
+    discordCallback(code?: string | undefined): Promise<DiscordDto> {
+        let url_ = this.baseUrl + "/sessions/discord/callback?";
+        if (code === null)
+            throw new Error("The parameter 'code' cannot be null.");
+        else if (code !== undefined)
+            url_ += "code=" + encodeURIComponent("" + code) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDiscordCallback(_response);
+        });
+    }
+
+    protected processDiscordCallback(response: Response): Promise<DiscordDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DiscordDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DiscordDto>(null as any);
+    }
+
+    /**
+     * @param code (optional) 
+     * @param twitchId (optional) 
+     * @return OK
+     */
+    discordCallbackToTwitch(code?: string | undefined, twitchId?: string | undefined): Promise<TokenDto> {
+        let url_ = this.baseUrl + "/sessions/discord/callback/twitch?";
+        if (code === null)
+            throw new Error("The parameter 'code' cannot be null.");
+        else if (code !== undefined)
+            url_ += "code=" + encodeURIComponent("" + code) + "&";
+        if (twitchId === null)
+            throw new Error("The parameter 'twitchId' cannot be null.");
+        else if (twitchId !== undefined)
+            url_ += "twitchId=" + encodeURIComponent("" + twitchId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDiscordCallbackToTwitch(_response);
+        });
+    }
+
+    protected processDiscordCallbackToTwitch(response: Response): Promise<TokenDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TokenDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TokenDto>(null as any);
+    }
+
+    /**
      * @param page (optional) 
      * @param limit (optional) 
      * @param searchBy (optional) 
@@ -1069,6 +1158,108 @@ export interface ICreatorTransactionDto {
     value: number;
     action: TransactionAction;
     user: UserPartialDto;
+}
+
+export class DiscordDto implements IDiscordDto {
+    access_token!: string;
+    users!: DiscordTwitchDto[];
+
+    constructor(data?: IDiscordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.users = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.access_token = _data["access_token"] !== undefined ? _data["access_token"] : <any>null;
+            if (Array.isArray(_data["users"])) {
+                this.users = [] as any;
+                for (let item of _data["users"])
+                    this.users!.push(DiscordTwitchDto.fromJS(item));
+            }
+            else {
+                this.users = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): DiscordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DiscordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["access_token"] = this.access_token !== undefined ? this.access_token : <any>null;
+        if (Array.isArray(this.users)) {
+            data["users"] = [];
+            for (let item of this.users)
+                data["users"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IDiscordDto {
+    access_token: string;
+    users: DiscordTwitchDto[];
+}
+
+export class DiscordTwitchDto implements IDiscordTwitchDto {
+    id!: string;
+    display_name!: string;
+    login!: string;
+    avatar_url!: string;
+
+    constructor(data?: IDiscordTwitchDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.display_name = _data["display_name"] !== undefined ? _data["display_name"] : <any>null;
+            this.login = _data["login"] !== undefined ? _data["login"] : <any>null;
+            this.avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): DiscordTwitchDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DiscordTwitchDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["display_name"] = this.display_name !== undefined ? this.display_name : <any>null;
+        data["login"] = this.login !== undefined ? this.login : <any>null;
+        data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
+        return data;
+    }
+}
+
+export interface IDiscordTwitchDto {
+    id: string;
+    display_name: string;
+    login: string;
+    avatar_url: string;
 }
 
 export class LootBoxDto implements ILootBoxDto {

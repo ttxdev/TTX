@@ -14,9 +14,9 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="TTX.Core" Version="0.0.23" />
+    <PackageReference Include="TTX.Core" Version="0.0.26" />
     <PackageReference Include="TTX.Infrastructure.Data" Version="0.0.14" />
-    <PackageReference Include="TTX.Infrastructure.Twitch" Version="1.0.0" />
+    <PackageReference Include="TTX.Infrastructure.Twitch" Version="1.2.0" />
     <PackageReference Include="TwitchLib.Api" Version="3.9.0" />
   </ItemGroup>
 

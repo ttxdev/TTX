@@ -42,6 +42,23 @@ public class TwitchAuthService : ITwitchAuthService
         };
     }
 
+     public async Task<TwitchUser?> FindById(string id)
+    {
+        var user = await twitch.Helix.Users.GetUsersAsync(ids: [id]).ContinueWith(
+          t => t.Result.Users.Length == 0 ? null : t.Result.Users[0]
+        );
+        if (user is null)
+            return null;
+
+        return new TwitchUser
+        {
+            Id = user.Id,
+            DisplayName = user.DisplayName,
+            AvatarUrl = user.ProfileImageUrl,
+            Login = user.Login,
+        };
+    }
+
     public async Task<TwitchUser?> GetByOAuth(string code)
     {
         var resp = await twitch.Auth.GetAccessTokenFromCodeAsync(code: code, clientId: clientId, clientSecret: clientSecret, redirectUri: redirectUri);
