@@ -50,9 +50,9 @@ public class CreatorsController(SessionService sessionService, IOrderService ord
 
     [HttpGet("{slug}")]
     [EndpointName("GetCreator")]
-    public async Task<ActionResult<CreatorDto>> Get(string slug)
+    public async Task<ActionResult<CreatorDto>> Get(string slug, [FromQuery] TimeStep step = TimeStep.FiveMinute, [FromQuery] DateTimeOffset? after = null)
     {
-        var creator = await creatorService.GetDetails(slug);
+        var creator = await creatorService.GetDetails(slug, step, after);
         if (creator is null)
             return NotFound();
 
