@@ -5,29 +5,33 @@ using Microsoft.Extensions.Logging;
 using TTX.Core.Interfaces;
 using TTX.Core.Models;
 using TTX.Core.Repositories;
-using TTX.Core.Services;
 using TTX.Infrastructure.Data;
 using TTX.Infrastructure.Data.Repositories;
 using TTX.Interface.StreamMonitor.Provider;
-using TTX.Interface.StreamMonitor.Services;
+using TTX.Infrastructure.Twitch.Services;
 using dotenv.net;
+using TTX.Interface.StreamMonitor.Services;
 
 DotEnv.Load();
 var config = new ConfigProvider(new ConfigurationBuilder().AddEnvironmentVariables("TTX_").Build());
 var serviceProvider = new ServiceCollection()
   .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(config.GetConnectionString()))
-  .AddLogging(options => options.AddConsole())
   .AddSingleton<IConfigProvider>(config)
+  .AddLogging(options => options.AddConsole())
   .AddScoped<ICreatorRepository, CreatorRepository>()
-  .AddScoped<IStreamService, TwitchStreamMonitor>()
-  .AddScoped<IStreamMonitorService, StreamMonitorService>()
   .BuildServiceProvider();
 
+var monitor = new StreamMonitorService(
+  serviceProvider, 
+  new TwitchStreamService(config.GetTwitchClientId(), config.GetTwitchClientSecret()),
+  serviceProvider.GetRequiredService<ILogger<StreamMonitorService>>()
+);
 var creators = new List<Creator>();
-using var scope = serviceProvider.CreateScope();
-var monitor = scope.ServiceProvider.GetRequiredService<IStreamMonitorService>();
-var creatorRepository = scope.ServiceProvider.GetRequiredService<ICreatorRepository>();
-foreach (var creator in await creatorRepository.GetAll())
-    monitor.AddCreator(creator);
+using var scope = serviceProvider.CreateAsyncScope();
+{
+  var creatorRepository = scope.ServiceProvider.GetRequiredService<ICreatorRepository>();
+  foreach (var creator in await creatorRepository.GetAll())
+      monitor.AddCreator(creator);
+}
 
 await monitor.Start(CancellationToken.None);
