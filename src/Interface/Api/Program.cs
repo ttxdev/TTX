@@ -56,6 +56,7 @@ builder.Services
     .AddTransient<IUserRepository, UserRepository>()
     .AddTransient<IOrderService, OrderService>()
     .AddTransient<IGambaService, GambaService>()
+    .AddTransient<IIdentityService, IdentityService>()
     .AddTransient<IUserService, UserService>()
     .AddTransient<ICreatorService, CreatorService>()
     .AddTransient<SessionService>()
