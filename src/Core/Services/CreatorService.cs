@@ -7,7 +7,6 @@ namespace TTX.Core.Services;
 
 public interface ICreatorService
 {
-    Task<Creator> Onboard(string twitchUsername, string ticker);
     Task<Creator?> GetDetails(string slug, TimeStep step = TimeStep.FiveMinute, DateTimeOffset? after = null);
     Task<Pagination<Creator>> GetPaginated(
         int page = 1,
@@ -18,9 +17,10 @@ public interface ICreatorService
     Task RecordValue(string slug, int value);
     Task<Vote[]?> PullLatestHistory(string slug, DateTimeOffset after, TimeStep step = TimeStep.Hour);
     Task<Creator?> UpdateStreamInfo(int id, StreamStatus status);
+    Task<Creator> Onboard(TwitchUser tUser, string ticker);
 }
 
-public class CreatorService(ITwitchAuthService twitch, ICreatorRepository repository) : ICreatorService
+public class CreatorService(ICreatorRepository repository) : ICreatorService
 {
     public async Task<Pagination<Creator>> GetPaginated(
       int page = 1,
@@ -41,22 +41,6 @@ public class CreatorService(ITwitchAuthService twitch, ICreatorRepository reposi
             search);
 
         return creators;
-    }
-
-    public async Task<Creator> Onboard(string twitchUsername, string ticker)
-    {
-        var creator = await twitch.Find(twitchUsername).ContinueWith(t =>
-        {
-            if (t.Result is null)
-                throw new TwitchUserNotFoundException();
-
-            return Creator.Create(t.Result, ticker);
-        });
-
-        repository.Add(creator);
-        await repository.SaveChanges();
-
-        return creator;
     }
 
     public async Task<Creator?> GetDetails(
@@ -93,4 +77,13 @@ public class CreatorService(ITwitchAuthService twitch, ICreatorRepository reposi
 
     public Task<Creator?> UpdateStreamInfo(int id, StreamStatus status) =>
       repository.UpdateStreamInfo(id, status);
+
+    public async Task<Creator> Onboard(TwitchUser tUser, string ticker)
+    {
+        var creator = Creator.Create(tUser, ticker);
+        repository.Add(creator);
+        await repository.SaveChanges();
+
+        return creator;
+    }
 }

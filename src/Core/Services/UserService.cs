@@ -7,8 +7,6 @@ namespace TTX.Core.Services;
 
 public interface IUserService
 {
-    Task<User> ProcessOAuth(string oauthCode);
-    Task<User> FindOrCreate(string twitchUsername);
     Task<User?> GetDetails(string username);
     Task<Pagination<User>> GetPaginated(
         int page = 1,
@@ -16,45 +14,21 @@ public interface IUserService
         Order[]? order = null,
         Search? search = null
     );
+    Task<User> Onboard(TwitchUser tUser);
 }
 
-public class UserService(IUserRepository repository, ITwitchAuthService twitchService) : IUserService
+public class UserService(IUserRepository repository) : IUserService
 {
     public Task<User?> GetDetails(string username) => repository.GetDetails(username);
 
     public Task<Pagination<User>> GetPaginated(int page = 1, int limit = 10, Order[]? order = null, Search? search = null) => repository.GetPaginated(page, limit, order, search);
 
-    public async Task<User> FindOrCreate(string twitchUsername)
+    public async Task<User> Onboard(TwitchUser tUser)
     {
-        var user = await repository.GetDetails(twitchUsername);
-        if (user is not null)
-            return user;
-
-        var newUser = await twitchService.Find(twitchUsername).ContinueWith(t =>
-        {
-            if (t.Result is null)
-                throw new TwitchUserNotFoundException();
-
-            return User.Create(t.Result);
-        });
-
-        repository.Add(newUser);
+        var user = User.Create(tUser);
+        repository.Add(user);
         await repository.SaveChanges();
 
-        return newUser;
-    }
-
-    public async Task<User> ProcessOAuth(string oauthCode)
-    {
-        var tUser = await twitchService.GetByOAuth(oauthCode) ?? throw new TwitchUserNotFoundException();
-        var user = await repository.GetDetails(tUser.Login);
-        if (user is not null)
-            return user;
-
-        var newUser = User.Create(tUser);
-        repository.Add(newUser);
-        await repository.SaveChanges();
-
-        return newUser;
+        return user;
     }
 }
