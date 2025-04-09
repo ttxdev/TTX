@@ -7,13 +7,14 @@ using TTX.Core;
 using TTX.Core.Repositories;
 using TTX.Interface.Api.Dto;
 using TTX.Interface.Api.Services;
+using TTX.Core.Interfaces;
 
 namespace TTX.Interface.Api.Controllers;
 
 [ApiController]
 [Route("creators")]
 [Produces(MediaTypeNames.Application.Json)]
-public class CreatorsController(SessionService sessionService, IOrderService orderService, ICreatorService creatorService) : ControllerBase
+public class CreatorsController(SessionService sessionService, IOrderService orderService, ITwitchAuthService twitch, ICreatorService creatorService) : ControllerBase
 {
     [HttpGet]
     [EndpointName("GetCreators")]
@@ -65,7 +66,11 @@ public class CreatorsController(SessionService sessionService, IOrderService ord
     {
         try
         {
-            return Ok(new CreatorDto(await creatorService.Onboard(username, ticker)));
+            var tUser = await twitch.Find(username);
+            if (tUser is null)
+                return BadRequest("Twitch user not found.");
+
+            return Ok(new CreatorDto(await creatorService.Onboard(tUser, ticker)));
         }
         catch (DomainException e)
         {

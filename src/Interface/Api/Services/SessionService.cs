@@ -7,7 +7,10 @@ using TTX.Interface.Api.Provider;
 
 namespace TTX.Interface.Api.Services;
 
-public class SessionService(IConfigProvider config, IHttpContextAccessor httpContextAccessor)
+public class SessionService(
+    IConfigProvider config, 
+    IHttpContextAccessor httpContextAccessor
+)
 {
     public string? CurrentUserSlug => httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.Name);
 
