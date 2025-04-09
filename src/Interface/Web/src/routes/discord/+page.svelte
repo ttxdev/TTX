@@ -1,9 +1,3 @@
-<style>
-    :global(* :not(#discord-auth)) {
-        display:none;
-    }
-</style>
-
 <script lang="ts">
 	import { discordSdk } from "$lib/discord";
 	import { onMount } from "svelte";

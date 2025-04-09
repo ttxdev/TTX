@@ -11,11 +11,12 @@
 	import { PUBLIC_API_BASE_URL as apiBaseUrl } from '$env/static/public';
 	import { patchUrlMappings } from '@discord/embedded-app-sdk';
 	import { discordSdk } from '$lib/discord';
+	import { token, user } from '$lib/stores/data';
 
 	let { data, children }: LayoutProps = $props();
 
-	setContext('user', data.user);
-	setContext('token', data.token);
+	user.set(data.user);
+	token.set(data.token);
 
 	let searchModal = $state(false);
 	let showDrawer = $state(false);
@@ -37,8 +38,10 @@
 		}
 	}
 
-	onMount(() => {
+	onMount(async () => {
 		if (discordSdk) {
+			const query = new URLSearchParams(window.location.search);
+
 			const url = new URL(apiBaseUrl);
 
 			patchUrlMappings([{ prefix: '/external-api', target: url.hostname }]);

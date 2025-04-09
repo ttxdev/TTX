@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getApiClient } from '$lib';
 	import { debounce } from 'lodash-es';
-	import { getContext } from 'svelte';
+	import { token } from '$lib/stores/data';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { getRecentStreamers, type RecentStreamer } from '$lib/utils/recentStreamers';
@@ -22,8 +22,7 @@
 
 	let { searchModal = $bindable() }: { searchModal: boolean } = $props();
 
-	const token = getContext('token');
-	const client = getApiClient(String(token || ''));
+	const client = getApiClient(String($token || ''));
 
 	let searchInput: HTMLInputElement | null = null;
 

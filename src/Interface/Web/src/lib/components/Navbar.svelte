@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { getTwitchRedirect, type UserData } from '$lib/auth';
-	import { getContext, onMount } from 'svelte';
+	import { onMount } from 'svelte';
+	import { user } from '$lib/stores/data';
 	import { page } from '$app/state';
 	import { Spring } from 'svelte/motion';
 
 	let { searchModal = $bindable() }: { searchModal: boolean } = $props();
 
-	let user = getContext<UserData | null>('user');
 	let isMenuOpen = $state(false);
 
 	function toggleMenu() {
@@ -122,16 +122,16 @@
 
 	<div class="navbar-end">
 		<div class="flex gap-2">
-			{#if user}
+			{#if $user}
 				<div class="join">
 					<div class=""></div>
-					<a href={'/players/' + user.name}>
+					<a href={'/players/' + $user.name}>
 						<div
 							class="btn rounded-lg bg-black px-3 py-2 text-white shadow md:rounded-l-lg md:rounded-r-none"
 						>
 							<div class="flex flex-row items-center justify-between gap-2">
-								<img src={user.avatarUrl} alt="" class="size-6 rounded-full" />
-								{user.name}
+								<img src={$user.avatarUrl} alt="" class="size-6 rounded-full" />
+								{$user.name}
 							</div>
 						</div>
 					</a>
@@ -271,12 +271,12 @@
 		</nav>
 		<div class="mb-2 border-t p-4">
 			<div class="flex flex-col gap-2">
-				{#if user}
-					<a href={'/players/' + user.name}>
+				{#if $user}
+					<a href={'/players/' + $user.name}>
 						<div class="btn w-full rounded-md bg-black px-3 py-2 text-white shadow">
 							<div class="flex flex-row items-center justify-between gap-2">
-								<img src={user.avatarUrl} alt="" class="size-6 rounded-full" />
-								{user.name}
+								<img src={$user.avatarUrl} alt="" class="size-6 rounded-full" />
+								{$user.name}
 							</div>
 						</div>
 					</a>

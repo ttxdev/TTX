@@ -1,16 +1,36 @@
-import { handleDiscordCallbackToTwitch, login } from '$lib/auth';
+import { getApiClient } from '$lib';
+import {
+	getToken,
+	getUserData,
+	handleDiscordCallbackToTwitch,
+	login,
+	logout,
+	parseJwt
+} from '$lib/auth';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, cookies }) => {
 	const code = url.searchParams.get('access_token');
-	const user = url.searchParams.get('user');
+	const twitchUser = url.searchParams.get('user');
 
-	if (!code || !user) {
+	if (!code || !twitchUser) {
 		return;
 	}
 
-	const token = await handleDiscordCallbackToTwitch(code, user);
+	const token = await handleDiscordCallbackToTwitch(code, twitchUser);
 	login(cookies, token, 'None');
 
-	return;
+	const jwtData = parseJwt(token);
+
+	const user = {
+		userId: jwtData.userId,
+		name: jwtData.name,
+		avatarUrl: jwtData.avatarUrl,
+		role: jwtData.role
+	};
+
+	return {
+		user,
+		token
+	};
 };

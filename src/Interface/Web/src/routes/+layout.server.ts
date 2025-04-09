@@ -1,13 +1,12 @@
 import type { LayoutServerLoad } from './$types';
 import { getToken, getUserData, logout } from '$lib/auth';
 import { getApiClient } from '$lib';
-import { discordSetupNeeded } from '$lib/discord';
 import { redirect } from '@sveltejs/kit';
 
 export const load: LayoutServerLoad = async ({ cookies, url }) => {
 	const query = url.searchParams;
 
-	if (query && discordSetupNeeded(query, cookies)) {
+	if (query.has('frame_id')) {
 		return redirect(307, '/discord');
 	}
 

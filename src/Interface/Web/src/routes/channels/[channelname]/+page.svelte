@@ -7,6 +7,7 @@
 	import { getApiClient } from '$lib';
 	import { CreatorDto, CreatorShareDto, CreatorTransactionDto, TimeStep, Vote } from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
+	import { discordSdk } from '$lib/discord';
 
 	let {
 		data
@@ -31,9 +32,22 @@
 		if (pullTask) {
 			clearInterval(pullTask);
 		}
+
+		if (discordSdk) {
+			void discordSdk.commands.setActivity({
+				activity: { 
+					type: 0,
+					state: 'TTX',
+					assets: {
+						large_image: 'ttx',
+						large_text: 'TTX',
+					}
+				}
+			});
+		}
 	});
 
-	onMount(() => {
+	onMount(async () => {
 		addRecentStreamer({
 			id: creator.id,
 			name: creator.name,
@@ -56,6 +70,21 @@
 			// @ts-ignore
 			creator.value = data[data.length - 1].value;
 		}, 1_500);
+
+		if (discordSdk) {
+			await discordSdk.commands.setActivity({
+				activity: { 
+					type: 0,
+					state: 'TTX',
+					assets: {
+						large_image: 'ttx',
+						large_text: 'TTX',
+						small_image: creator.avatar_url,
+						small_text: creator.name
+					}
+				}
+			});
+		}
 	});
 
 	$effect(() => {

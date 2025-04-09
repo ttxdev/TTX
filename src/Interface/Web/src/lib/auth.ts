@@ -90,9 +90,10 @@ export function login(cookies: Cookies, token: string, sameSite = 'Lax') {
 	);
 }
 
-export function logout(cookies: Cookies) {
+export function logout(cookies: Cookies, sameSite = 'Lax') {
 	cookies.delete(COOKIE_NAME, {
-		path: '/'
+		path: '/',
+		sameSite
 	});
 }
 
