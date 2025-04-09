@@ -9,14 +9,13 @@
 	import { TimeStep, TransactionAction, Vote } from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
 	import type { PageProps } from './$types';
-	import { page } from '$app/state';
 
 	let { data }: PageProps = $props();
 	let creator = $state(data.creator);
 
 	let history = $state<Vote[]>(data.creator.history);
 	let buySellModal: TransactionAction | null = $state(null);
-	let pullTask: NodeJS.Timeout | null = null;
+	let pullTask: number | null = $state(null);
 	let interval = $state(data.interval);
 	function setModal(modal: TransactionAction) {
 		buySellModal = modal;
