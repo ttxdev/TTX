@@ -1,8 +1,16 @@
 import type { LayoutServerLoad } from './$types';
 import { getToken, getUserData, logout } from '$lib/auth';
 import { getApiClient } from '$lib';
+import { discordSetupNeeded } from '$lib/discord';
+import { redirect } from '@sveltejs/kit';
 
-export const load: LayoutServerLoad = async ({ cookies }) => {
+export const load: LayoutServerLoad = async ({ cookies, url }) => {
+	const query = url.searchParams;
+
+	if (query && discordSetupNeeded(query, cookies)) {
+		return redirect(307, '/discord');
+	}
+
 	const user = getUserData(cookies);
 	const token = getToken(cookies);
 	const client = getApiClient(token ?? '');
@@ -28,11 +36,11 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 			token,
 			liveHoldings
 		};
-	} catch (error) {
+	} catch {
 		logout(cookies);
 		return {
 			user,
-			token,
+			token
 		};
 	}
 };

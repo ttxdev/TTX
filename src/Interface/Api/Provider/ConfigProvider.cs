@@ -7,6 +7,8 @@ public interface IConfigProvider
     string GetTwitchClientId();
     string GetTwitchClientSecret();
     string GetTwitchRedirectUri();
+    string GetDiscordClientId();
+    string GetDiscordClientSecret();
 }
 
 public class ConfigProvider(IConfiguration configuration) : IConfigProvider
@@ -16,6 +18,8 @@ public class ConfigProvider(IConfiguration configuration) : IConfigProvider
     public string GetTwitchClientId() => configuration["TWITCH_CLIENT_ID"]!;
     public string GetTwitchClientSecret() => configuration["TWITCH_CLIENT_SECRET"]!;
     public string GetTwitchRedirectUri() => configuration["TWITCH_REDIRECT_URI"]!;
+    public string GetDiscordClientId() => configuration["DISCORD_CLIENT_ID"]!;
+    public string GetDiscordClientSecret() => configuration["DISCORD_CLIENT_SECRET"]!;
 
     public override string ToString()
     {

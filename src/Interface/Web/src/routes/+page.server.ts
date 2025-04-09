@@ -1,13 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
 import { getToken } from '$lib/auth';
-import {
-	Order,
-	OrderDirection,
-	type CreatorDto,
-	type CreatorPartialDto,
-	type Vote
-} from '$lib/api';
+import { Order, OrderDirection, type CreatorPartialDto, type Vote } from '$lib/api';
 
 export type UserStats = {
 	avatar_url: string;

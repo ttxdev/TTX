@@ -9,6 +9,8 @@ public interface IUserService
 {
     Task<User> FindOrCreate(string twitchUsername);
     Task<User> ProcessOAuth(string oauthCode);
+    Task<DiscordUser> ProcessDiscordOAuth(string oauthCode);
+    Task<User> ProcessDiscordToTwitchOAuth(string oauthCode, string twitchId);
     Task<User?> GetDetails(string username);
     Task<Transaction> PlaceOrder(Creator creator, TransactionAction action, int amount);
     Task<LootBoxResult> Gamba();
@@ -20,11 +22,32 @@ public interface IUserService
     );
 }
 
-public class UserService(ISessionService sessionService, ITwitchService twitchService, ICreatorRepository creatorRepository, IUserRepository repo) : Service<User>(repo), IUserService
+public class UserService(ISessionService sessionService, ITwitchService twitchService, IDiscordService discordService, ICreatorRepository creatorRepository, IUserRepository repo) : Service<User>(repo), IUserService
 {
     public async Task<User> ProcessOAuth(string oauthCode)
     {
         var tUser = await twitchService.GetByOAuth(oauthCode) ?? throw new TwitchUserNotFoundException();
+        Console.WriteLine($"Twitch user: {tUser.Login}");
+        var user = await repo.GetDetails(tUser.Login);
+        if (user is not null)
+            return user;
+
+        var newUser = User.Create(tUser);
+        repository.Add(newUser);
+        await repository.SaveChanges();
+
+        return newUser;
+    }
+
+    public async Task<DiscordUser> ProcessDiscordOAuth(string oauthCode)
+    {
+        return await discordService.GetByOAuth(oauthCode, twitchService) ?? throw new DiscordUserNotFoundException();
+    }
+
+    public async Task<User> ProcessDiscordToTwitchOAuth(string oauthCode, string twitchId)
+    {
+        var tUser = await discordService.GetByOAuthToTwitch(oauthCode, twitchId, twitchService) ?? throw new TwitchUserNotFoundException();
+        Console.WriteLine($"Discord user: {tUser.Login}");
         var user = await repo.GetDetails(tUser.Login);
         if (user is not null)
             return user;

@@ -40,6 +40,7 @@
 		"vite": "^6.0.0"
 	},
 	"dependencies": {
+		"@discord/embedded-app-sdk": "^1.9.0",
 		"chart.js": "^4.4.8",
 		"chartjs-plugin-zoom": "^2.2.0",
 		"confetti-js": "^0.0.18",

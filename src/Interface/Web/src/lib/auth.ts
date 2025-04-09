@@ -4,8 +4,9 @@ import {
 } from '$env/static/public';
 import { getApiClient } from '$lib';
 import { redirect, type Cookies } from '@sveltejs/kit';
+import type { DiscordDto } from './api';
 
-const COOKIE_NAME = 'TTX.Session';
+export const COOKIE_NAME = 'TTX.Session';
 
 type RawJwtData = {
 	'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier': string; // userId
@@ -55,12 +56,24 @@ export async function handleTwitchCallback(code: string, state: string): Promise
 	return access_token;
 }
 
+export async function handleDiscordCallback(code: string): Promise<DiscordDto> {
+	const client = getApiClient('');
+	return client.discordCallback(code);
+}
+
+export async function handleDiscordCallbackToTwitch(code: string, user: string): Promise<string> {
+	const client = getApiClient('');
+	const { access_token } = await client.discordCallbackToTwitch(code, user);
+
+	return access_token;
+}
+
 export function requestLogin(cookies: Cookies, redir = '/') {
 	cookies.set('redirect', redir, { path: '/', expires: new Date(Date.now() + 1000 * 60 * 5) });
 	return redirect(307, getTwitchRedirect());
 }
 
-export function login(cookies: Cookies, token: string) {
+export function login(cookies: Cookies, token: string, sameSite = 'Lax') {
 	const jwtData = parseJwt(token);
 	cookies.set(
 		COOKIE_NAME,
@@ -73,7 +86,7 @@ export function login(cookies: Cookies, token: string) {
 				role: jwtData.role
 			}
 		}),
-		{ path: '/', expires: new Date(jwtData.exp * 1000) }
+		{ path: '/', expires: new Date(jwtData.exp * 1000), sameSite }
 	);
 }
 
