@@ -3,26 +3,21 @@
 	import BiggestHolders from '$lib/components/channel/LargestCreatorHolders.svelte';
 	import LatestTransactions from '$lib/components/channel/LatestCreatorTransactions.svelte';
 	import BuySellModal from '$lib/components/channel/BuySellModal.svelte';
+	import IntervalSelector from './IntervalSelector.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { getApiClient } from '$lib';
-	import { CreatorDto, CreatorShareDto, CreatorTransactionDto, TimeStep, TransactionAction, Vote } from '$lib/api';
+	import { TimeStep, TransactionAction, Vote } from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
+	import type { PageProps } from './$types';
+	import { page } from '$app/state';
 
-	let {
-		data
-	}: {
-		data: {
-			creator: CreatorDto;
-			shares: CreatorShareDto[];
-			transactions: CreatorTransactionDto[];
-		};
-	} = $props();
+	let { data }: PageProps = $props();
 	let creator = $state(data.creator);
 
 	let history = $state<Vote[]>(data.creator.history);
 	let buySellModal: TransactionAction | null = $state(null);
-	let pullTask: number | null = null;
-
+	let pullTask: NodeJS.Timeout | null = null;
+	let interval = $state(data.interval);
 	function setModal(modal: TransactionAction) {
 		buySellModal = modal;
 	}
@@ -59,9 +54,10 @@
 	});
 
 	$effect(() => {
-		if (data.creator.slug === creator.slug) return;
+		if (data.creator.slug === creator.slug && data.interval === interval) return;
 		creator = data.creator;
 		history = data.creator.history;
+		interval = data.interval;
 	});
 </script>
 
@@ -80,6 +76,10 @@
 {/if}
 
 <section class="mx-auto flex w-full max-w-[1000px] flex-col gap-4 p-4">
+	<div class="flex items-center justify-between">
+		<h1 class="text-2xl font-bold">{creator.name}</h1>
+		<IntervalSelector {interval} />
+	</div>
 	<CreatorCard {creator} {history} />
 	<div class="flex flex-col gap-4 md:flex-row">
 		<div class="divider divider-vertical md:hidden"></div>
@@ -112,16 +112,3 @@
 		<LatestTransactions transactions={data.transactions} />
 	</div>
 </section>
-
-<style>
-	input[type='number']::-webkit-outer-spin-button,
-	input[type='number']::-webkit-inner-spin-button {
-		-webkit-appearance: none;
-		margin: 0;
-	}
-
-	input[type='number'] {
-		appearance: textfield;
-		-moz-appearance: textfield;
-	}
-</style>
