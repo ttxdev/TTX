@@ -11,6 +11,7 @@ using TTX.Core.Repositories;
 using TTX.Interface.Api.Provider;
 using TTX.Core.Interfaces;
 using TTX.Interface.Api.Services;
+using TTX.Infrastructure.Twitch.Services;
 using System.Text.Json.Serialization;
 using dotenv.net;
 [assembly: ApiController]
@@ -41,11 +42,11 @@ builder.Services
         options.SupportNonNullableReferenceTypes();
         options.NonNullableReferenceTypesAsRequired();
     })
-    .AddTransient<ITwitchService, TwitchService>(provider =>
+    .AddTransient<ITwitchAuthService, TwitchAuthService>(provider =>
     {
         var config = provider.GetRequiredService<IConfigProvider>();
 
-        return new TwitchService(
+        return new TwitchAuthService(
             clientId: config.GetTwitchClientId(),
             clientSecret: config.GetTwitchClientSecret(),
             redirectUri: config.GetTwitchRedirectUri()
