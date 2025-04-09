@@ -133,13 +133,23 @@ export class TTXClient {
     }
 
     /**
+     * @param step (optional) 
+     * @param after (optional) 
      * @return OK
      */
-    getCreator(slug: string): Promise<CreatorDto> {
-        let url_ = this.baseUrl + "/creators/{slug}";
+    getCreator(slug: string, step?: TimeStep | undefined, after?: Date | undefined): Promise<CreatorDto> {
+        let url_ = this.baseUrl + "/creators/{slug}?";
         if (slug === undefined || slug === null)
             throw new Error("The parameter 'slug' must be defined.");
         url_ = url_.replace("{slug}", encodeURIComponent("" + slug));
+        if (step === null)
+            throw new Error("The parameter 'step' cannot be null.");
+        else if (step !== undefined)
+            url_ += "step=" + encodeURIComponent("" + step) + "&";
+        if (after === null)
+            throw new Error("The parameter 'after' cannot be null.");
+        else if (after !== undefined)
+            url_ += "after=" + encodeURIComponent(after ? "" + after.toISOString() : "") + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
