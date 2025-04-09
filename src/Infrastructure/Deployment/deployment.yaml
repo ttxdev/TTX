@@ -90,9 +90,6 @@ spec:
         imagePullPolicy: Always
         command: ["/app/TTX.Interface.Bot", "bot"]
         resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
         envFrom:
           - secretRef:
               name: ttx-config
@@ -118,10 +115,6 @@ spec:
       - name: streammonitor
         image: ghcr.io/ttxdev/ttx.interface.streammonitor:main
         imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
         envFrom:
           - secretRef:
               name: ttx-config
