@@ -2,6 +2,7 @@
 export async function load() {
 	return {
 		thankYou: [
+			['Antiparty', 'https://github.com/antiparty'],
 			['Aspecticor', 'https://twitch.tv/aspecticor'],
 			['Carson', '/doggie.jpg'],
 			['Jester Man', 'https://twitch.tv/jesterman4242'],
@@ -13,6 +14,7 @@ export async function load() {
 			['Scum', 'https://twitch.tv/scumble__'],
 			['Swinda', 'https://twitch.tv/swinda_'],
 			['t1zz', 'https://twitch.tv/t1zz_tv'],
+			['Vortex', 'https://github.com/VortexHero'],
 			['whodat950', 'https://twitch.tv/whodat950']
 		],
 		teamMembers: [
