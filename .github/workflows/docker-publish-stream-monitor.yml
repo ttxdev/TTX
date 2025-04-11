@@ -12,7 +12,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ttxdev/ttx.interface.streammonitor
-  SRC_PATH: ./src/Interface/StreamMonitor
+  SRC_PATH: ./src/StreamMonitor
 
 jobs:
   build:

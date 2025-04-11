@@ -12,7 +12,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ttxdev/ttx.interface.web
-  SRC_PATH: ./src/Interface/Web
+  SRC_PATH: ./src/Web
 
 jobs:
   build:
