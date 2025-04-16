@@ -21,11 +21,12 @@
 	}
 </script>
 
-<div class="join bg-base-200 rounded-lg p-1">
+<div class="join w-full p-0.5 sm:w-auto sm:p-1">
 	{#each intervals as { label, value }}
 		<button
-			class="join-item btn btn-sm min-w-[4rem] border-none {interval === value
-				? 'bg-purple-600 font-medium text-white shadow-md'
+			class="join-item btn btn-xs sm:btn-sm min-w-[3.5rem] border-none text-xs transition-all duration-200 ease-in-out first:rounded-l-3xl last:rounded-r-3xl sm:min-w-[4rem] sm:text-sm
+				{interval === value
+				? 'bg-purple-600 font-medium text-white shadow-md hover:bg-purple-700'
 				: 'hover:bg-base-300 text-base-content/70 hover:text-base-content bg-transparent'}"
 			onclick={() => handleIntervalChange(value)}
 		>
