@@ -29,12 +29,12 @@
 
 		if (discordSdk) {
 			void discordSdk.commands.setActivity({
-				activity: { 
+				activity: {
 					type: 0,
 					state: 'TTX',
 					assets: {
 						large_image: 'ttx',
-						large_text: 'TTX',
+						large_text: 'TTX'
 					}
 				}
 			});
@@ -67,7 +67,7 @@
 
 		if (discordSdk) {
 			await discordSdk.commands.setActivity({
-				activity: { 
+				activity: {
 					type: 0,
 					state: 'TTX',
 					assets: {
@@ -104,9 +104,11 @@
 {/if}
 
 <section class="mx-auto flex w-full max-w-[1000px] flex-col gap-4 p-4">
-	<div class="flex items-center justify-between">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
 		<h1 class="text-2xl font-bold">{creator.name}</h1>
-		<IntervalSelector {interval} />
+		<div class="flex justify-end">
+			<IntervalSelector {interval} />
+		</div>
 	</div>
 	<CreatorCard {creator} {history} />
 	<div class="flex flex-col gap-4 md:flex-row">
