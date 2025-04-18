@@ -13,6 +13,6 @@ public class UserRepository(ApplicationDbContext context) : RepositoryBase<User>
             .ThenInclude(t => t.Creator)
             .Include(u => u.LootBoxes)
             .ThenInclude(l => l.Result)
-            .FirstOrDefaultAsync(x => x.Name == name);
+            .FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
     }
 }
