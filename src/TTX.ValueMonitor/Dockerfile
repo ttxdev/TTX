@@ -10,9 +10,13 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["src/TTX.ValueMonitor/nuget.config", "src/TTX.ValueMonitor/"]
 COPY ["nuget.config", "."]
 COPY ["src/TTX.ValueMonitor/TTX.ValueMonitor.csproj", "src/TTX.ValueMonitor/"]
-RUN dotnet restore "./src/TTX.ValueMonitor/TTX.ValueMonitor.csproj"
+RUN --mount=type=secret,id=github_token \
+  export GITHUB_TOKEN=$(cat /run/secrets/github_token) && \
+  dotnet nuget update source ttxdev --username ttxdev --password $GITHUB_TOKEN --store-password-in-clear-text && \
+  dotnet restore "./src/TTX.ValueMonitor/TTX.ValueMonitor.csproj"
 COPY . .
 WORKDIR "/src/src/TTX.ValueMonitor"
 RUN dotnet build "./TTX.ValueMonitor.csproj" -c $BUILD_CONFIGURATION -o /app/build

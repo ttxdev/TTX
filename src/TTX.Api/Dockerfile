@@ -2,13 +2,6 @@
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-ENV TTX_CONNECTION_STRING ""
-ENV TTX_SECRET_KEY ""
-ENV TTX_TWITCH_CLIENT_ID ""
-ENV TTX_TWITCH_CLIENT_SECRET ""
-ENV TTX_TWITCH_REDIRECT_URI ""
-ENV TTX_DISCORD_CLIENT_ID ""
-ENV TTX_DISCORD_CLIENT_SECRET ""
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -19,6 +12,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["src/TTX.Api/nuget.config", "src/TTX.Api/"]
 COPY ["nuget.config", "."]
 COPY ["src/TTX.Api/TTX.Api.csproj", "src/TTX.Api/"]
 RUN dotnet restore "./src/TTX.Api/TTX.Api.csproj"
@@ -33,13 +27,6 @@ RUN dotnet publish "./TTX.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
-ENV TTX_CONNECTION_STRING ""
-ENV TTX_SECRET_KEY ""
-ENV TTX_TWITCH_CLIENT_ID ""
-ENV TTX_TWITCH_CLIENT_SECRET ""
-ENV TTX_TWITCH_REDIRECT_URI ""
-ENV TTX_DISCORD_CLIENT_ID ""
-ENV TTX_DISCORD_CLIENT_SECRET ""
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TTX.Api.dll"]

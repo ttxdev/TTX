@@ -2,9 +2,6 @@
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
-ENV TTX_CONNECTION_STRING ""
-ENV TTX_TWITCH_CLIENT_ID ""
-ENV TTX_TWITCH_CLIENT_SECRET ""
 USER $APP_UID
 WORKDIR /app
 
@@ -13,9 +10,13 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["src/TTX.StreamMonitor/nuget.config", "src/TTX.StreamMonitor/"]
 COPY ["nuget.config", "."]
 COPY ["src/TTX.StreamMonitor/TTX.StreamMonitor.csproj", "src/TTX.StreamMonitor/"]
-RUN dotnet restore "./src/TTX.StreamMonitor/TTX.StreamMonitor.csproj"
+RUN --mount=type=secret,id=github_token \
+  export GITHUB_TOKEN=$(cat /run/secrets/github_token) && \
+  dotnet nuget update source ttxdev --username ttxdev --password $GITHUB_TOKEN --store-password-in-clear-text && \
+  dotnet restore "./src/TTX.StreamMonitor/TTX.StreamMonitor.csproj"
 COPY . .
 WORKDIR "/src/src/TTX.StreamMonitor"
 RUN dotnet build "./TTX.StreamMonitor.csproj" -c $BUILD_CONFIGURATION -o /app/build
@@ -27,9 +28,6 @@ RUN dotnet publish "./TTX.StreamMonitor.csproj" -c $BUILD_CONFIGURATION -o /app/
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
-ENV TTX_CONNECTION_STRING ""
-ENV TTX_TWITCH_CLIENT_ID ""
-ENV TTX_TWITCH_CLIENT_SECRET ""
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TTX.StreamMonitor.dll"]
