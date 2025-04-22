@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
 import { getToken } from '$lib/auth';
-import { Order, OrderDirection, type CreatorPartialDto, type Vote } from '$lib/api';
+import { Order, OrderDirection, VoteDto, type CreatorPartialDto, } from '$lib/api';
 
 export type UserStats = {
 	avatar_url: string;
@@ -10,7 +10,7 @@ export type UserStats = {
 	slug: string;
 	value: number;
 	isLive: boolean;
-	history: Vote[];
+	history: VoteDto[];
 	url: string;
 };
 
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 				value: channel.value,
 				isLive: channel.stream_status.is_live ?? false,
 				history: channel.history.map((v) => v.toJSON()) ?? [],
-				url: `/channels/${channel.slug}`
+				url: `/creators/${channel.slug}`
 			}))
 		);
 	const topCreators = await client
@@ -52,11 +52,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
 				value: channel.value,
 				isLive: channel.stream_status.is_live ?? false,
 				history: channel.history.map((v) => v.toJSON()) ?? [],
-				url: `/channels/${channel.slug}`
+				url: `/creators/${channel.slug}`
 			}))
 		);
 	const topPlayers = await client
-		.getUsers(1, 3, undefined, undefined, [
+		.getPlayers(1, 3, undefined, undefined, [
 			new Order({
 				by: 'Credits',
 				dir: OrderDirection.Descending

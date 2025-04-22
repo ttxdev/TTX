@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { TransactionAction, type UserTransactionDto } from '$lib/api';
+	import { TransactionAction, type PlayerTransactionDto } from '$lib/api';
 	import TimeStamp from '$lib/components/shared/TimeStamp.svelte';
 	import { formatCreatorString, formatShareAmount, formatValue } from '$lib/util';
 	import Card from '../shared/Card.svelte';
 
-	let { transactions }: { transactions: UserTransactionDto[] } = $props();
+	let { transactions }: { transactions: PlayerTransactionDto[] } = $props();
 </script>
 
 <Card title="Latest Transactions">
@@ -18,7 +18,7 @@
 				{#each transactions as tx (tx.id)}
 					<tr class="flex flex-row justify-between rounded-md p-2 py-1">
 						<td class="flex items-center justify-center gap-3">
-							<a href="/channels/{tx.creator.slug}" class="flex flex-col">
+							<a href="/creators/{tx.creator.slug}" class="flex flex-col">
 								<img
 									alt={tx.creator.name}
 									src={tx.creator.avatar_url}
@@ -28,7 +28,7 @@
 							<div class="flex flex-col">
 								<span class="text-xl font-semibold">{tx.action == TransactionAction.Buy ? 'Bought' : 'Sold'}</span>
 								<a
-									href="/channels/{tx.creator.slug}"
+									href="/creators/{tx.creator.slug}"
 									class="text-sm text-violet-500 hover:underline"
 								>
 									{formatCreatorString(tx.creator.name)}

@@ -11,13 +11,12 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, cookies }) => {
 	const code = url.searchParams.get('access_token');
-	const twitchUser = url.searchParams.get('user');
 
-	if (!code || !twitchUser) {
+	if (!code) {
 		return;
 	}
 
-	const token = await handleDiscordCallbackToTwitch(code, twitchUser);
+	const token = await handleDiscordCallbackToTwitch(code);
 	login(cookies, token, 'None');
 
 	const jwtData = parseJwt(token);

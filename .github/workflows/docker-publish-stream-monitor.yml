@@ -1,8 +1,6 @@
 name: Docker Publish TTX.Interface.StreamMonitor
 
 on:
-  schedule:
-    - cron: '32 1 * * *'
   push:
     branches: ['main']
     tags: ['v*.*.*']
@@ -11,8 +9,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ttxdev/ttx.interface.streammonitor
-  SRC_PATH: ./src/StreamMonitor
+  IMAGE_NAME: ttxdev/ttx.streammonitor
+  SRC_PATH: ./src/TTX.StreamMonitor
 
 jobs:
   build:

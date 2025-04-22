@@ -80,7 +80,7 @@
 
 		<a
 			class="mt-8 cursor-pointer rounded-lg bg-gradient-to-r from-violet-600 to-purple-700 px-8 py-5 text-xl font-bold text-white transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(124,58,237,0.7)]"
-			href="/channels/{winner.slug}"
+			href="/creators/{winner.slug}"
 		>
 			Visit Creator
 		</a>

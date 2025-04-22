@@ -78,7 +78,7 @@
 	<div class="absolute h-3/4 w-full rounded-lg border border-gray-200/30 bg-gray-500/20 p-4">
 		<canvas bind:this={canvas}></canvas>
 	</div>
-	<a href="/channels/{creator.slug}" class="absolute top-4 -left-8 h-16 w-16">
+	<a href="/creators/{creator.slug}" class="absolute top-4 -left-8 h-16 w-16">
 		<img
 			src={creator.avatar_url}
 			alt={creator.name}

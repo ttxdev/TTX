@@ -6,7 +6,7 @@ export const topOwned = [
 		name: 'PontiacMade',
 		slug: 'pontiacmadeddg',
 		ticker: 'DDG',
-		url: '/channels/pontiacmadeddg',
+		url: '/creators/pontiacmadeddg',
 		avatar_url:
 			'https://static-cdn.jtvnw.net/jtv_user_pictures/66aefaa8-4457-4ec5-92a1-aae43a704043-profile_image-300x300.png',
 		value: 74898,
@@ -265,7 +265,7 @@ export const topOwned = [
 		name: 'Kamet0',
 		slug: 'kamet0',
 		ticker: 'KAME',
-		url: '/channels/kamet0',
+		url: '/creators/kamet0',
 		avatar_url:
 			'https://static-cdn.jtvnw.net/jtv_user_pictures/9e12862d-a8d0-4df2-81aa-e2241022dc98-profile_image-300x300.jpg',
 		value: 50777,
@@ -489,7 +489,7 @@ export const topOwned = [
 		name: 'ohnePixel',
 		slug: 'ohnepixel',
 		ticker: 'GOLD',
-		url: '/channels/ohnepixel',
+		url: '/creators/ohnepixel',
 		avatar_url:
 			'https://static-cdn.jtvnw.net/jtv_user_pictures/5742b015-e6ed-4f7c-a1dd-87cd88fe1eb9-profile_image-300x300.png',
 		value: 50548,

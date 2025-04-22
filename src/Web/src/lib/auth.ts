@@ -4,7 +4,7 @@ import {
 } from '$env/static/public';
 import { getApiClient } from '$lib';
 import { redirect, type Cookies } from '@sveltejs/kit';
-import type { DiscordDto } from './api';
+import type { AuthenticateDiscordUserDto } from './api';
 
 export const COOKIE_NAME = 'TTX.Session';
 
@@ -56,16 +56,9 @@ export async function handleTwitchCallback(code: string, state: string): Promise
 	return access_token;
 }
 
-export async function handleDiscordCallback(code: string): Promise<DiscordDto> {
+export async function handleDiscordCallback(code: string): Promise<AuthenticateDiscordUserDto> {
 	const client = getApiClient('');
 	return client.discordCallback(code);
-}
-
-export async function handleDiscordCallbackToTwitch(code: string, user: string): Promise<string> {
-	const client = getApiClient('');
-	const { access_token } = await client.discordCallbackToTwitch(code, user);
-
-	return access_token;
 }
 
 export function requestLogin(cookies: Cookies, redir = '/') {

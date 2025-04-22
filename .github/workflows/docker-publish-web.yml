@@ -1,8 +1,6 @@
 name: Docker Publish TTX.Interface.Web
 
 on:
-  schedule:
-    - cron: '32 1 * * *'
   push:
     branches: ['main']
     tags: ['v*.*.*']
@@ -11,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ttxdev/ttx.interface.web
+  IMAGE_NAME: ttxdev/ttx.web
   SRC_PATH: ./src/Web
 
 jobs:

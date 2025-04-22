@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { formatShareAmount, formatValue, formatCreatorString } from '$lib/util';
 	import Card from '$lib/components/shared/Card.svelte';
-	import type { UserShareDto } from '$lib/api';
+	import type { PlayerShareDto } from '$lib/api';
 
-	let { shares }: { shares: UserShareDto[] } = $props();
+	let { shares }: { shares: PlayerShareDto[] } = $props();
 	shares = shares.sort((a, b) => b.creator.value * b.quantity - a.creator.value * a.quantity);
 </script>
 
@@ -14,7 +14,7 @@
 				{#each shares as share (share.creator.id)}
 					<tr class="flex flex-row justify-between rounded-md py-1 md:p-2">
 						<td class="flex items-center justify-center gap-3">
-							<a href="/channels/{share.creator.slug}" class="flex flex-col">
+							<a href="/creators/{share.creator.slug}" class="flex flex-col">
 								<img
 									alt={share.creator.name}
 									src={share.creator.avatar_url}
@@ -23,7 +23,7 @@
 							</a>
 							<div class="flex flex-col">
 								<a
-									href="/channels/{share.creator.slug}"
+									href="/creators/{share.creator.slug}"
 									class="text-lg font-semibold text-violet-500 hover:underline"
 								>
 									{formatCreatorString(share.creator.name)}

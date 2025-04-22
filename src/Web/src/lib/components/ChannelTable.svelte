@@ -6,7 +6,7 @@
 	import { OrderDirection, type ICreatorDto } from '$lib/api';
 
 	type TableProps = {
-		channels: ICreatorDto[];
+		creators: ICreatorDto[];
 		total: number;
 		currentPage: number;
 		sortField: string;
@@ -14,7 +14,7 @@
 	};
 
 	let {
-		channels = [],
+		creators = [],
 		total = 0,
 		currentPage = 1,
 		sortField = 'name',
@@ -42,7 +42,7 @@
 	}
 
 	// Remove client-side sorting
-	let sortedChannels = $derived(channels);
+	let sortedChannels = $derived(creators);
 
 	function calculatePercentChange(history: ICreatorDto['history']) {
 		const oldest = history[0]?.value;
@@ -141,7 +141,7 @@
 
 	onMount(() => {
 		// Create charts for each channel
-		channels.forEach((channel) => {
+		creators.forEach((channel) => {
 			if (chartElements[channel.name]) {
 				createChart(chartElements[channel.name], channel.history);
 			}
@@ -194,7 +194,7 @@
 			{#each sortedChannels as channel (channel.id)}
 				<tr class="hover:bg-gray-50/30 dark:hover:bg-gray-800/30">
 					<td class="py-4 max-md:w-32 max-md:px-2">
-						<a href="/channels/{channel.slug}" rel="noopener noreferrer">
+						<a href="/creators/{channel.slug}" rel="noopener noreferrer">
 							<div class="items-left justify-left flex gap-3 max-md:gap-2">
 								<div class="h-8 w-8 max-md:h-6 max-md:w-6">
 									<img
@@ -213,12 +213,12 @@
 						</a>
 					</td>
 					<td class="py-4 text-center max-md:w-12 max-md:px-2 max-md:text-xs">
-						<a href="/channels/{channel.slug}" rel="noopener noreferrer">
+						<a href="/creators/{channel.slug}" rel="noopener noreferrer">
 							{formatValue(channel.value)}
 						</a>
 					</td>
 					<td class="py-4 text-center max-md:w-12 max-md:px-2 max-md:text-xs">
-						<a href="/channels/{channel.slug}" rel="noopener noreferrer" aria-label="Channel Chart">
+						<a href="/creators/{channel.slug}" rel="noopener noreferrer" aria-label="Channel Chart">
 							{#if channel.stream_status.is_live}
 								<span
 									class="-mt-2.5 h-fit w-fit rounded-full bg-red-400 px-2 text-xs font-bold text-white"
@@ -235,14 +235,14 @@
 						</a>
 					</td>
 					<td class="flex items-center justify-center py-4 max-md:hidden">
-						<a href="/channels/{channel.slug}" rel="noopener noreferrer" aria-label="Channel Chart">
+						<a href="/creators/{channel.slug}" rel="noopener noreferrer" aria-label="Channel Chart">
 							<div class="h-16 w-32">
 								<canvas class="w-full" bind:this={chartElements[channel.name]}></canvas>
 							</div>
 						</a>
 					</td>
 					<td class="py-4 text-center max-md:hidden">
-						<a href="/channels/{channel.slug}" rel="noopener noreferrer">
+						<a href="/creators/{channel.slug}" rel="noopener noreferrer">
 							<span
 								class="{calculatePercentChange(channel.history) > 0
 									? 'text-green-500'
@@ -257,7 +257,7 @@
 						</a>
 					</td>
 					<td class="py-4 text-center max-md:w-12 max-md:px-2">
-						<a href="/channels/{channel.slug}">
+						<a href="/creators/{channel.slug}">
 							<button class="btn btn-ghost max-md:btn-sm rounded-lg max-md:px-2"> Trade </button>
 						</a>
 					</td>

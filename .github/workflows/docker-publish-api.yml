@@ -11,8 +11,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ttxdev/ttx.interface.api
-  SRC_PATH: ./src/Api
+  IMAGE_NAME: ttxdev/ttx.api
+  SRC_PATH: ./src/TTX.Api
 
 jobs:
   build:
