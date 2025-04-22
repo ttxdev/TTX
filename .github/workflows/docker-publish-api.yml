@@ -1,4 +1,4 @@
-name: Docker Publish TTX.Interface.Api
+name: Docker Publish TTX.Api
 
 on:
   schedule:
@@ -12,7 +12,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ttxdev/ttx.api
-  SRC_PATH: ./src/TTX.Api
 
 jobs:
   build:
@@ -52,7 +51,8 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09
         with:
-          context: ${{ env.SRC_PATH }}
+          context: .
+          file: ./src/TTX.Api/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
