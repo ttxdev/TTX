@@ -15,7 +15,10 @@ WORKDIR /src
 COPY ["src/TTX.Api/nuget.config", "src/TTX.Api/"]
 COPY ["nuget.config", "."]
 COPY ["src/TTX.Api/TTX.Api.csproj", "src/TTX.Api/"]
-RUN dotnet restore "./src/TTX.Api/TTX.Api.csproj"
+RUN --mount=type=secret,id=github_token \
+  export GITHUB_TOKEN=$(cat /run/secrets/github_token) && \
+  dotnet nuget update source ttxdev --username ttxdev --password $GITHUB_TOKEN --store-password-in-clear-text && \
+  dotnet restore "./src/TTX.Api/TTX.Api.csproj"
 COPY . .
 WORKDIR "/src/src/TTX.Api"
 RUN dotnet build "./TTX.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
