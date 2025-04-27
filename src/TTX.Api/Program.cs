@@ -171,7 +171,6 @@ app.MapControllers();
 using var scope = app.Services.CreateScope();
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.Database.EnsureCreatedAsync();
     await context.Database.MigrateAsync();
 
     if (args.Length > 0 && args[0] == "seed")
