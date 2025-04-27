@@ -12,7 +12,11 @@ public class AuthenticateDiscordUserHandler(IDiscordAuthService discord, ITwitch
         DiscordUser user = await discord.GetByOAuth(request.OAuthCode)
             ?? throw new DiscordUserNotFoundException();
 
-        TwitchUser[] tUsers = await twitch.FindByIds([.. user.TwitchConnections.Select(c => (TwitchId)c.Id)]);
+        TwitchUser[] tUsers = await twitch.FindByIds([
+            ..user.Connections
+                .Where(c => c is { Verified: true, Type: "twitch" })
+                .Select(c => (TwitchId)c.Id)
+        ]);
 
         return new AuthenticateDiscordUserResult
         {

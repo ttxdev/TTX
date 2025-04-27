@@ -9,8 +9,8 @@ public class DiscordAuthService(string clientId, string clientSecret) : IDiscord
 {
     public async Task<DiscordUser?> GetByOAuth(string code)
     {
-        using var httpClient = new HttpClient();
-        var tokenResponse = await httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(
+        using HttpClient httpClient = new();
+        HttpResponseMessage tokenResponse = await httpClient.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(
         [
             new KeyValuePair<string, string>("client_id", clientId),
             new KeyValuePair<string, string>("client_secret", clientSecret),
@@ -20,25 +20,29 @@ public class DiscordAuthService(string clientId, string clientSecret) : IDiscord
         ]));
         tokenResponse.EnsureSuccessStatusCode();
 
-        var tokenContent = await tokenResponse.Content.ReadAsStringAsync();
-        var token = JsonSerializer.Deserialize<DiscordTokenResponse>(tokenContent);
-        var connections = await getConnections(token);
+        string tokenContent = await tokenResponse.Content.ReadAsStringAsync();
+        TokenResponse token = JsonSerializer.Deserialize<TokenResponse>(tokenContent);
+        DiscordConnection[] connections = await GetConnections(token);
 
-        return new DiscordUser(token, connections);
+        return new DiscordUser { Token = token.AccessToken, Connections = connections };
     }
 
-    private async Task<ImmutableArray<DiscordConnection>> getConnections(DiscordTokenResponse token)
+    private static async Task<DiscordConnection[]> GetConnections(TokenResponse token)
     {
-        using var httpClient = new HttpClient();
-
-        var userRequest = new HttpRequestMessage(HttpMethod.Get, "https://discord.com/api/v10/users/@me/connections");
+        using HttpClient httpClient = new();
+        
+        HttpRequestMessage userRequest = new(HttpMethod.Get, "https://discord.com/api/v10/users/@me/connections");
         userRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 
-        var userResponse = await httpClient.SendAsync(userRequest);
+        HttpResponseMessage userResponse = await httpClient.SendAsync(userRequest);
         userResponse.EnsureSuccessStatusCode();
 
-        var userContent = await userResponse.Content.ReadAsStringAsync();
-
-        return JsonSerializer.Deserialize<ImmutableArray<DiscordConnection>>(userContent);
+        string userContent = await userResponse.Content.ReadAsStringAsync();
+        return [..JsonSerializer.Deserialize<ConnectionResponse[]>(userContent)!.Select(c => new DiscordConnection
+        {
+            Id = c.Id,
+            Type = c.Type,
+            Verified = c.Verified
+        })];
     }
 }

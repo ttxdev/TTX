@@ -1,9 +1,7 @@
-using System.Collections.Immutable;
+﻿namespace TTX.Interfaces.Discord;
 
-namespace TTX.Interfaces.Discord;
-
-public readonly struct DiscordUser(DiscordTokenResponse token, ImmutableArray<DiscordConnection> connections)
+public readonly struct DiscordUser
 {
-    public DiscordTokenResponse Token { get; } = token;
-    public ImmutableArray<DiscordConnection> TwitchConnections { get; } = [.. connections.Where(c => c.Verified && c.Type == "twitch")];
+    public required string Token { get; init; }
+    public required DiscordConnection[] Connections { get; init; }
 }

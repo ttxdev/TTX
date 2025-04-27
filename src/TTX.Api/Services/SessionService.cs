@@ -1,9 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
+using TTX.Api.Dto;
 using TTX.Api.Interfaces;
 using TTX.Api.Provider;
+using TTX.Commands.Players.AuthenticateDiscordUser;
+using TTX.Interfaces.Twitch;
 using TTX.Models;
 using TTX.ValueObjects;
 
@@ -48,7 +52,7 @@ public class SessionService(
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-          issuer: "ttx.gg",
+          issuer: "api.ttx.gg",
           audience: "ttx.gg",
           claims: claims,
           expires: DateTime.Now.AddDays(7),
@@ -56,5 +60,49 @@ public class SessionService(
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public string CreateDiscordSession(AuthenticateDiscordUserResult result)
+    {
+        var claims = new[]
+        {
+            new Claim("connections", JsonSerializer.Serialize(
+                result.TwitchUsers.Select(u => new TwitchUserDto(u))
+            )),
+        };
+    
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSecretKey()));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    
+        var token = new JwtSecurityToken(
+            issuer: "api.ttx.gg",
+            audience: "discord.ttx.gg",
+            claims: claims,
+            expires: DateTime.Now.AddDays(1),
+            signingCredentials: creds
+        );
+    
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    
+    public TwitchUserDto[] ParseDiscordSession(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(config.GetSecretKey());
+    
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "ttx.gg",
+            ValidAudience = "discord.ttx.gg",
+            IssuerSigningKey = new SymmetricSecurityKey(key)
+        };
+    
+        var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+    
+        var tUsers = JsonSerializer.Deserialize<TwitchUserDto[]>(principal.FindFirstValue("connections")!);
+        return tUsers!;
     }
 }
