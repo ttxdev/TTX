@@ -51,10 +51,10 @@
 	{#each creators as creator (creator.slug)}
 		<li class="list-row flex items-center max-md:flex-col max-md:p-4">
 			<div class="flex w-1/4 flex-col items-center justify-center gap-2 max-md:w-full">
-				<a href={`/channels/${creator.slug}`}>
+				<a href={`/creators/${creator.slug}`}>
 					<img src={creator.avatar_url} alt="" class="size-16 rounded-full" />
 				</a>
-				<a href={`/channels/${creator.slug}`} class="font-semibold hover:underline">
+				<a href={`/creators/${creator.slug}`} class="font-semibold hover:underline">
 					{creator.name}
 				</a>
 				<div class="mb-1 flex items-center justify-between"></div>

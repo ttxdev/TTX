@@ -5,5 +5,5 @@ export const GET: RequestHandler = async ({ params }) => {
 
 	if (!slug) return error(404, 'Not found');
 
-	return redirect(302, `/channels/${slug}`);
+	return redirect(302, `/creators/${slug}`);
 };

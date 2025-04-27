@@ -115,7 +115,7 @@
 					<div class="flex flex-col gap-2">
 						{#each holdings.filter((h) => h.isLive) as holding}
 							<a
-								href="/channels/{holding.slug}"
+								href="/creators/{holding.slug}"
 								class="flex items-center gap-3 rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
 								onclick={() => (showDrawer = false)}
 							>
@@ -135,7 +135,7 @@
 						<div class="flex flex-col gap-2">
 							{#each holdings.filter((h) => !h.isLive) as holding}
 								<a
-									href="/channels/{holding.slug}"
+									href="/creators/{holding.slug}"
 									class="flex items-center gap-3 rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
 									onclick={() => (showDrawer = false)}
 								>

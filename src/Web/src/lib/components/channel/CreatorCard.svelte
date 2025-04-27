@@ -2,15 +2,15 @@
 	import { formatTicker } from '$lib/util';
 	import CreatorValueChart from './CreatorValueChart.svelte';
 	import CreatorCurrentValue from './CreatorCurrentValue.svelte';
-	import type { ICreatorDto, Vote } from '$lib/api';
+	import type { ICreatorDto, VoteDto } from '$lib/api';
 	import ExternalLink from '../ExternalLink.svelte';
 
 	let props: {
 		creator: ICreatorDto;
-		history: Vote[];
+		history: VoteDto[];
 	} = $props();
 	let creator = $derived(props.creator);
-	let history = $derived<Vote[]>(props.history);
+	let history = $derived<VoteDto[]>(props.history);
 	let currentValue = $derived(history[history.length - 1]?.value ?? creator.value);
 </script>
 

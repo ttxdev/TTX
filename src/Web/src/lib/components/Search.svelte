@@ -35,13 +35,13 @@
 
 		isLoading = true;
 		try {
-			const [usersResponse, creatorsResponse] = await Promise.all([
-				client.getUsers(1, 3, 'Name', query),
+			const [players, creators] = await Promise.all([
+				client.getPlayers(1, 3, 'Name', query),
 				client.getCreators(1, 5, 'Slug', query)
 			]);
 
 			searchResults = [
-				...creatorsResponse.data.map((creator: any) => ({
+				...creators.data.map((creator: any) => ({
 					id: creator.id,
 					name: creator.name,
 					ticker: creator.ticker,
@@ -49,12 +49,12 @@
 					slug: creator.slug,
 					avatar_url: creator.avatar_url
 				})),
-				...usersResponse.data.map((user: any) => ({
-					id: user.id,
-					name: user.name,
+				...players.data.map((player: any) => ({
+					id: player.id,
+					name: player.name,
 					type: 'user' as const,
-					slug: user.name.toLowerCase(),
-					avatar_url: user.avatar_url
+					slug: player.name.toLowerCase(),
+					avatar_url: player.avatar_url
 				}))
 			];
 			selectedIndex = -1;
@@ -113,11 +113,11 @@
 						url =
 							searchResult.type === 'user'
 								? `/players/${searchResult.slug}`
-								: `/channels/${searchResult.slug}`;
+								: `/creators/${searchResult.slug}`;
 					} else {
 						// Handle recent streamers
 						const streamer = result as RecentStreamer;
-						url = `/channels/${streamer.slug}`;
+						url = `/creators/${streamer.slug}`;
 					}
 
 					goto(url);
@@ -203,7 +203,7 @@
 										<a
 											href={result.type === 'user'
 												? `/players/${result.slug}`
-												: `/channels/${result.slug}`}
+												: `/creators/${result.slug}`}
 											onclick={handleLinkClick}
 											class="flex w-full cursor-pointer items-center gap-4 p-4"
 										>
@@ -262,7 +262,7 @@
 								<tr class="w-full rounded-md">
 									<td class="w-full p-0">
 										<a
-											href={`/channels/${streamer.slug}`}
+											href={`/creators/${streamer.slug}`}
 											onclick={handleLinkClick}
 											class="flex w-full cursor-pointer items-center gap-4 p-4 {index ===
 											selectedIndex

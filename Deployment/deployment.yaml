@@ -22,9 +22,8 @@ spec:
         - name: ttx-regcreds
       containers:
       - name: api
-        image: ghcr.io/ttxdev/ttx.interface.api:main
+        image: ghcr.io/ttxdev/ttx.api:main
         imagePullPolicy: Always
-        command: ["/app/TTX.Interface.Api"]
         resources:
           limits:
             memory: "1Gi"
@@ -58,7 +57,7 @@ spec:
         - name: ttx-regcreds
       containers:
       - name: web
-        image: ghcr.io/ttxdev/ttx.interface.web:main
+        image: ghcr.io/ttxdev/ttx.web:main
         imagePullPolicy: Always
         resources:
           limits:
@@ -86,9 +85,8 @@ spec:
         - name: ttx-regcreds
       containers:
       - name: bot
-        image: ghcr.io/ttxdev/ttx.interface.bot:main
+        image: ghcr.io/ttxdev/ttx.bot:main
         imagePullPolicy: Always
-        command: ["/app/TTX.Interface.Bot", "bot"]
         resources:
         envFrom:
           - secretRef:
@@ -113,7 +111,7 @@ spec:
         - name: ttx-regcreds
       containers:
       - name: streammonitor
-        image: ghcr.io/ttxdev/ttx.interface.streammonitor:main
+        image: ghcr.io/ttxdev/ttx.streammonitor:main
         imagePullPolicy: Always
         envFrom:
           - secretRef:

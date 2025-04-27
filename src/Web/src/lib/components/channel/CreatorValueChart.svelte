@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { Vote } from '$lib/api';
+	import type { VoteDto } from '$lib/api';
 	import { formatValue } from '$lib/util';
 	import { Chart, registerables } from 'chart.js';
 	import { onMount } from 'svelte';
 
 	let canvas: HTMLCanvasElement | null = null;
-	const props: { history: Vote[] } = $props();
-	let history = $derived<Vote[]>(props.history);
+	const props: { history: VoteDto[] } = $props();
+	let history = $derived<VoteDto[]>(props.history);
 	let chart: Chart | null = $state(null);
 
 	$effect(() => {

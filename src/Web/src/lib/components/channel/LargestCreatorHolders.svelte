@@ -9,7 +9,7 @@
 
 	let total = $derived(
 		Object.fromEntries(
-			shares.map((holder) => [holder.user.name, formatValue(holder.quantity * price)])
+			shares.map((holder) => [holder.player.name, formatValue(holder.quantity * price)])
 		)
 	);
 </script>
@@ -18,13 +18,13 @@
 	{#if shares.length !== 0}
 		<table class="table">
 			<tbody>
-				{#each sortedHolders as holder, index (holder.user.id)}
+				{#each sortedHolders as holder, index (holder.player.id)}
 					<tr class="flex flex-row justify-between rounded-md py-1 md:p-2">
 						<td class="flex items-center justify-center gap-3">
-							<a href="/players/{holder.user.name}" class="flex flex-col">
+							<a href="/players/{holder.player.slug}" class="flex flex-col">
 								<img
-									alt={holder.user.name}
-									src={holder.user.avatar_url}
+									alt={holder.player.name}
+									src={holder.player.avatar_url}
 									class="size-10 rounded-full"
 								/>
 							</a>
@@ -33,10 +33,10 @@
 									<PlayerPlacement place={index + 1} />
 								</div>
 								<a
-									href="/players/{holder.user.name}"
+									href="/players/{holder.player.slug}"
 									class="text-sm text-violet-500 hover:underline"
 								>
-									{holder.user.name}
+									{holder.player.name}
 								</a>
 							</div>
 						</td>
@@ -45,7 +45,7 @@
 								{formatShareAmount(holder.quantity)} @ {formatValue(price)}
 							</span>
 							<div class="w-full text-right opacity-55">
-								{total[holder.user.name]}
+								{total[holder.player.name]}
 							</div>
 						</td>
 					</tr>

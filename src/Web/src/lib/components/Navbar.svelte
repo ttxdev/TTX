@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getTwitchRedirect, type UserData } from '$lib/auth';
 	import { onMount } from 'svelte';
 	import { user } from '$lib/stores/data';
 	import { page } from '$app/state';
@@ -25,7 +24,7 @@
 
 	$effect(() => {
 		if (homeEl) navLinks.set('/', homeEl);
-		if (channelsEl) navLinks.set('/channels', channelsEl);
+		if (channelsEl) navLinks.set('/creators', channelsEl);
 		if (teamEl) navLinks.set('/team', teamEl);
 	});
 
@@ -92,7 +91,7 @@
 				<a bind:this={homeEl} href="/" class="relative z-10 hover:bg-transparent"> Home </a>
 			</li>
 			<li>
-				<a bind:this={channelsEl} href="/channels" class="relative z-10 hover:bg-transparent">
+				<a bind:this={channelsEl} href="/creators" class="relative z-10 hover:bg-transparent">
 					Creators
 				</a>
 			</li>
@@ -225,9 +224,9 @@
 				</li>
 				<li>
 					<a
-						href="/channels"
+						href="/creators"
 						class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100"
-						class:underline={page.url.pathname === '/channels'}
+						class:underline={page.url.pathname === '/creators'}
 						onclick={toggleMenu}
 					>
 						Creators

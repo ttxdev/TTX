@@ -1,8 +1,7 @@
-import { getApiClient } from '$lib';
 import {
 	getToken,
 	getUserData,
-	handleDiscordCallbackToTwitch,
+	handleDiscordCallback,
 	login,
 	logout,
 	parseJwt
@@ -10,14 +9,13 @@ import {
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, cookies }) => {
-	const code = url.searchParams.get('access_token');
-	const twitchUser = url.searchParams.get('user');
+	const code = url.searchParams.get('code');
 
-	if (!code || !twitchUser) {
+	if (!code) {
 		return;
 	}
 
-	const token = await handleDiscordCallbackToTwitch(code, twitchUser);
+	const token = await handleDiscordCallback(code);
 	login(cookies, token, 'None');
 
 	const jwtData = parseJwt(token);

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TTX.ValueMonitor": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

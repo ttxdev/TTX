@@ -52,7 +52,7 @@
 		</div>
 		<div class="flex w-1/2 flex-col items-center justify-center max-md:w-full">
 			<Leaderboard creators={data.featuredCreators} />
-			<a class="mt-2 hover:underline hover:decoration-purple-500" href="/channels">
+			<a class="mt-2 hover:underline hover:decoration-purple-500" href="/creators">
 				<span class="font-black text-purple-500">View all creators →</span>
 			</a>
 		</div>

@@ -1,8 +1,6 @@
-name: Docker Publish TTX.Interface.StreamMonitor
+name: Docker Publish TTX.StreamMonitor
 
 on:
-  schedule:
-    - cron: '32 1 * * *'
   push:
     branches: ['main']
     tags: ['v*.*.*']
@@ -11,8 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ttxdev/ttx.interface.streammonitor
-  SRC_PATH: ./src/StreamMonitor
+  IMAGE_NAME: ttxdev/ttx.streammonitor
 
 jobs:
   build:
@@ -52,7 +49,8 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09
         with:
-          context: ${{ env.SRC_PATH }}
+          context: .
+          file: ./src/TTX.StreamMonitor/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

@@ -6,7 +6,7 @@ export const load = (async ({ cookies, params }) => {
 	const token = getToken(cookies);
 	const client = getApiClient(token ?? '');
 
-	const player = await client.getUser(params.playername);
+	const player = await client.getPlayer(params.playername);
 
 	return {
 		player: {
