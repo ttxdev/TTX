@@ -5,5 +5,5 @@ namespace TTX.Commands.Players.OnboardTwitchUser;
 
 public class OnboardTwitchUserCommand : ICommand<Player>
 {
-    public required Slug Username { get; init; }
+    public required TwitchId Id { get; init; }
 }

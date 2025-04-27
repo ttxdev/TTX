@@ -9,10 +9,10 @@ public class OnboardTwitchUserHandler(ApplicationDbContext context, ITwitchAuthS
 {
     public async Task<Player> Handle(OnboardTwitchUserCommand request, CancellationToken ct = default)
     {
-        var tUser = await twitch.Find(request.Username)
+        TwitchUser tUser = await twitch.FindById(request.Id)
             ?? throw new TwitchUserNotFoundException();
 
-        var player = Player.Create(
+        Player player = Player.Create(
             name: tUser.DisplayName,
             slug: tUser.Login,
             twitchId: tUser.Id,

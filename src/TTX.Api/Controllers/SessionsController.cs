@@ -52,6 +52,7 @@ public class SessionsController(ISender sender, ISessionService sessions) : Cont
 
         return Ok(await sender.Send(new OnboardTwitchUserCommand
         {
+            
             Id = tUser.Id
         }).ContinueWith(t => new TokenDto(sessions.CreateSession(t.Result))));
     }
