@@ -6,7 +6,7 @@
 	import IntervalSelector from './IntervalSelector.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { getApiClient } from '$lib';
-	import { TimeStep, TransactionAction, Vote } from '$lib/api';
+	import { TimeStep, TransactionAction, Vote, VoteDto } from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
 	import { discordSdk } from '$lib/discord';
 	import type { PageProps } from './$types';
@@ -14,7 +14,7 @@
 	let { data }: PageProps = $props();
 	let creator = $state(data.creator);
 
-	let history = $state<Vote[]>(data.creator.history);
+	let history = $state<VoteDto[]>(data.creator.history);
 	let buySellModal: TransactionAction | null = $state(null);
 	let pullTask: number | null = $state(null);
 	let interval = $state(data.interval);

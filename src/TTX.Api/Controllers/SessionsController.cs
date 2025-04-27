@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TTX.Api.Dto;
 using TTX.Api.Interfaces;
-using TTX.Commands.Creators.OnboardTwitchCreator;
 using TTX.Commands.Players.AuthenticateDiscordUser;
 using TTX.Commands.Players.AuthenticateTwitchUser;
 using TTX.Commands.Players.OnboardTwitchUser;

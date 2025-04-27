@@ -94,14 +94,14 @@ public class CreatorsController(ISender sender) : ControllerBase
     [HttpGet("{creatorSlug}/value/latest")]
     [EndpointName("GetLatestCreatorValue")]
     public async Task<ActionResult<Vote[]>> GetLatestValues(
-      [FromRoute] string username,
+      [FromRoute] string creatorSlug,
       [FromQuery] DateTime after,
       [FromQuery] TimeStep step = TimeStep.Minute
     )
     {
         Vote[] votes = await sender.Send(new PullLatestHistoryQuery
         {
-            CreatorSlug = username,
+            CreatorSlug = creatorSlug,
             Step = step,
             After = after
         });

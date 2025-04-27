@@ -186,11 +186,8 @@ export class TTXClient {
      * @param step (optional) 
      * @return OK
      */
-    getLatestCreatorValue(username: string, creatorSlug: string, after?: Date | undefined, step?: TimeStep | undefined): Promise<Vote[]> {
+    getLatestCreatorValue(creatorSlug: string, after?: Date | undefined, step?: TimeStep | undefined): Promise<Vote[]> {
         let url_ = this.baseUrl + "/creators/{creatorSlug}/value/latest?";
-        if (username === undefined || username === null)
-            throw new Error("The parameter 'username' must be defined.");
-        url_ = url_.replace("{username}", encodeURIComponent("" + username));
         if (creatorSlug === undefined || creatorSlug === null)
             throw new Error("The parameter 'creatorSlug' must be defined.");
         url_ = url_.replace("{creatorSlug}", encodeURIComponent("" + creatorSlug));
