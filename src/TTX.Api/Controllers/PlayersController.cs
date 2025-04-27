@@ -44,7 +44,7 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
             Search = search,
         });
 
-        return Ok(new PaginationDto<UserDto>
+        return Ok(new PaginationDto<PlayerDto>
         {
             Data = [.. page.Data.Select(u => new PlayerDto(u))],
             Total = page.Total,
