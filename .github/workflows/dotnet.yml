@@ -32,6 +32,8 @@ jobs:
     services:
       postgres:
         image: timescale/timescaledb:latest-pg17
+        ports:
+          - 5432:5432
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -54,5 +56,5 @@ jobs:
         run: dotnet restore
       - name: Test
         env:
-          TTX_CONNECTION_STRING: "Server=postgres;Port=5432;Database=ttx_test;Username=postgres;Password=postgres;"
-        run: dotnet test --verbosity normal
+          TTX_CONNECTION_STRING: "Server=localhost;Port=5432;Database=ttx_test;Username=postgres;Password=postgres;"
+        run: dotnet test --no-build --verbosity normal
