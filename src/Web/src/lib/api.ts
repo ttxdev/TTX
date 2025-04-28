@@ -9,2585 +9,2663 @@
 // ReSharper disable InconsistentNaming
 
 export class TTXClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+	private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+	private baseUrl: string;
+	protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : { fetch };
-        this.baseUrl = baseUrl ?? "";
-    }
+	constructor(
+		baseUrl?: string,
+		http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }
+	) {
+		this.http = http ? http : { fetch };
+		this.baseUrl = baseUrl ?? '';
+	}
 
-    /**
-     * @param page (optional) 
-     * @param limit (optional) 
-     * @param searchBy (optional) 
-     * @param searchValue (optional) 
-     * @param orders (optional) 
-     * @return OK
-     */
-    getCreators(page?: number | undefined, limit?: number | undefined, searchBy?: string | undefined, searchValue?: string | undefined, orders?: Order[] | undefined): Promise<CreatorPartialDtoPaginationDto> {
-        let url_ = this.baseUrl + "/creators?";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
-            url_ += "page=" + encodeURIComponent("" + page) + "&";
-        if (limit === null)
-            throw new Error("The parameter 'limit' cannot be null.");
-        else if (limit !== undefined)
-            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
-        if (searchBy === null)
-            throw new Error("The parameter 'searchBy' cannot be null.");
-        else if (searchBy !== undefined)
-            url_ += "searchBy=" + encodeURIComponent("" + searchBy) + "&";
-        if (searchValue === null)
-            throw new Error("The parameter 'searchValue' cannot be null.");
-        else if (searchValue !== undefined)
-            url_ += "searchValue=" + encodeURIComponent("" + searchValue) + "&";
-        if (orders === null)
-            throw new Error("The parameter 'orders' cannot be null.");
-        else if (orders !== undefined)
-            orders && orders.forEach((item, index) => {
-                for (const attr in item)
-        			if (item.hasOwnProperty(attr)) {
-        				url_ += "orders[" + index + "]." + attr + "=" + encodeURIComponent("" + (item as any)[attr]) + "&";
-        			}
-            });
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param page (optional)
+	 * @param limit (optional)
+	 * @param search (optional)
+	 * @param orderBy (optional)
+	 * @param orderDir (optional)
+	 * @return OK
+	 */
+	getCreators(
+		page?: number | undefined,
+		limit?: number | undefined,
+		search?: string | undefined,
+		orderBy?: CreatorOrderBy | undefined,
+		orderDir?: OrderDirection | undefined
+	): Promise<CreatorPartialDtoPaginationDto> {
+		let url_ = this.baseUrl + '/creators?';
+		if (page === null) throw new Error("The parameter 'page' cannot be null.");
+		else if (page !== undefined) url_ += 'page=' + encodeURIComponent('' + page) + '&';
+		if (limit === null) throw new Error("The parameter 'limit' cannot be null.");
+		else if (limit !== undefined) url_ += 'limit=' + encodeURIComponent('' + limit) + '&';
+		if (search === null) throw new Error("The parameter 'search' cannot be null.");
+		else if (search !== undefined) url_ += 'search=' + encodeURIComponent('' + search) + '&';
+		if (orderBy === null) throw new Error("The parameter 'orderBy' cannot be null.");
+		else if (orderBy !== undefined) url_ += 'orderBy=' + encodeURIComponent('' + orderBy) + '&';
+		if (orderDir === null) throw new Error("The parameter 'orderDir' cannot be null.");
+		else if (orderDir !== undefined) url_ += 'orderDir=' + encodeURIComponent('' + orderDir) + '&';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCreators(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processGetCreators(_response);
+		});
+	}
 
-    protected processGetCreators(response: Response): Promise<CreatorPartialDtoPaginationDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CreatorPartialDtoPaginationDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<CreatorPartialDtoPaginationDto>(null as any);
-    }
+	protected processGetCreators(response: Response): Promise<CreatorPartialDtoPaginationDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = CreatorPartialDtoPaginationDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<CreatorPartialDtoPaginationDto>(null as any);
+	}
 
-    /**
-     * @param username (optional) 
-     * @return OK
-     */
-    createCreator(value: string, username?: string | undefined): Promise<CreatorDto> {
-        let url_ = this.baseUrl + "/creators?";
-        if (value === undefined || value === null)
-            throw new Error("The parameter 'value' must be defined and cannot be null.");
-        else
-            url_ += "Value=" + encodeURIComponent("" + value) + "&";
-        if (username === null)
-            throw new Error("The parameter 'username' cannot be null.");
-        else if (username !== undefined)
-            url_ += "username=" + encodeURIComponent("" + username) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param username (optional)
+	 * @return OK
+	 */
+	createCreator(value: string, username?: string | undefined): Promise<CreatorDto> {
+		let url_ = this.baseUrl + '/creators?';
+		if (value === undefined || value === null)
+			throw new Error("The parameter 'value' must be defined and cannot be null.");
+		else url_ += 'Value=' + encodeURIComponent('' + value) + '&';
+		if (username === null) throw new Error("The parameter 'username' cannot be null.");
+		else if (username !== undefined) url_ += 'username=' + encodeURIComponent('' + username) + '&';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "POST",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateCreator(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processCreateCreator(_response);
+		});
+	}
 
-    protected processCreateCreator(response: Response): Promise<CreatorDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CreatorDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<CreatorDto>(null as any);
-    }
+	protected processCreateCreator(response: Response): Promise<CreatorDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = CreatorDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<CreatorDto>(null as any);
+	}
 
-    /**
-     * @param step (optional) 
-     * @param after (optional) 
-     * @return OK
-     */
-    getCreator(slug: string, step?: TimeStep | undefined, after?: Date | undefined): Promise<CreatorDto> {
-        let url_ = this.baseUrl + "/creators/{slug}?";
-        if (slug === undefined || slug === null)
-            throw new Error("The parameter 'slug' must be defined.");
-        url_ = url_.replace("{slug}", encodeURIComponent("" + slug));
-        if (step === null)
-            throw new Error("The parameter 'step' cannot be null.");
-        else if (step !== undefined)
-            url_ += "step=" + encodeURIComponent("" + step) + "&";
-        if (after === null)
-            throw new Error("The parameter 'after' cannot be null.");
-        else if (after !== undefined)
-            url_ += "after=" + encodeURIComponent(after ? "" + after.toISOString() : "") + "&";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param step (optional)
+	 * @param after (optional)
+	 * @return OK
+	 */
+	getCreator(
+		slug: string,
+		step?: TimeStep | undefined,
+		after?: Date | undefined
+	): Promise<CreatorDto> {
+		let url_ = this.baseUrl + '/creators/{slug}?';
+		if (slug === undefined || slug === null)
+			throw new Error("The parameter 'slug' must be defined.");
+		url_ = url_.replace('{slug}', encodeURIComponent('' + slug));
+		if (step === null) throw new Error("The parameter 'step' cannot be null.");
+		else if (step !== undefined) url_ += 'step=' + encodeURIComponent('' + step) + '&';
+		if (after === null) throw new Error("The parameter 'after' cannot be null.");
+		else if (after !== undefined)
+			url_ += 'after=' + encodeURIComponent(after ? '' + after.toISOString() : '') + '&';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCreator(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processGetCreator(_response);
+		});
+	}
 
-    protected processGetCreator(response: Response): Promise<CreatorDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CreatorDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<CreatorDto>(null as any);
-    }
+	protected processGetCreator(response: Response): Promise<CreatorDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = CreatorDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<CreatorDto>(null as any);
+	}
 
-    /**
-     * @param after (optional) 
-     * @param step (optional) 
-     * @return OK
-     */
-    getLatestCreatorValue(creatorSlug: string, after?: Date | undefined, step?: TimeStep | undefined): Promise<Vote[]> {
-        let url_ = this.baseUrl + "/creators/{creatorSlug}/value/latest?";
-        if (creatorSlug === undefined || creatorSlug === null)
-            throw new Error("The parameter 'creatorSlug' must be defined.");
-        url_ = url_.replace("{creatorSlug}", encodeURIComponent("" + creatorSlug));
-        if (after === null)
-            throw new Error("The parameter 'after' cannot be null.");
-        else if (after !== undefined)
-            url_ += "after=" + encodeURIComponent(after ? "" + after.toISOString() : "") + "&";
-        if (step === null)
-            throw new Error("The parameter 'step' cannot be null.");
-        else if (step !== undefined)
-            url_ += "step=" + encodeURIComponent("" + step) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param after (optional)
+	 * @param step (optional)
+	 * @return OK
+	 */
+	getLatestCreatorValue(
+		creatorSlug: string,
+		after?: Date | undefined,
+		step?: TimeStep | undefined
+	): Promise<Vote[]> {
+		let url_ = this.baseUrl + '/creators/{creatorSlug}/value/latest?';
+		if (creatorSlug === undefined || creatorSlug === null)
+			throw new Error("The parameter 'creatorSlug' must be defined.");
+		url_ = url_.replace('{creatorSlug}', encodeURIComponent('' + creatorSlug));
+		if (after === null) throw new Error("The parameter 'after' cannot be null.");
+		else if (after !== undefined)
+			url_ += 'after=' + encodeURIComponent(after ? '' + after.toISOString() : '') + '&';
+		if (step === null) throw new Error("The parameter 'step' cannot be null.");
+		else if (step !== undefined) url_ += 'step=' + encodeURIComponent('' + step) + '&';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetLatestCreatorValue(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processGetLatestCreatorValue(_response);
+		});
+	}
 
-    protected processGetLatestCreatorValue(response: Response): Promise<Vote[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(Vote.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Vote[]>(null as any);
-    }
+	protected processGetLatestCreatorValue(response: Response): Promise<Vote[]> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				if (Array.isArray(resultData200)) {
+					result200 = [] as any;
+					for (let item of resultData200) result200!.push(Vote.fromJS(item));
+				} else {
+					result200 = <any>null;
+				}
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<Vote[]>(null as any);
+	}
 
-    /**
-     * @param slug (optional) 
-     * @return OK
-     */
-    getCreatorTransactions(creatorSlug: string, slug?: string | undefined): Promise<PlayerTransactionDto[]> {
-        let url_ = this.baseUrl + "/creators/{creatorSlug}/transactions?";
-        if (creatorSlug === undefined || creatorSlug === null)
-            throw new Error("The parameter 'creatorSlug' must be defined.");
-        url_ = url_.replace("{creatorSlug}", encodeURIComponent("" + creatorSlug));
-        if (slug === null)
-            throw new Error("The parameter 'slug' cannot be null.");
-        else if (slug !== undefined)
-            url_ += "slug=" + encodeURIComponent("" + slug) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param slug (optional)
+	 * @return OK
+	 */
+	getCreatorTransactions(
+		creatorSlug: string,
+		slug?: string | undefined
+	): Promise<PlayerTransactionDto[]> {
+		let url_ = this.baseUrl + '/creators/{creatorSlug}/transactions?';
+		if (creatorSlug === undefined || creatorSlug === null)
+			throw new Error("The parameter 'creatorSlug' must be defined.");
+		url_ = url_.replace('{creatorSlug}', encodeURIComponent('' + creatorSlug));
+		if (slug === null) throw new Error("The parameter 'slug' cannot be null.");
+		else if (slug !== undefined) url_ += 'slug=' + encodeURIComponent('' + slug) + '&';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCreatorTransactions(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processGetCreatorTransactions(_response);
+		});
+	}
 
-    protected processGetCreatorTransactions(response: Response): Promise<PlayerTransactionDto[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(PlayerTransactionDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PlayerTransactionDto[]>(null as any);
-    }
+	protected processGetCreatorTransactions(response: Response): Promise<PlayerTransactionDto[]> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				if (Array.isArray(resultData200)) {
+					result200 = [] as any;
+					for (let item of resultData200) result200!.push(PlayerTransactionDto.fromJS(item));
+				} else {
+					result200 = <any>null;
+				}
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<PlayerTransactionDto[]>(null as any);
+	}
 
-    /**
-     * @param page (optional) 
-     * @param limit (optional) 
-     * @param searchBy (optional) 
-     * @param searchValue (optional) 
-     * @param orders (optional) 
-     * @return OK
-     */
-    getPlayers(page?: number | undefined, limit?: number | undefined, searchBy?: string | undefined, searchValue?: string | undefined, orders?: Order[] | undefined): Promise<PlayerDtoPaginationDto> {
-        let url_ = this.baseUrl + "/players?";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
-            url_ += "page=" + encodeURIComponent("" + page) + "&";
-        if (limit === null)
-            throw new Error("The parameter 'limit' cannot be null.");
-        else if (limit !== undefined)
-            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
-        if (searchBy === null)
-            throw new Error("The parameter 'searchBy' cannot be null.");
-        else if (searchBy !== undefined)
-            url_ += "searchBy=" + encodeURIComponent("" + searchBy) + "&";
-        if (searchValue === null)
-            throw new Error("The parameter 'searchValue' cannot be null.");
-        else if (searchValue !== undefined)
-            url_ += "searchValue=" + encodeURIComponent("" + searchValue) + "&";
-        if (orders === null)
-            throw new Error("The parameter 'orders' cannot be null.");
-        else if (orders !== undefined)
-            orders && orders.forEach((item, index) => {
-                for (const attr in item)
-        			if (item.hasOwnProperty(attr)) {
-        				url_ += "orders[" + index + "]." + attr + "=" + encodeURIComponent("" + (item as any)[attr]) + "&";
-        			}
-            });
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param page (optional)
+	 * @param limit (optional)
+	 * @param search (optional)
+	 * @param orderBy (optional)
+	 * @param orderDir (optional)
+	 * @return OK
+	 */
+	getPlayers(
+		page?: number | undefined,
+		limit?: number | undefined,
+		search?: string | undefined,
+		orderBy?: PlayerOrderBy | undefined,
+		orderDir?: OrderDirection | undefined
+	): Promise<PlayerDtoPaginationDto> {
+		let url_ = this.baseUrl + '/players?';
+		if (page === null) throw new Error("The parameter 'page' cannot be null.");
+		else if (page !== undefined) url_ += 'page=' + encodeURIComponent('' + page) + '&';
+		if (limit === null) throw new Error("The parameter 'limit' cannot be null.");
+		else if (limit !== undefined) url_ += 'limit=' + encodeURIComponent('' + limit) + '&';
+		if (search === null) throw new Error("The parameter 'search' cannot be null.");
+		else if (search !== undefined) url_ += 'search=' + encodeURIComponent('' + search) + '&';
+		if (orderBy === null) throw new Error("The parameter 'orderBy' cannot be null.");
+		else if (orderBy !== undefined) url_ += 'orderBy=' + encodeURIComponent('' + orderBy) + '&';
+		if (orderDir === null) throw new Error("The parameter 'orderDir' cannot be null.");
+		else if (orderDir !== undefined) url_ += 'orderDir=' + encodeURIComponent('' + orderDir) + '&';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetPlayers(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processGetPlayers(_response);
+		});
+	}
 
-    protected processGetPlayers(response: Response): Promise<PlayerDtoPaginationDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PlayerDtoPaginationDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PlayerDtoPaginationDto>(null as any);
-    }
+	protected processGetPlayers(response: Response): Promise<PlayerDtoPaginationDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = PlayerDtoPaginationDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<PlayerDtoPaginationDto>(null as any);
+	}
 
-    /**
-     * @return OK
-     */
-    gamba(): Promise<LootBoxResultDto> {
-        let url_ = this.baseUrl + "/players";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @return OK
+	 */
+	gamba(): Promise<LootBoxResultDto> {
+		let url_ = this.baseUrl + '/players';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "POST",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGamba(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processGamba(_response);
+		});
+	}
 
-    protected processGamba(response: Response): Promise<LootBoxResultDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LootBoxResultDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<LootBoxResultDto>(null as any);
-    }
+	protected processGamba(response: Response): Promise<LootBoxResultDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = LootBoxResultDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<LootBoxResultDto>(null as any);
+	}
 
-    /**
-     * @return OK
-     */
-    getPlayer(username: string): Promise<PlayerDto> {
-        let url_ = this.baseUrl + "/players/{username}";
-        if (username === undefined || username === null)
-            throw new Error("The parameter 'username' must be defined.");
-        url_ = url_.replace("{username}", encodeURIComponent("" + username));
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @return OK
+	 */
+	getPlayer(username: string): Promise<PlayerDto> {
+		let url_ = this.baseUrl + '/players/{username}';
+		if (username === undefined || username === null)
+			throw new Error("The parameter 'username' must be defined.");
+		url_ = url_.replace('{username}', encodeURIComponent('' + username));
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetPlayer(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processGetPlayer(_response);
+		});
+	}
 
-    protected processGetPlayer(response: Response): Promise<PlayerDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PlayerDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PlayerDto>(null as any);
-    }
+	protected processGetPlayer(response: Response): Promise<PlayerDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = PlayerDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<PlayerDto>(null as any);
+	}
 
-    /**
-     * @return OK
-     */
-    getSelf(): Promise<PlayerDto> {
-        let url_ = this.baseUrl + "/players/me";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @return OK
+	 */
+	getSelf(): Promise<PlayerDto> {
+		let url_ = this.baseUrl + '/players/me';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetSelf(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processGetSelf(_response);
+		});
+	}
 
-    protected processGetSelf(response: Response): Promise<PlayerDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PlayerDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PlayerDto>(null as any);
-    }
+	protected processGetSelf(response: Response): Promise<PlayerDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = PlayerDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<PlayerDto>(null as any);
+	}
 
-    /**
-     * @return OK
-     */
-    getPlayerTransactions(username: string): Promise<PlayerTransactionDto[]> {
-        let url_ = this.baseUrl + "/players/{username}/transactions";
-        if (username === undefined || username === null)
-            throw new Error("The parameter 'username' must be defined.");
-        url_ = url_.replace("{username}", encodeURIComponent("" + username));
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @return OK
+	 */
+	getPlayerTransactions(username: string): Promise<PlayerTransactionDto[]> {
+		let url_ = this.baseUrl + '/players/{username}/transactions';
+		if (username === undefined || username === null)
+			throw new Error("The parameter 'username' must be defined.");
+		url_ = url_.replace('{username}', encodeURIComponent('' + username));
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetPlayerTransactions(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processGetPlayerTransactions(_response);
+		});
+	}
 
-    protected processGetPlayerTransactions(response: Response): Promise<PlayerTransactionDto[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(PlayerTransactionDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PlayerTransactionDto[]>(null as any);
-    }
+	protected processGetPlayerTransactions(response: Response): Promise<PlayerTransactionDto[]> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				if (Array.isArray(resultData200)) {
+					result200 = [] as any;
+					for (let item of resultData200) result200!.push(PlayerTransactionDto.fromJS(item));
+				} else {
+					result200 = <any>null;
+				}
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<PlayerTransactionDto[]>(null as any);
+	}
 
-    /**
-     * @param code (optional) 
-     * @return OK
-     */
-    twitchCallback(code?: string | undefined): Promise<TokenDto> {
-        let url_ = this.baseUrl + "/sessions/twitch/callback?";
-        if (code === null)
-            throw new Error("The parameter 'code' cannot be null.");
-        else if (code !== undefined)
-            url_ += "code=" + encodeURIComponent("" + code) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param code (optional)
+	 * @return OK
+	 */
+	twitchCallback(code?: string | undefined): Promise<TokenDto> {
+		let url_ = this.baseUrl + '/sessions/twitch/callback?';
+		if (code === null) throw new Error("The parameter 'code' cannot be null.");
+		else if (code !== undefined) url_ += 'code=' + encodeURIComponent('' + code) + '&';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "text/plain"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'text/plain'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processTwitchCallback(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processTwitchCallback(_response);
+		});
+	}
 
-    protected processTwitchCallback(response: Response): Promise<TokenDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = TokenDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<TokenDto>(null as any);
-    }
+	protected processTwitchCallback(response: Response): Promise<TokenDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = TokenDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<TokenDto>(null as any);
+	}
 
-    /**
-     * @param code (optional) 
-     * @return OK
-     */
-    discordCallback(code?: string | undefined): Promise<TokenDto> {
-        let url_ = this.baseUrl + "/sessions/discord/callback?";
-        if (code === null)
-            throw new Error("The parameter 'code' cannot be null.");
-        else if (code !== undefined)
-            url_ += "code=" + encodeURIComponent("" + code) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param code (optional)
+	 * @return OK
+	 */
+	discordCallback(code?: string | undefined): Promise<TokenDto> {
+		let url_ = this.baseUrl + '/sessions/discord/callback?';
+		if (code === null) throw new Error("The parameter 'code' cannot be null.");
+		else if (code !== undefined) url_ += 'code=' + encodeURIComponent('' + code) + '&';
+		url_ = url_.replace(/[?&]$/, '');
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "text/plain"
-            }
-        };
+		let options_: RequestInit = {
+			method: 'GET',
+			headers: {
+				Accept: 'text/plain'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDiscordCallback(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processDiscordCallback(_response);
+		});
+	}
 
-    protected processDiscordCallback(response: Response): Promise<TokenDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = TokenDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<TokenDto>(null as any);
-    }
+	protected processDiscordCallback(response: Response): Promise<TokenDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = TokenDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<TokenDto>(null as any);
+	}
 
-    /**
-     * @param body (optional) 
-     * @return OK
-     */
-    linkDiscordTwitch(body?: LinkDiscordTwitchDto | undefined): Promise<TokenDto> {
-        let url_ = this.baseUrl + "/sessions/discord/link";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param body (optional)
+	 * @return OK
+	 */
+	linkDiscordTwitch(body?: LinkDiscordTwitchDto | undefined): Promise<TokenDto> {
+		let url_ = this.baseUrl + '/sessions/discord/link';
+		url_ = url_.replace(/[?&]$/, '');
 
-        const content_ = JSON.stringify(body);
+		const content_ = JSON.stringify(body);
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            }
-        };
+		let options_: RequestInit = {
+			body: content_,
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Accept: 'text/plain'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processLinkDiscordTwitch(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processLinkDiscordTwitch(_response);
+		});
+	}
 
-    protected processLinkDiscordTwitch(response: Response): Promise<TokenDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = TokenDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<TokenDto>(null as any);
-    }
+	protected processLinkDiscordTwitch(response: Response): Promise<TokenDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = TokenDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<TokenDto>(null as any);
+	}
 
-    /**
-     * @param body (optional) 
-     * @return OK
-     */
-    placeOrder(body?: CreateTransactionDto | undefined): Promise<CreatorTransactionDto> {
-        let url_ = this.baseUrl + "/transactions";
-        url_ = url_.replace(/[?&]$/, "");
+	/**
+	 * @param body (optional)
+	 * @return OK
+	 */
+	placeOrder(body?: CreateTransactionDto | undefined): Promise<CreatorTransactionDto> {
+		let url_ = this.baseUrl + '/transactions';
+		url_ = url_.replace(/[?&]$/, '');
 
-        const content_ = JSON.stringify(body);
+		const content_ = JSON.stringify(body);
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            }
-        };
+		let options_: RequestInit = {
+			body: content_,
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Accept: 'text/plain'
+			}
+		};
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPlaceOrder(_response);
-        });
-    }
+		return this.http.fetch(url_, options_).then((_response: Response) => {
+			return this.processPlaceOrder(_response);
+		});
+	}
 
-    protected processPlaceOrder(response: Response): Promise<CreatorTransactionDto> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CreatorTransactionDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<CreatorTransactionDto>(null as any);
-    }
+	protected processPlaceOrder(response: Response): Promise<CreatorTransactionDto> {
+		const status = response.status;
+		let _headers: any = {};
+		if (response.headers && response.headers.forEach) {
+			response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+		}
+		if (status === 200) {
+			return response.text().then((_responseText) => {
+				let result200: any = null;
+				let resultData200 =
+					_responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
+				result200 = CreatorTransactionDto.fromJS(resultData200);
+				return result200;
+			});
+		} else if (status !== 200 && status !== 204) {
+			return response.text().then((_responseText) => {
+				return throwException(
+					'An unexpected server error occurred.',
+					status,
+					_responseText,
+					_headers
+				);
+			});
+		}
+		return Promise.resolve<CreatorTransactionDto>(null as any);
+	}
 }
 
 export class CreateTransactionDto implements ICreateTransactionDto {
-    creator!: string;
-    action!: TransactionAction;
-    amount!: number;
+	creator!: string;
+	action!: TransactionAction;
+	amount!: number;
 
-    constructor(data?: ICreateTransactionDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: ICreateTransactionDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.creator = _data["creator"] !== undefined ? _data["creator"] : <any>null;
-            this.action = _data["action"] !== undefined ? _data["action"] : <any>null;
-            this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.creator = _data['creator'] !== undefined ? _data['creator'] : <any>null;
+			this.action = _data['action'] !== undefined ? _data['action'] : <any>null;
+			this.amount = _data['amount'] !== undefined ? _data['amount'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): CreateTransactionDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateTransactionDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): CreateTransactionDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new CreateTransactionDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["creator"] = this.creator !== undefined ? this.creator : <any>null;
-        data["action"] = this.action !== undefined ? this.action : <any>null;
-        data["amount"] = this.amount !== undefined ? this.amount : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['creator'] = this.creator !== undefined ? this.creator : <any>null;
+		data['action'] = this.action !== undefined ? this.action : <any>null;
+		data['amount'] = this.amount !== undefined ? this.amount : <any>null;
+		return data;
+	}
 }
 
 export interface ICreateTransactionDto {
-    creator: string;
-    action: TransactionAction;
-    amount: number;
+	creator: string;
+	action: TransactionAction;
+	amount: number;
 }
 
 export class Creator implements ICreator {
-    id!: ModelId;
-    readonly createdAt!: Date;
-    readonly updatedAt!: Date;
-    name!: Name;
-    slug!: Slug;
-    twitchId!: TwitchId;
-    avatarUrl!: string;
-    ticker!: Ticker;
-    value!: Credits;
-    streamStatus!: StreamStatus;
-    transactions!: Transaction[];
-    history!: Vote[];
+	id!: ModelId;
+	readonly createdAt!: Date;
+	readonly updatedAt!: Date;
+	name!: Name;
+	slug!: Slug;
+	twitchId!: TwitchId;
+	avatarUrl!: string;
+	ticker!: Ticker;
+	value!: Credits;
+	streamStatus!: StreamStatus;
+	transactions!: Transaction[];
+	history!: Vote[];
 
-    constructor(data?: ICreator) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.id = new ModelId();
-            this.name = new Name();
-            this.slug = new Slug();
-            this.twitchId = new TwitchId();
-            this.ticker = new Ticker();
-            this.value = new Credits();
-            this.streamStatus = new StreamStatus();
-            this.transactions = [];
-            this.history = [];
-        }
-    }
+	constructor(data?: ICreator) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.id = new ModelId();
+			this.name = new Name();
+			this.slug = new Slug();
+			this.twitchId = new TwitchId();
+			this.ticker = new Ticker();
+			this.value = new Credits();
+			this.streamStatus = new StreamStatus();
+			this.transactions = [];
+			this.history = [];
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] ? ModelId.fromJS(_data["id"]) : new ModelId();
-            (<any>this).createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>null;
-            (<any>this).updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>null;
-            this.name = _data["name"] ? Name.fromJS(_data["name"]) : new Name();
-            this.slug = _data["slug"] ? Slug.fromJS(_data["slug"]) : new Slug();
-            this.twitchId = _data["twitchId"] ? TwitchId.fromJS(_data["twitchId"]) : new TwitchId();
-            this.avatarUrl = _data["avatarUrl"] !== undefined ? _data["avatarUrl"] : <any>null;
-            this.ticker = _data["ticker"] ? Ticker.fromJS(_data["ticker"]) : new Ticker();
-            this.value = _data["value"] ? Credits.fromJS(_data["value"]) : new Credits();
-            this.streamStatus = _data["streamStatus"] ? StreamStatus.fromJS(_data["streamStatus"]) : new StreamStatus();
-            if (Array.isArray(_data["transactions"])) {
-                this.transactions = [] as any;
-                for (let item of _data["transactions"])
-                    this.transactions!.push(Transaction.fromJS(item));
-            }
-            else {
-                this.transactions = <any>null;
-            }
-            if (Array.isArray(_data["history"])) {
-                this.history = [] as any;
-                for (let item of _data["history"])
-                    this.history!.push(Vote.fromJS(item));
-            }
-            else {
-                this.history = <any>null;
-            }
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.id = _data['id'] ? ModelId.fromJS(_data['id']) : new ModelId();
+			(<any>this).createdAt = _data['createdAt']
+				? new Date(_data['createdAt'].toString())
+				: <any>null;
+			(<any>this).updatedAt = _data['updatedAt']
+				? new Date(_data['updatedAt'].toString())
+				: <any>null;
+			this.name = _data['name'] ? Name.fromJS(_data['name']) : new Name();
+			this.slug = _data['slug'] ? Slug.fromJS(_data['slug']) : new Slug();
+			this.twitchId = _data['twitchId'] ? TwitchId.fromJS(_data['twitchId']) : new TwitchId();
+			this.avatarUrl = _data['avatarUrl'] !== undefined ? _data['avatarUrl'] : <any>null;
+			this.ticker = _data['ticker'] ? Ticker.fromJS(_data['ticker']) : new Ticker();
+			this.value = _data['value'] ? Credits.fromJS(_data['value']) : new Credits();
+			this.streamStatus = _data['streamStatus']
+				? StreamStatus.fromJS(_data['streamStatus'])
+				: new StreamStatus();
+			if (Array.isArray(_data['transactions'])) {
+				this.transactions = [] as any;
+				for (let item of _data['transactions']) this.transactions!.push(Transaction.fromJS(item));
+			} else {
+				this.transactions = <any>null;
+			}
+			if (Array.isArray(_data['history'])) {
+				this.history = [] as any;
+				for (let item of _data['history']) this.history!.push(Vote.fromJS(item));
+			} else {
+				this.history = <any>null;
+			}
+		}
+	}
 
-    static fromJS(data: any): Creator {
-        data = typeof data === 'object' ? data : {};
-        let result = new Creator();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): Creator {
+		data = typeof data === 'object' ? data : {};
+		let result = new Creator();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id ? this.id.toJSON() : <any>null;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>null;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
-        data["name"] = this.name ? this.name.toJSON() : <any>null;
-        data["slug"] = this.slug ? this.slug.toJSON() : <any>null;
-        data["twitchId"] = this.twitchId ? this.twitchId.toJSON() : <any>null;
-        data["avatarUrl"] = this.avatarUrl !== undefined ? this.avatarUrl : <any>null;
-        data["ticker"] = this.ticker ? this.ticker.toJSON() : <any>null;
-        data["value"] = this.value ? this.value.toJSON() : <any>null;
-        data["streamStatus"] = this.streamStatus ? this.streamStatus.toJSON() : <any>null;
-        if (Array.isArray(this.transactions)) {
-            data["transactions"] = [];
-            for (let item of this.transactions)
-                data["transactions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.history)) {
-            data["history"] = [];
-            for (let item of this.history)
-                data["history"].push(item.toJSON());
-        }
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id ? this.id.toJSON() : <any>null;
+		data['createdAt'] = this.createdAt ? this.createdAt.toISOString() : <any>null;
+		data['updatedAt'] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
+		data['name'] = this.name ? this.name.toJSON() : <any>null;
+		data['slug'] = this.slug ? this.slug.toJSON() : <any>null;
+		data['twitchId'] = this.twitchId ? this.twitchId.toJSON() : <any>null;
+		data['avatarUrl'] = this.avatarUrl !== undefined ? this.avatarUrl : <any>null;
+		data['ticker'] = this.ticker ? this.ticker.toJSON() : <any>null;
+		data['value'] = this.value ? this.value.toJSON() : <any>null;
+		data['streamStatus'] = this.streamStatus ? this.streamStatus.toJSON() : <any>null;
+		if (Array.isArray(this.transactions)) {
+			data['transactions'] = [];
+			for (let item of this.transactions) data['transactions'].push(item.toJSON());
+		}
+		if (Array.isArray(this.history)) {
+			data['history'] = [];
+			for (let item of this.history) data['history'].push(item.toJSON());
+		}
+		return data;
+	}
 }
 
 export interface ICreator {
-    id: ModelId;
-    createdAt: Date;
-    updatedAt: Date;
-    name: Name;
-    slug: Slug;
-    twitchId: TwitchId;
-    avatarUrl: string;
-    ticker: Ticker;
-    value: Credits;
-    streamStatus: StreamStatus;
-    transactions: Transaction[];
-    history: Vote[];
+	id: ModelId;
+	createdAt: Date;
+	updatedAt: Date;
+	name: Name;
+	slug: Slug;
+	twitchId: TwitchId;
+	avatarUrl: string;
+	ticker: Ticker;
+	value: Credits;
+	streamStatus: StreamStatus;
+	transactions: Transaction[];
+	history: Vote[];
 }
 
 export class CreatorDto implements ICreatorDto {
-    readonly id!: number;
-    readonly created_at!: Date;
-    readonly updated_at!: Date;
-    readonly name!: string;
-    readonly slug!: string;
-    readonly url!: string;
-    readonly avatar_url!: string;
-    readonly ticker!: string;
-    readonly value!: number;
-    stream_status!: StreamStatusDto;
-    readonly history!: VoteDto[];
-    readonly transactions!: CreatorTransactionDto[];
-    readonly shares!: CreatorShareDto[];
+	readonly id!: number;
+	readonly created_at!: Date;
+	readonly updated_at!: Date;
+	readonly name!: string;
+	readonly slug!: string;
+	readonly url!: string;
+	readonly avatar_url!: string;
+	readonly ticker!: string;
+	readonly value!: number;
+	stream_status!: StreamStatusDto;
+	readonly history!: VoteDto[];
+	readonly transactions!: CreatorTransactionDto[];
+	readonly shares!: CreatorShareDto[];
 
-    constructor(data?: ICreatorDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.stream_status = new StreamStatusDto();
-            this.history = [];
-            this.transactions = [];
-            this.shares = [];
-        }
-    }
+	constructor(data?: ICreatorDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.stream_status = new StreamStatusDto();
+			this.history = [];
+			this.transactions = [];
+			this.shares = [];
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            (<any>this).created_at = _data["created_at"] ? new Date(_data["created_at"].toString()) : <any>null;
-            (<any>this).updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
-            (<any>this).name = _data["name"] !== undefined ? _data["name"] : <any>null;
-            (<any>this).slug = _data["slug"] !== undefined ? _data["slug"] : <any>null;
-            (<any>this).url = _data["url"] !== undefined ? _data["url"] : <any>null;
-            (<any>this).avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
-            (<any>this).ticker = _data["ticker"] !== undefined ? _data["ticker"] : <any>null;
-            (<any>this).value = _data["value"] !== undefined ? _data["value"] : <any>null;
-            this.stream_status = _data["stream_status"] ? StreamStatusDto.fromJS(_data["stream_status"]) : new StreamStatusDto();
-            if (Array.isArray(_data["history"])) {
-                (<any>this).history = [] as any;
-                for (let item of _data["history"])
-                    (<any>this).history!.push(VoteDto.fromJS(item));
-            }
-            else {
-                (<any>this).history = <any>null;
-            }
-            if (Array.isArray(_data["transactions"])) {
-                (<any>this).transactions = [] as any;
-                for (let item of _data["transactions"])
-                    (<any>this).transactions!.push(CreatorTransactionDto.fromJS(item));
-            }
-            else {
-                (<any>this).transactions = <any>null;
-            }
-            if (Array.isArray(_data["shares"])) {
-                (<any>this).shares = [] as any;
-                for (let item of _data["shares"])
-                    (<any>this).shares!.push(CreatorShareDto.fromJS(item));
-            }
-            else {
-                (<any>this).shares = <any>null;
-            }
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).id = _data['id'] !== undefined ? _data['id'] : <any>null;
+			(<any>this).created_at = _data['created_at']
+				? new Date(_data['created_at'].toString())
+				: <any>null;
+			(<any>this).updated_at = _data['updated_at']
+				? new Date(_data['updated_at'].toString())
+				: <any>null;
+			(<any>this).name = _data['name'] !== undefined ? _data['name'] : <any>null;
+			(<any>this).slug = _data['slug'] !== undefined ? _data['slug'] : <any>null;
+			(<any>this).url = _data['url'] !== undefined ? _data['url'] : <any>null;
+			(<any>this).avatar_url = _data['avatar_url'] !== undefined ? _data['avatar_url'] : <any>null;
+			(<any>this).ticker = _data['ticker'] !== undefined ? _data['ticker'] : <any>null;
+			(<any>this).value = _data['value'] !== undefined ? _data['value'] : <any>null;
+			this.stream_status = _data['stream_status']
+				? StreamStatusDto.fromJS(_data['stream_status'])
+				: new StreamStatusDto();
+			if (Array.isArray(_data['history'])) {
+				(<any>this).history = [] as any;
+				for (let item of _data['history']) (<any>this).history!.push(VoteDto.fromJS(item));
+			} else {
+				(<any>this).history = <any>null;
+			}
+			if (Array.isArray(_data['transactions'])) {
+				(<any>this).transactions = [] as any;
+				for (let item of _data['transactions'])
+					(<any>this).transactions!.push(CreatorTransactionDto.fromJS(item));
+			} else {
+				(<any>this).transactions = <any>null;
+			}
+			if (Array.isArray(_data['shares'])) {
+				(<any>this).shares = [] as any;
+				for (let item of _data['shares']) (<any>this).shares!.push(CreatorShareDto.fromJS(item));
+			} else {
+				(<any>this).shares = <any>null;
+			}
+		}
+	}
 
-    static fromJS(data: any): CreatorDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreatorDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): CreatorDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new CreatorDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["created_at"] = this.created_at ? this.created_at.toISOString() : <any>null;
-        data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
-        data["name"] = this.name !== undefined ? this.name : <any>null;
-        data["slug"] = this.slug !== undefined ? this.slug : <any>null;
-        data["url"] = this.url !== undefined ? this.url : <any>null;
-        data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
-        data["ticker"] = this.ticker !== undefined ? this.ticker : <any>null;
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        data["stream_status"] = this.stream_status ? this.stream_status.toJSON() : <any>null;
-        if (Array.isArray(this.history)) {
-            data["history"] = [];
-            for (let item of this.history)
-                data["history"].push(item.toJSON());
-        }
-        if (Array.isArray(this.transactions)) {
-            data["transactions"] = [];
-            for (let item of this.transactions)
-                data["transactions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.shares)) {
-            data["shares"] = [];
-            for (let item of this.shares)
-                data["shares"].push(item.toJSON());
-        }
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id !== undefined ? this.id : <any>null;
+		data['created_at'] = this.created_at ? this.created_at.toISOString() : <any>null;
+		data['updated_at'] = this.updated_at ? this.updated_at.toISOString() : <any>null;
+		data['name'] = this.name !== undefined ? this.name : <any>null;
+		data['slug'] = this.slug !== undefined ? this.slug : <any>null;
+		data['url'] = this.url !== undefined ? this.url : <any>null;
+		data['avatar_url'] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
+		data['ticker'] = this.ticker !== undefined ? this.ticker : <any>null;
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		data['stream_status'] = this.stream_status ? this.stream_status.toJSON() : <any>null;
+		if (Array.isArray(this.history)) {
+			data['history'] = [];
+			for (let item of this.history) data['history'].push(item.toJSON());
+		}
+		if (Array.isArray(this.transactions)) {
+			data['transactions'] = [];
+			for (let item of this.transactions) data['transactions'].push(item.toJSON());
+		}
+		if (Array.isArray(this.shares)) {
+			data['shares'] = [];
+			for (let item of this.shares) data['shares'].push(item.toJSON());
+		}
+		return data;
+	}
 }
 
 export interface ICreatorDto {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    name: string;
-    slug: string;
-    url: string;
-    avatar_url: string;
-    ticker: string;
-    value: number;
-    stream_status: StreamStatusDto;
-    history: VoteDto[];
-    transactions: CreatorTransactionDto[];
-    shares: CreatorShareDto[];
+	id: number;
+	created_at: Date;
+	updated_at: Date;
+	name: string;
+	slug: string;
+	url: string;
+	avatar_url: string;
+	ticker: string;
+	value: number;
+	stream_status: StreamStatusDto;
+	history: VoteDto[];
+	transactions: CreatorTransactionDto[];
+	shares: CreatorShareDto[];
+}
+
+export enum CreatorOrderBy {
+	Name = 'Name',
+	Value = 'Value',
+	IsLive = 'IsLive'
 }
 
 export class CreatorPartialDto implements ICreatorPartialDto {
-    readonly id!: number;
-    readonly created_at!: Date;
-    readonly updated_at!: Date;
-    readonly name!: string;
-    readonly slug!: string;
-    readonly url!: string;
-    readonly avatar_url!: string;
-    readonly ticker!: string;
-    readonly value!: number;
-    stream_status!: StreamStatusDto;
-    readonly history!: VoteDto[];
+	readonly id!: number;
+	readonly created_at!: Date;
+	readonly updated_at!: Date;
+	readonly name!: string;
+	readonly slug!: string;
+	readonly url!: string;
+	readonly avatar_url!: string;
+	readonly ticker!: string;
+	readonly value!: number;
+	stream_status!: StreamStatusDto;
+	readonly history!: VoteDto[];
 
-    constructor(data?: ICreatorPartialDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.stream_status = new StreamStatusDto();
-            this.history = [];
-        }
-    }
+	constructor(data?: ICreatorPartialDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.stream_status = new StreamStatusDto();
+			this.history = [];
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            (<any>this).created_at = _data["created_at"] ? new Date(_data["created_at"].toString()) : <any>null;
-            (<any>this).updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
-            (<any>this).name = _data["name"] !== undefined ? _data["name"] : <any>null;
-            (<any>this).slug = _data["slug"] !== undefined ? _data["slug"] : <any>null;
-            (<any>this).url = _data["url"] !== undefined ? _data["url"] : <any>null;
-            (<any>this).avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
-            (<any>this).ticker = _data["ticker"] !== undefined ? _data["ticker"] : <any>null;
-            (<any>this).value = _data["value"] !== undefined ? _data["value"] : <any>null;
-            this.stream_status = _data["stream_status"] ? StreamStatusDto.fromJS(_data["stream_status"]) : new StreamStatusDto();
-            if (Array.isArray(_data["history"])) {
-                (<any>this).history = [] as any;
-                for (let item of _data["history"])
-                    (<any>this).history!.push(VoteDto.fromJS(item));
-            }
-            else {
-                (<any>this).history = <any>null;
-            }
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).id = _data['id'] !== undefined ? _data['id'] : <any>null;
+			(<any>this).created_at = _data['created_at']
+				? new Date(_data['created_at'].toString())
+				: <any>null;
+			(<any>this).updated_at = _data['updated_at']
+				? new Date(_data['updated_at'].toString())
+				: <any>null;
+			(<any>this).name = _data['name'] !== undefined ? _data['name'] : <any>null;
+			(<any>this).slug = _data['slug'] !== undefined ? _data['slug'] : <any>null;
+			(<any>this).url = _data['url'] !== undefined ? _data['url'] : <any>null;
+			(<any>this).avatar_url = _data['avatar_url'] !== undefined ? _data['avatar_url'] : <any>null;
+			(<any>this).ticker = _data['ticker'] !== undefined ? _data['ticker'] : <any>null;
+			(<any>this).value = _data['value'] !== undefined ? _data['value'] : <any>null;
+			this.stream_status = _data['stream_status']
+				? StreamStatusDto.fromJS(_data['stream_status'])
+				: new StreamStatusDto();
+			if (Array.isArray(_data['history'])) {
+				(<any>this).history = [] as any;
+				for (let item of _data['history']) (<any>this).history!.push(VoteDto.fromJS(item));
+			} else {
+				(<any>this).history = <any>null;
+			}
+		}
+	}
 
-    static fromJS(data: any): CreatorPartialDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreatorPartialDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): CreatorPartialDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new CreatorPartialDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["created_at"] = this.created_at ? this.created_at.toISOString() : <any>null;
-        data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
-        data["name"] = this.name !== undefined ? this.name : <any>null;
-        data["slug"] = this.slug !== undefined ? this.slug : <any>null;
-        data["url"] = this.url !== undefined ? this.url : <any>null;
-        data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
-        data["ticker"] = this.ticker !== undefined ? this.ticker : <any>null;
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        data["stream_status"] = this.stream_status ? this.stream_status.toJSON() : <any>null;
-        if (Array.isArray(this.history)) {
-            data["history"] = [];
-            for (let item of this.history)
-                data["history"].push(item.toJSON());
-        }
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id !== undefined ? this.id : <any>null;
+		data['created_at'] = this.created_at ? this.created_at.toISOString() : <any>null;
+		data['updated_at'] = this.updated_at ? this.updated_at.toISOString() : <any>null;
+		data['name'] = this.name !== undefined ? this.name : <any>null;
+		data['slug'] = this.slug !== undefined ? this.slug : <any>null;
+		data['url'] = this.url !== undefined ? this.url : <any>null;
+		data['avatar_url'] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
+		data['ticker'] = this.ticker !== undefined ? this.ticker : <any>null;
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		data['stream_status'] = this.stream_status ? this.stream_status.toJSON() : <any>null;
+		if (Array.isArray(this.history)) {
+			data['history'] = [];
+			for (let item of this.history) data['history'].push(item.toJSON());
+		}
+		return data;
+	}
 }
 
 export interface ICreatorPartialDto {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    name: string;
-    slug: string;
-    url: string;
-    avatar_url: string;
-    ticker: string;
-    value: number;
-    stream_status: StreamStatusDto;
-    history: VoteDto[];
+	id: number;
+	created_at: Date;
+	updated_at: Date;
+	name: string;
+	slug: string;
+	url: string;
+	avatar_url: string;
+	ticker: string;
+	value: number;
+	stream_status: StreamStatusDto;
+	history: VoteDto[];
 }
 
 export class CreatorPartialDtoPaginationDto implements ICreatorPartialDtoPaginationDto {
-    data!: CreatorPartialDto[];
-    total!: number;
+	data!: CreatorPartialDto[];
+	total!: number;
 
-    constructor(data?: ICreatorPartialDtoPaginationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.data = [];
-        }
-    }
+	constructor(data?: ICreatorPartialDtoPaginationDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.data = [];
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["data"])) {
-                this.data = [] as any;
-                for (let item of _data["data"])
-                    this.data!.push(CreatorPartialDto.fromJS(item));
-            }
-            else {
-                this.data = <any>null;
-            }
-            this.total = _data["total"] !== undefined ? _data["total"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			if (Array.isArray(_data['data'])) {
+				this.data = [] as any;
+				for (let item of _data['data']) this.data!.push(CreatorPartialDto.fromJS(item));
+			} else {
+				this.data = <any>null;
+			}
+			this.total = _data['total'] !== undefined ? _data['total'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): CreatorPartialDtoPaginationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreatorPartialDtoPaginationDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): CreatorPartialDtoPaginationDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new CreatorPartialDtoPaginationDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.data)) {
-            data["data"] = [];
-            for (let item of this.data)
-                data["data"].push(item.toJSON());
-        }
-        data["total"] = this.total !== undefined ? this.total : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		if (Array.isArray(this.data)) {
+			data['data'] = [];
+			for (let item of this.data) data['data'].push(item.toJSON());
+		}
+		data['total'] = this.total !== undefined ? this.total : <any>null;
+		return data;
+	}
 }
 
 export interface ICreatorPartialDtoPaginationDto {
-    data: CreatorPartialDto[];
-    total: number;
+	data: CreatorPartialDto[];
+	total: number;
 }
 
 export class CreatorRarityDto implements ICreatorRarityDto {
-    creator!: CreatorPartialDto;
-    rarity!: Rarity;
+	creator!: CreatorPartialDto;
+	rarity!: Rarity;
 
-    constructor(data?: ICreatorRarityDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.creator = new CreatorPartialDto();
-        }
-    }
+	constructor(data?: ICreatorRarityDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.creator = new CreatorPartialDto();
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.creator = _data["creator"] ? CreatorPartialDto.fromJS(_data["creator"]) : new CreatorPartialDto();
-            this.rarity = _data["rarity"] !== undefined ? _data["rarity"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.creator = _data['creator']
+				? CreatorPartialDto.fromJS(_data['creator'])
+				: new CreatorPartialDto();
+			this.rarity = _data['rarity'] !== undefined ? _data['rarity'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): CreatorRarityDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreatorRarityDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): CreatorRarityDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new CreatorRarityDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>null;
-        data["rarity"] = this.rarity !== undefined ? this.rarity : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['creator'] = this.creator ? this.creator.toJSON() : <any>null;
+		data['rarity'] = this.rarity !== undefined ? this.rarity : <any>null;
+		return data;
+	}
 }
 
 export interface ICreatorRarityDto {
-    creator: CreatorPartialDto;
-    rarity: Rarity;
+	creator: CreatorPartialDto;
+	rarity: Rarity;
 }
 
 export class CreatorShareDto implements ICreatorShareDto {
-    player!: PlayerPartialDto;
-    readonly quantity!: number;
+	player!: PlayerPartialDto;
+	readonly quantity!: number;
 
-    constructor(data?: ICreatorShareDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.player = new PlayerPartialDto();
-        }
-    }
+	constructor(data?: ICreatorShareDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.player = new PlayerPartialDto();
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.player = _data["player"] ? PlayerPartialDto.fromJS(_data["player"]) : new PlayerPartialDto();
-            (<any>this).quantity = _data["quantity"] !== undefined ? _data["quantity"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.player = _data['player']
+				? PlayerPartialDto.fromJS(_data['player'])
+				: new PlayerPartialDto();
+			(<any>this).quantity = _data['quantity'] !== undefined ? _data['quantity'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): CreatorShareDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreatorShareDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): CreatorShareDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new CreatorShareDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["player"] = this.player ? this.player.toJSON() : <any>null;
-        data["quantity"] = this.quantity !== undefined ? this.quantity : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['player'] = this.player ? this.player.toJSON() : <any>null;
+		data['quantity'] = this.quantity !== undefined ? this.quantity : <any>null;
+		return data;
+	}
 }
 
 export interface ICreatorShareDto {
-    player: PlayerPartialDto;
-    quantity: number;
+	player: PlayerPartialDto;
+	quantity: number;
 }
 
 export class CreatorTransactionDto implements ICreatorTransactionDto {
-    readonly id!: number;
-    readonly created_at!: Date;
-    readonly updated_at!: Date;
-    readonly quantity!: number;
-    readonly value!: number;
-    action!: TransactionAction;
-    player!: PlayerPartialDto;
+	readonly id!: number;
+	readonly created_at!: Date;
+	readonly updated_at!: Date;
+	readonly quantity!: number;
+	readonly value!: number;
+	action!: TransactionAction;
+	player!: PlayerPartialDto;
 
-    constructor(data?: ICreatorTransactionDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.player = new PlayerPartialDto();
-        }
-    }
+	constructor(data?: ICreatorTransactionDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.player = new PlayerPartialDto();
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            (<any>this).created_at = _data["created_at"] ? new Date(_data["created_at"].toString()) : <any>null;
-            (<any>this).updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
-            (<any>this).quantity = _data["quantity"] !== undefined ? _data["quantity"] : <any>null;
-            (<any>this).value = _data["value"] !== undefined ? _data["value"] : <any>null;
-            this.action = _data["action"] !== undefined ? _data["action"] : <any>null;
-            this.player = _data["player"] ? PlayerPartialDto.fromJS(_data["player"]) : new PlayerPartialDto();
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).id = _data['id'] !== undefined ? _data['id'] : <any>null;
+			(<any>this).created_at = _data['created_at']
+				? new Date(_data['created_at'].toString())
+				: <any>null;
+			(<any>this).updated_at = _data['updated_at']
+				? new Date(_data['updated_at'].toString())
+				: <any>null;
+			(<any>this).quantity = _data['quantity'] !== undefined ? _data['quantity'] : <any>null;
+			(<any>this).value = _data['value'] !== undefined ? _data['value'] : <any>null;
+			this.action = _data['action'] !== undefined ? _data['action'] : <any>null;
+			this.player = _data['player']
+				? PlayerPartialDto.fromJS(_data['player'])
+				: new PlayerPartialDto();
+		}
+	}
 
-    static fromJS(data: any): CreatorTransactionDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreatorTransactionDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): CreatorTransactionDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new CreatorTransactionDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["created_at"] = this.created_at ? this.created_at.toISOString() : <any>null;
-        data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
-        data["quantity"] = this.quantity !== undefined ? this.quantity : <any>null;
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        data["action"] = this.action !== undefined ? this.action : <any>null;
-        data["player"] = this.player ? this.player.toJSON() : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id !== undefined ? this.id : <any>null;
+		data['created_at'] = this.created_at ? this.created_at.toISOString() : <any>null;
+		data['updated_at'] = this.updated_at ? this.updated_at.toISOString() : <any>null;
+		data['quantity'] = this.quantity !== undefined ? this.quantity : <any>null;
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		data['action'] = this.action !== undefined ? this.action : <any>null;
+		data['player'] = this.player ? this.player.toJSON() : <any>null;
+		return data;
+	}
 }
 
 export interface ICreatorTransactionDto {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    quantity: number;
-    value: number;
-    action: TransactionAction;
-    player: PlayerPartialDto;
+	id: number;
+	created_at: Date;
+	updated_at: Date;
+	quantity: number;
+	value: number;
+	action: TransactionAction;
+	player: PlayerPartialDto;
 }
 
 export class Credits implements ICredits {
-    value!: number;
+	value!: number;
 
-    constructor(data?: ICredits) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: ICredits) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): Credits {
-        data = typeof data === 'object' ? data : {};
-        let result = new Credits();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): Credits {
+		data = typeof data === 'object' ? data : {};
+		let result = new Credits();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		return data;
+	}
 }
 
 export interface ICredits {
-    value: number;
+	value: number;
 }
 
 export class LinkDiscordTwitchDto implements ILinkDiscordTwitchDto {
-    access_token!: string;
-    twitch_id!: string;
+	access_token!: string;
+	twitch_id!: string;
 
-    constructor(data?: ILinkDiscordTwitchDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: ILinkDiscordTwitchDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.access_token = _data["access_token"] !== undefined ? _data["access_token"] : <any>null;
-            this.twitch_id = _data["twitch_id"] !== undefined ? _data["twitch_id"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.access_token = _data['access_token'] !== undefined ? _data['access_token'] : <any>null;
+			this.twitch_id = _data['twitch_id'] !== undefined ? _data['twitch_id'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): LinkDiscordTwitchDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new LinkDiscordTwitchDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): LinkDiscordTwitchDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new LinkDiscordTwitchDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["access_token"] = this.access_token !== undefined ? this.access_token : <any>null;
-        data["twitch_id"] = this.twitch_id !== undefined ? this.twitch_id : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['access_token'] = this.access_token !== undefined ? this.access_token : <any>null;
+		data['twitch_id'] = this.twitch_id !== undefined ? this.twitch_id : <any>null;
+		return data;
+	}
 }
 
 export interface ILinkDiscordTwitchDto {
-    access_token: string;
-    twitch_id: string;
+	access_token: string;
+	twitch_id: string;
 }
 
 export class LootBox implements ILootBox {
-    id!: ModelId;
-    readonly createdAt!: Date;
-    readonly updatedAt!: Date;
-    playerId!: ModelId;
-    resultId?: ModelId;
-    player!: Player;
-    result?: Creator;
-    readonly isOpen!: boolean;
+	id!: ModelId;
+	readonly createdAt!: Date;
+	readonly updatedAt!: Date;
+	playerId!: ModelId;
+	resultId?: ModelId;
+	player!: Player;
+	result?: Creator;
+	readonly isOpen!: boolean;
 
-    constructor(data?: ILootBox) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.id = new ModelId();
-            this.playerId = new ModelId();
-            this.player = new Player();
-        }
-    }
+	constructor(data?: ILootBox) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.id = new ModelId();
+			this.playerId = new ModelId();
+			this.player = new Player();
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] ? ModelId.fromJS(_data["id"]) : new ModelId();
-            (<any>this).createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>null;
-            (<any>this).updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>null;
-            this.playerId = _data["playerId"] ? ModelId.fromJS(_data["playerId"]) : new ModelId();
-            this.resultId = _data["resultId"] ? ModelId.fromJS(_data["resultId"]) : <any>null;
-            this.player = _data["player"] ? Player.fromJS(_data["player"]) : new Player();
-            this.result = _data["result"] ? Creator.fromJS(_data["result"]) : <any>null;
-            (<any>this).isOpen = _data["isOpen"] !== undefined ? _data["isOpen"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.id = _data['id'] ? ModelId.fromJS(_data['id']) : new ModelId();
+			(<any>this).createdAt = _data['createdAt']
+				? new Date(_data['createdAt'].toString())
+				: <any>null;
+			(<any>this).updatedAt = _data['updatedAt']
+				? new Date(_data['updatedAt'].toString())
+				: <any>null;
+			this.playerId = _data['playerId'] ? ModelId.fromJS(_data['playerId']) : new ModelId();
+			this.resultId = _data['resultId'] ? ModelId.fromJS(_data['resultId']) : <any>null;
+			this.player = _data['player'] ? Player.fromJS(_data['player']) : new Player();
+			this.result = _data['result'] ? Creator.fromJS(_data['result']) : <any>null;
+			(<any>this).isOpen = _data['isOpen'] !== undefined ? _data['isOpen'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): LootBox {
-        data = typeof data === 'object' ? data : {};
-        let result = new LootBox();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): LootBox {
+		data = typeof data === 'object' ? data : {};
+		let result = new LootBox();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id ? this.id.toJSON() : <any>null;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>null;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
-        data["playerId"] = this.playerId ? this.playerId.toJSON() : <any>null;
-        data["resultId"] = this.resultId ? this.resultId.toJSON() : <any>null;
-        data["player"] = this.player ? this.player.toJSON() : <any>null;
-        data["result"] = this.result ? this.result.toJSON() : <any>null;
-        data["isOpen"] = this.isOpen !== undefined ? this.isOpen : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id ? this.id.toJSON() : <any>null;
+		data['createdAt'] = this.createdAt ? this.createdAt.toISOString() : <any>null;
+		data['updatedAt'] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
+		data['playerId'] = this.playerId ? this.playerId.toJSON() : <any>null;
+		data['resultId'] = this.resultId ? this.resultId.toJSON() : <any>null;
+		data['player'] = this.player ? this.player.toJSON() : <any>null;
+		data['result'] = this.result ? this.result.toJSON() : <any>null;
+		data['isOpen'] = this.isOpen !== undefined ? this.isOpen : <any>null;
+		return data;
+	}
 }
 
 export interface ILootBox {
-    id: ModelId;
-    createdAt: Date;
-    updatedAt: Date;
-    playerId: ModelId;
-    resultId?: ModelId;
-    player: Player;
-    result?: Creator;
-    isOpen: boolean;
+	id: ModelId;
+	createdAt: Date;
+	updatedAt: Date;
+	playerId: ModelId;
+	resultId?: ModelId;
+	player: Player;
+	result?: Creator;
+	isOpen: boolean;
 }
 
 export class LootBoxDto implements ILootBoxDto {
-    readonly id!: number;
-    readonly created_at!: Date;
-    readonly updated_at!: Date;
-    readonly is_open!: boolean;
-    result?: CreatorPartialDto;
-    readonly player_id!: number;
+	readonly id!: number;
+	readonly created_at!: Date;
+	readonly updated_at!: Date;
+	readonly is_open!: boolean;
+	result?: CreatorPartialDto;
+	readonly player_id!: number;
 
-    constructor(data?: ILootBoxDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: ILootBoxDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            (<any>this).created_at = _data["created_at"] ? new Date(_data["created_at"].toString()) : <any>null;
-            (<any>this).updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
-            (<any>this).is_open = _data["is_open"] !== undefined ? _data["is_open"] : <any>null;
-            this.result = _data["result"] ? CreatorPartialDto.fromJS(_data["result"]) : <any>null;
-            (<any>this).player_id = _data["player_id"] !== undefined ? _data["player_id"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).id = _data['id'] !== undefined ? _data['id'] : <any>null;
+			(<any>this).created_at = _data['created_at']
+				? new Date(_data['created_at'].toString())
+				: <any>null;
+			(<any>this).updated_at = _data['updated_at']
+				? new Date(_data['updated_at'].toString())
+				: <any>null;
+			(<any>this).is_open = _data['is_open'] !== undefined ? _data['is_open'] : <any>null;
+			this.result = _data['result'] ? CreatorPartialDto.fromJS(_data['result']) : <any>null;
+			(<any>this).player_id = _data['player_id'] !== undefined ? _data['player_id'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): LootBoxDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new LootBoxDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): LootBoxDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new LootBoxDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["created_at"] = this.created_at ? this.created_at.toISOString() : <any>null;
-        data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
-        data["is_open"] = this.is_open !== undefined ? this.is_open : <any>null;
-        data["result"] = this.result ? this.result.toJSON() : <any>null;
-        data["player_id"] = this.player_id !== undefined ? this.player_id : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id !== undefined ? this.id : <any>null;
+		data['created_at'] = this.created_at ? this.created_at.toISOString() : <any>null;
+		data['updated_at'] = this.updated_at ? this.updated_at.toISOString() : <any>null;
+		data['is_open'] = this.is_open !== undefined ? this.is_open : <any>null;
+		data['result'] = this.result ? this.result.toJSON() : <any>null;
+		data['player_id'] = this.player_id !== undefined ? this.player_id : <any>null;
+		return data;
+	}
 }
 
 export interface ILootBoxDto {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    is_open: boolean;
-    result?: CreatorPartialDto;
-    player_id: number;
+	id: number;
+	created_at: Date;
+	updated_at: Date;
+	is_open: boolean;
+	result?: CreatorPartialDto;
+	player_id: number;
 }
 
 export class LootBoxResultDto implements ILootBoxResultDto {
-    result!: CreatorRarityDto;
-    readonly rarities!: CreatorRarityDto[];
+	result!: CreatorRarityDto;
+	readonly rarities!: CreatorRarityDto[];
 
-    constructor(data?: ILootBoxResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.result = new CreatorRarityDto();
-            this.rarities = [];
-        }
-    }
+	constructor(data?: ILootBoxResultDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.result = new CreatorRarityDto();
+			this.rarities = [];
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.result = _data["result"] ? CreatorRarityDto.fromJS(_data["result"]) : new CreatorRarityDto();
-            if (Array.isArray(_data["rarities"])) {
-                (<any>this).rarities = [] as any;
-                for (let item of _data["rarities"])
-                    (<any>this).rarities!.push(CreatorRarityDto.fromJS(item));
-            }
-            else {
-                (<any>this).rarities = <any>null;
-            }
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.result = _data['result']
+				? CreatorRarityDto.fromJS(_data['result'])
+				: new CreatorRarityDto();
+			if (Array.isArray(_data['rarities'])) {
+				(<any>this).rarities = [] as any;
+				for (let item of _data['rarities'])
+					(<any>this).rarities!.push(CreatorRarityDto.fromJS(item));
+			} else {
+				(<any>this).rarities = <any>null;
+			}
+		}
+	}
 
-    static fromJS(data: any): LootBoxResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new LootBoxResultDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): LootBoxResultDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new LootBoxResultDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["result"] = this.result ? this.result.toJSON() : <any>null;
-        if (Array.isArray(this.rarities)) {
-            data["rarities"] = [];
-            for (let item of this.rarities)
-                data["rarities"].push(item.toJSON());
-        }
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['result'] = this.result ? this.result.toJSON() : <any>null;
+		if (Array.isArray(this.rarities)) {
+			data['rarities'] = [];
+			for (let item of this.rarities) data['rarities'].push(item.toJSON());
+		}
+		return data;
+	}
 }
 
 export interface ILootBoxResultDto {
-    result: CreatorRarityDto;
-    rarities: CreatorRarityDto[];
+	result: CreatorRarityDto;
+	rarities: CreatorRarityDto[];
 }
 
 export class ModelId implements IModelId {
-    value!: number;
+	value!: number;
 
-    constructor(data?: IModelId) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: IModelId) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): ModelId {
-        data = typeof data === 'object' ? data : {};
-        let result = new ModelId();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): ModelId {
+		data = typeof data === 'object' ? data : {};
+		let result = new ModelId();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		return data;
+	}
 }
 
 export interface IModelId {
-    value: number;
+	value: number;
 }
 
 export class Name implements IName {
-    value!: string;
+	value!: string;
 
-    constructor(data?: IName) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: IName) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): Name {
-        data = typeof data === 'object' ? data : {};
-        let result = new Name();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): Name {
+		data = typeof data === 'object' ? data : {};
+		let result = new Name();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		return data;
+	}
 }
 
 export interface IName {
-    value: string;
-}
-
-export class Order implements IOrder {
-    by!: string;
-    dir!: OrderDirection;
-
-    constructor(data?: IOrder) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.by = _data["by"] !== undefined ? _data["by"] : <any>null;
-            this.dir = _data["dir"] !== undefined ? _data["dir"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): Order {
-        data = typeof data === 'object' ? data : {};
-        let result = new Order();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["by"] = this.by !== undefined ? this.by : <any>null;
-        data["dir"] = this.dir !== undefined ? this.dir : <any>null;
-        return data;
-    }
-}
-
-export interface IOrder {
-    by: string;
-    dir: OrderDirection;
+	value: string;
 }
 
 export enum OrderDirection {
-    Ascending = "Ascending",
-    Descending = "Descending",
+	Ascending = 'Ascending',
+	Descending = 'Descending'
 }
 
 export class Player implements IPlayer {
-    id!: ModelId;
-    readonly createdAt!: Date;
-    readonly updatedAt!: Date;
-    name!: Name;
-    slug!: Slug;
-    twitchId!: TwitchId;
-    avatarUrl!: string;
-    credits!: Credits;
-    type!: PlayerType;
-    transactions!: Transaction[];
-    lootBoxes!: LootBox[];
+	id!: ModelId;
+	readonly createdAt!: Date;
+	readonly updatedAt!: Date;
+	name!: Name;
+	slug!: Slug;
+	twitchId!: TwitchId;
+	avatarUrl!: string;
+	credits!: Credits;
+	type!: PlayerType;
+	transactions!: Transaction[];
+	lootBoxes!: LootBox[];
 
-    constructor(data?: IPlayer) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.id = new ModelId();
-            this.name = new Name();
-            this.slug = new Slug();
-            this.twitchId = new TwitchId();
-            this.credits = new Credits();
-            this.transactions = [];
-            this.lootBoxes = [];
-        }
-    }
+	constructor(data?: IPlayer) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.id = new ModelId();
+			this.name = new Name();
+			this.slug = new Slug();
+			this.twitchId = new TwitchId();
+			this.credits = new Credits();
+			this.transactions = [];
+			this.lootBoxes = [];
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] ? ModelId.fromJS(_data["id"]) : new ModelId();
-            (<any>this).createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>null;
-            (<any>this).updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>null;
-            this.name = _data["name"] ? Name.fromJS(_data["name"]) : new Name();
-            this.slug = _data["slug"] ? Slug.fromJS(_data["slug"]) : new Slug();
-            this.twitchId = _data["twitchId"] ? TwitchId.fromJS(_data["twitchId"]) : new TwitchId();
-            this.avatarUrl = _data["avatarUrl"] !== undefined ? _data["avatarUrl"] : <any>null;
-            this.credits = _data["credits"] ? Credits.fromJS(_data["credits"]) : new Credits();
-            this.type = _data["type"] !== undefined ? _data["type"] : <any>null;
-            if (Array.isArray(_data["transactions"])) {
-                this.transactions = [] as any;
-                for (let item of _data["transactions"])
-                    this.transactions!.push(Transaction.fromJS(item));
-            }
-            else {
-                this.transactions = <any>null;
-            }
-            if (Array.isArray(_data["lootBoxes"])) {
-                this.lootBoxes = [] as any;
-                for (let item of _data["lootBoxes"])
-                    this.lootBoxes!.push(LootBox.fromJS(item));
-            }
-            else {
-                this.lootBoxes = <any>null;
-            }
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.id = _data['id'] ? ModelId.fromJS(_data['id']) : new ModelId();
+			(<any>this).createdAt = _data['createdAt']
+				? new Date(_data['createdAt'].toString())
+				: <any>null;
+			(<any>this).updatedAt = _data['updatedAt']
+				? new Date(_data['updatedAt'].toString())
+				: <any>null;
+			this.name = _data['name'] ? Name.fromJS(_data['name']) : new Name();
+			this.slug = _data['slug'] ? Slug.fromJS(_data['slug']) : new Slug();
+			this.twitchId = _data['twitchId'] ? TwitchId.fromJS(_data['twitchId']) : new TwitchId();
+			this.avatarUrl = _data['avatarUrl'] !== undefined ? _data['avatarUrl'] : <any>null;
+			this.credits = _data['credits'] ? Credits.fromJS(_data['credits']) : new Credits();
+			this.type = _data['type'] !== undefined ? _data['type'] : <any>null;
+			if (Array.isArray(_data['transactions'])) {
+				this.transactions = [] as any;
+				for (let item of _data['transactions']) this.transactions!.push(Transaction.fromJS(item));
+			} else {
+				this.transactions = <any>null;
+			}
+			if (Array.isArray(_data['lootBoxes'])) {
+				this.lootBoxes = [] as any;
+				for (let item of _data['lootBoxes']) this.lootBoxes!.push(LootBox.fromJS(item));
+			} else {
+				this.lootBoxes = <any>null;
+			}
+		}
+	}
 
-    static fromJS(data: any): Player {
-        data = typeof data === 'object' ? data : {};
-        let result = new Player();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): Player {
+		data = typeof data === 'object' ? data : {};
+		let result = new Player();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id ? this.id.toJSON() : <any>null;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>null;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
-        data["name"] = this.name ? this.name.toJSON() : <any>null;
-        data["slug"] = this.slug ? this.slug.toJSON() : <any>null;
-        data["twitchId"] = this.twitchId ? this.twitchId.toJSON() : <any>null;
-        data["avatarUrl"] = this.avatarUrl !== undefined ? this.avatarUrl : <any>null;
-        data["credits"] = this.credits ? this.credits.toJSON() : <any>null;
-        data["type"] = this.type !== undefined ? this.type : <any>null;
-        if (Array.isArray(this.transactions)) {
-            data["transactions"] = [];
-            for (let item of this.transactions)
-                data["transactions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.lootBoxes)) {
-            data["lootBoxes"] = [];
-            for (let item of this.lootBoxes)
-                data["lootBoxes"].push(item.toJSON());
-        }
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id ? this.id.toJSON() : <any>null;
+		data['createdAt'] = this.createdAt ? this.createdAt.toISOString() : <any>null;
+		data['updatedAt'] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
+		data['name'] = this.name ? this.name.toJSON() : <any>null;
+		data['slug'] = this.slug ? this.slug.toJSON() : <any>null;
+		data['twitchId'] = this.twitchId ? this.twitchId.toJSON() : <any>null;
+		data['avatarUrl'] = this.avatarUrl !== undefined ? this.avatarUrl : <any>null;
+		data['credits'] = this.credits ? this.credits.toJSON() : <any>null;
+		data['type'] = this.type !== undefined ? this.type : <any>null;
+		if (Array.isArray(this.transactions)) {
+			data['transactions'] = [];
+			for (let item of this.transactions) data['transactions'].push(item.toJSON());
+		}
+		if (Array.isArray(this.lootBoxes)) {
+			data['lootBoxes'] = [];
+			for (let item of this.lootBoxes) data['lootBoxes'].push(item.toJSON());
+		}
+		return data;
+	}
 }
 
 export interface IPlayer {
-    id: ModelId;
-    createdAt: Date;
-    updatedAt: Date;
-    name: Name;
-    slug: Slug;
-    twitchId: TwitchId;
-    avatarUrl: string;
-    credits: Credits;
-    type: PlayerType;
-    transactions: Transaction[];
-    lootBoxes: LootBox[];
+	id: ModelId;
+	createdAt: Date;
+	updatedAt: Date;
+	name: Name;
+	slug: Slug;
+	twitchId: TwitchId;
+	avatarUrl: string;
+	credits: Credits;
+	type: PlayerType;
+	transactions: Transaction[];
+	lootBoxes: LootBox[];
 }
 
 export class PlayerDto implements IPlayerDto {
-    readonly id!: number;
-    readonly created_at!: Date;
-    readonly updated_at!: Date;
-    readonly name!: string;
-    readonly slug!: string;
-    readonly url!: string;
-    readonly avatar_url!: string;
-    readonly credits!: number;
-    type!: PlayerType;
-    readonly transactions!: PlayerTransactionDto[];
-    readonly loot_boxes!: LootBoxDto[];
-    readonly shares!: PlayerShareDto[];
+	readonly id!: number;
+	readonly created_at!: Date;
+	readonly updated_at!: Date;
+	readonly name!: string;
+	readonly slug!: string;
+	readonly url!: string;
+	readonly avatar_url!: string;
+	readonly credits!: number;
+	type!: PlayerType;
+	readonly transactions!: PlayerTransactionDto[];
+	readonly loot_boxes!: LootBoxDto[];
+	readonly shares!: PlayerShareDto[];
 
-    constructor(data?: IPlayerDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.transactions = [];
-            this.loot_boxes = [];
-            this.shares = [];
-        }
-    }
+	constructor(data?: IPlayerDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.transactions = [];
+			this.loot_boxes = [];
+			this.shares = [];
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            (<any>this).created_at = _data["created_at"] ? new Date(_data["created_at"].toString()) : <any>null;
-            (<any>this).updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
-            (<any>this).name = _data["name"] !== undefined ? _data["name"] : <any>null;
-            (<any>this).slug = _data["slug"] !== undefined ? _data["slug"] : <any>null;
-            (<any>this).url = _data["url"] !== undefined ? _data["url"] : <any>null;
-            (<any>this).avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
-            (<any>this).credits = _data["credits"] !== undefined ? _data["credits"] : <any>null;
-            this.type = _data["type"] !== undefined ? _data["type"] : <any>null;
-            if (Array.isArray(_data["transactions"])) {
-                (<any>this).transactions = [] as any;
-                for (let item of _data["transactions"])
-                    (<any>this).transactions!.push(PlayerTransactionDto.fromJS(item));
-            }
-            else {
-                (<any>this).transactions = <any>null;
-            }
-            if (Array.isArray(_data["loot_boxes"])) {
-                (<any>this).loot_boxes = [] as any;
-                for (let item of _data["loot_boxes"])
-                    (<any>this).loot_boxes!.push(LootBoxDto.fromJS(item));
-            }
-            else {
-                (<any>this).loot_boxes = <any>null;
-            }
-            if (Array.isArray(_data["shares"])) {
-                (<any>this).shares = [] as any;
-                for (let item of _data["shares"])
-                    (<any>this).shares!.push(PlayerShareDto.fromJS(item));
-            }
-            else {
-                (<any>this).shares = <any>null;
-            }
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).id = _data['id'] !== undefined ? _data['id'] : <any>null;
+			(<any>this).created_at = _data['created_at']
+				? new Date(_data['created_at'].toString())
+				: <any>null;
+			(<any>this).updated_at = _data['updated_at']
+				? new Date(_data['updated_at'].toString())
+				: <any>null;
+			(<any>this).name = _data['name'] !== undefined ? _data['name'] : <any>null;
+			(<any>this).slug = _data['slug'] !== undefined ? _data['slug'] : <any>null;
+			(<any>this).url = _data['url'] !== undefined ? _data['url'] : <any>null;
+			(<any>this).avatar_url = _data['avatar_url'] !== undefined ? _data['avatar_url'] : <any>null;
+			(<any>this).credits = _data['credits'] !== undefined ? _data['credits'] : <any>null;
+			this.type = _data['type'] !== undefined ? _data['type'] : <any>null;
+			if (Array.isArray(_data['transactions'])) {
+				(<any>this).transactions = [] as any;
+				for (let item of _data['transactions'])
+					(<any>this).transactions!.push(PlayerTransactionDto.fromJS(item));
+			} else {
+				(<any>this).transactions = <any>null;
+			}
+			if (Array.isArray(_data['loot_boxes'])) {
+				(<any>this).loot_boxes = [] as any;
+				for (let item of _data['loot_boxes']) (<any>this).loot_boxes!.push(LootBoxDto.fromJS(item));
+			} else {
+				(<any>this).loot_boxes = <any>null;
+			}
+			if (Array.isArray(_data['shares'])) {
+				(<any>this).shares = [] as any;
+				for (let item of _data['shares']) (<any>this).shares!.push(PlayerShareDto.fromJS(item));
+			} else {
+				(<any>this).shares = <any>null;
+			}
+		}
+	}
 
-    static fromJS(data: any): PlayerDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PlayerDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): PlayerDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new PlayerDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["created_at"] = this.created_at ? this.created_at.toISOString() : <any>null;
-        data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
-        data["name"] = this.name !== undefined ? this.name : <any>null;
-        data["slug"] = this.slug !== undefined ? this.slug : <any>null;
-        data["url"] = this.url !== undefined ? this.url : <any>null;
-        data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
-        data["credits"] = this.credits !== undefined ? this.credits : <any>null;
-        data["type"] = this.type !== undefined ? this.type : <any>null;
-        if (Array.isArray(this.transactions)) {
-            data["transactions"] = [];
-            for (let item of this.transactions)
-                data["transactions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.loot_boxes)) {
-            data["loot_boxes"] = [];
-            for (let item of this.loot_boxes)
-                data["loot_boxes"].push(item.toJSON());
-        }
-        if (Array.isArray(this.shares)) {
-            data["shares"] = [];
-            for (let item of this.shares)
-                data["shares"].push(item.toJSON());
-        }
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id !== undefined ? this.id : <any>null;
+		data['created_at'] = this.created_at ? this.created_at.toISOString() : <any>null;
+		data['updated_at'] = this.updated_at ? this.updated_at.toISOString() : <any>null;
+		data['name'] = this.name !== undefined ? this.name : <any>null;
+		data['slug'] = this.slug !== undefined ? this.slug : <any>null;
+		data['url'] = this.url !== undefined ? this.url : <any>null;
+		data['avatar_url'] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
+		data['credits'] = this.credits !== undefined ? this.credits : <any>null;
+		data['type'] = this.type !== undefined ? this.type : <any>null;
+		if (Array.isArray(this.transactions)) {
+			data['transactions'] = [];
+			for (let item of this.transactions) data['transactions'].push(item.toJSON());
+		}
+		if (Array.isArray(this.loot_boxes)) {
+			data['loot_boxes'] = [];
+			for (let item of this.loot_boxes) data['loot_boxes'].push(item.toJSON());
+		}
+		if (Array.isArray(this.shares)) {
+			data['shares'] = [];
+			for (let item of this.shares) data['shares'].push(item.toJSON());
+		}
+		return data;
+	}
 }
 
 export interface IPlayerDto {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    name: string;
-    slug: string;
-    url: string;
-    avatar_url: string;
-    credits: number;
-    type: PlayerType;
-    transactions: PlayerTransactionDto[];
-    loot_boxes: LootBoxDto[];
-    shares: PlayerShareDto[];
+	id: number;
+	created_at: Date;
+	updated_at: Date;
+	name: string;
+	slug: string;
+	url: string;
+	avatar_url: string;
+	credits: number;
+	type: PlayerType;
+	transactions: PlayerTransactionDto[];
+	loot_boxes: LootBoxDto[];
+	shares: PlayerShareDto[];
 }
 
 export class PlayerDtoPaginationDto implements IPlayerDtoPaginationDto {
-    data!: PlayerDto[];
-    total!: number;
+	data!: PlayerDto[];
+	total!: number;
 
-    constructor(data?: IPlayerDtoPaginationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.data = [];
-        }
-    }
+	constructor(data?: IPlayerDtoPaginationDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.data = [];
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["data"])) {
-                this.data = [] as any;
-                for (let item of _data["data"])
-                    this.data!.push(PlayerDto.fromJS(item));
-            }
-            else {
-                this.data = <any>null;
-            }
-            this.total = _data["total"] !== undefined ? _data["total"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			if (Array.isArray(_data['data'])) {
+				this.data = [] as any;
+				for (let item of _data['data']) this.data!.push(PlayerDto.fromJS(item));
+			} else {
+				this.data = <any>null;
+			}
+			this.total = _data['total'] !== undefined ? _data['total'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): PlayerDtoPaginationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PlayerDtoPaginationDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): PlayerDtoPaginationDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new PlayerDtoPaginationDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.data)) {
-            data["data"] = [];
-            for (let item of this.data)
-                data["data"].push(item.toJSON());
-        }
-        data["total"] = this.total !== undefined ? this.total : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		if (Array.isArray(this.data)) {
+			data['data'] = [];
+			for (let item of this.data) data['data'].push(item.toJSON());
+		}
+		data['total'] = this.total !== undefined ? this.total : <any>null;
+		return data;
+	}
 }
 
 export interface IPlayerDtoPaginationDto {
-    data: PlayerDto[];
-    total: number;
+	data: PlayerDto[];
+	total: number;
+}
+
+export enum PlayerOrderBy {
+	Name = 'Name',
+	Credits = 'Credits'
 }
 
 export class PlayerPartialDto implements IPlayerPartialDto {
-    readonly id!: number;
-    readonly created_at!: Date;
-    readonly updated_at!: Date;
-    readonly name!: string;
-    readonly slug!: string;
-    readonly url!: string;
-    readonly avatar_url!: string;
-    readonly credits!: number;
-    type!: PlayerType;
+	readonly id!: number;
+	readonly created_at!: Date;
+	readonly updated_at!: Date;
+	readonly name!: string;
+	readonly slug!: string;
+	readonly url!: string;
+	readonly avatar_url!: string;
+	readonly credits!: number;
+	type!: PlayerType;
 
-    constructor(data?: IPlayerPartialDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: IPlayerPartialDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            (<any>this).created_at = _data["created_at"] ? new Date(_data["created_at"].toString()) : <any>null;
-            (<any>this).updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
-            (<any>this).name = _data["name"] !== undefined ? _data["name"] : <any>null;
-            (<any>this).slug = _data["slug"] !== undefined ? _data["slug"] : <any>null;
-            (<any>this).url = _data["url"] !== undefined ? _data["url"] : <any>null;
-            (<any>this).avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
-            (<any>this).credits = _data["credits"] !== undefined ? _data["credits"] : <any>null;
-            this.type = _data["type"] !== undefined ? _data["type"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).id = _data['id'] !== undefined ? _data['id'] : <any>null;
+			(<any>this).created_at = _data['created_at']
+				? new Date(_data['created_at'].toString())
+				: <any>null;
+			(<any>this).updated_at = _data['updated_at']
+				? new Date(_data['updated_at'].toString())
+				: <any>null;
+			(<any>this).name = _data['name'] !== undefined ? _data['name'] : <any>null;
+			(<any>this).slug = _data['slug'] !== undefined ? _data['slug'] : <any>null;
+			(<any>this).url = _data['url'] !== undefined ? _data['url'] : <any>null;
+			(<any>this).avatar_url = _data['avatar_url'] !== undefined ? _data['avatar_url'] : <any>null;
+			(<any>this).credits = _data['credits'] !== undefined ? _data['credits'] : <any>null;
+			this.type = _data['type'] !== undefined ? _data['type'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): PlayerPartialDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PlayerPartialDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): PlayerPartialDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new PlayerPartialDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["created_at"] = this.created_at ? this.created_at.toISOString() : <any>null;
-        data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
-        data["name"] = this.name !== undefined ? this.name : <any>null;
-        data["slug"] = this.slug !== undefined ? this.slug : <any>null;
-        data["url"] = this.url !== undefined ? this.url : <any>null;
-        data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
-        data["credits"] = this.credits !== undefined ? this.credits : <any>null;
-        data["type"] = this.type !== undefined ? this.type : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id !== undefined ? this.id : <any>null;
+		data['created_at'] = this.created_at ? this.created_at.toISOString() : <any>null;
+		data['updated_at'] = this.updated_at ? this.updated_at.toISOString() : <any>null;
+		data['name'] = this.name !== undefined ? this.name : <any>null;
+		data['slug'] = this.slug !== undefined ? this.slug : <any>null;
+		data['url'] = this.url !== undefined ? this.url : <any>null;
+		data['avatar_url'] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
+		data['credits'] = this.credits !== undefined ? this.credits : <any>null;
+		data['type'] = this.type !== undefined ? this.type : <any>null;
+		return data;
+	}
 }
 
 export interface IPlayerPartialDto {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    name: string;
-    slug: string;
-    url: string;
-    avatar_url: string;
-    credits: number;
-    type: PlayerType;
+	id: number;
+	created_at: Date;
+	updated_at: Date;
+	name: string;
+	slug: string;
+	url: string;
+	avatar_url: string;
+	credits: number;
+	type: PlayerType;
 }
 
 export class PlayerShareDto implements IPlayerShareDto {
-    creator!: CreatorPartialDto;
-    readonly quantity!: number;
+	creator!: CreatorPartialDto;
+	readonly quantity!: number;
 
-    constructor(data?: IPlayerShareDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.creator = new CreatorPartialDto();
-        }
-    }
+	constructor(data?: IPlayerShareDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.creator = new CreatorPartialDto();
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.creator = _data["creator"] ? CreatorPartialDto.fromJS(_data["creator"]) : new CreatorPartialDto();
-            (<any>this).quantity = _data["quantity"] !== undefined ? _data["quantity"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.creator = _data['creator']
+				? CreatorPartialDto.fromJS(_data['creator'])
+				: new CreatorPartialDto();
+			(<any>this).quantity = _data['quantity'] !== undefined ? _data['quantity'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): PlayerShareDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PlayerShareDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): PlayerShareDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new PlayerShareDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>null;
-        data["quantity"] = this.quantity !== undefined ? this.quantity : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['creator'] = this.creator ? this.creator.toJSON() : <any>null;
+		data['quantity'] = this.quantity !== undefined ? this.quantity : <any>null;
+		return data;
+	}
 }
 
 export interface IPlayerShareDto {
-    creator: CreatorPartialDto;
-    quantity: number;
+	creator: CreatorPartialDto;
+	quantity: number;
 }
 
 export class PlayerTransactionDto implements IPlayerTransactionDto {
-    readonly id!: number;
-    readonly created_at!: Date;
-    readonly updated_at!: Date;
-    readonly quantity!: number;
-    readonly value!: number;
-    action!: TransactionAction;
-    creator!: CreatorPartialDto;
+	readonly id!: number;
+	readonly created_at!: Date;
+	readonly updated_at!: Date;
+	readonly quantity!: number;
+	readonly value!: number;
+	action!: TransactionAction;
+	creator!: CreatorPartialDto;
 
-    constructor(data?: IPlayerTransactionDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.creator = new CreatorPartialDto();
-        }
-    }
+	constructor(data?: IPlayerTransactionDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.creator = new CreatorPartialDto();
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            (<any>this).created_at = _data["created_at"] ? new Date(_data["created_at"].toString()) : <any>null;
-            (<any>this).updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
-            (<any>this).quantity = _data["quantity"] !== undefined ? _data["quantity"] : <any>null;
-            (<any>this).value = _data["value"] !== undefined ? _data["value"] : <any>null;
-            this.action = _data["action"] !== undefined ? _data["action"] : <any>null;
-            this.creator = _data["creator"] ? CreatorPartialDto.fromJS(_data["creator"]) : new CreatorPartialDto();
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).id = _data['id'] !== undefined ? _data['id'] : <any>null;
+			(<any>this).created_at = _data['created_at']
+				? new Date(_data['created_at'].toString())
+				: <any>null;
+			(<any>this).updated_at = _data['updated_at']
+				? new Date(_data['updated_at'].toString())
+				: <any>null;
+			(<any>this).quantity = _data['quantity'] !== undefined ? _data['quantity'] : <any>null;
+			(<any>this).value = _data['value'] !== undefined ? _data['value'] : <any>null;
+			this.action = _data['action'] !== undefined ? _data['action'] : <any>null;
+			this.creator = _data['creator']
+				? CreatorPartialDto.fromJS(_data['creator'])
+				: new CreatorPartialDto();
+		}
+	}
 
-    static fromJS(data: any): PlayerTransactionDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PlayerTransactionDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): PlayerTransactionDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new PlayerTransactionDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["created_at"] = this.created_at ? this.created_at.toISOString() : <any>null;
-        data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
-        data["quantity"] = this.quantity !== undefined ? this.quantity : <any>null;
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        data["action"] = this.action !== undefined ? this.action : <any>null;
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id !== undefined ? this.id : <any>null;
+		data['created_at'] = this.created_at ? this.created_at.toISOString() : <any>null;
+		data['updated_at'] = this.updated_at ? this.updated_at.toISOString() : <any>null;
+		data['quantity'] = this.quantity !== undefined ? this.quantity : <any>null;
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		data['action'] = this.action !== undefined ? this.action : <any>null;
+		data['creator'] = this.creator ? this.creator.toJSON() : <any>null;
+		return data;
+	}
 }
 
 export interface IPlayerTransactionDto {
-    id: number;
-    created_at: Date;
-    updated_at: Date;
-    quantity: number;
-    value: number;
-    action: TransactionAction;
-    creator: CreatorPartialDto;
+	id: number;
+	created_at: Date;
+	updated_at: Date;
+	quantity: number;
+	value: number;
+	action: TransactionAction;
+	creator: CreatorPartialDto;
 }
 
 export enum PlayerType {
-    User = "User",
-    Admin = "Admin",
+	User = 'User',
+	Admin = 'Admin'
 }
 
 export class Quantity implements IQuantity {
-    value!: number;
+	value!: number;
 
-    constructor(data?: IQuantity) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: IQuantity) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): Quantity {
-        data = typeof data === 'object' ? data : {};
-        let result = new Quantity();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): Quantity {
+		data = typeof data === 'object' ? data : {};
+		let result = new Quantity();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		return data;
+	}
 }
 
 export interface IQuantity {
-    value: number;
+	value: number;
 }
 
 export enum Rarity {
-    Pennies = "Pennies",
-    Common = "Common",
-    Rare = "Rare",
-    Epic = "Epic",
+	Pennies = 'Pennies',
+	Common = 'Common',
+	Rare = 'Rare',
+	Epic = 'Epic'
 }
 
 export class Slug implements ISlug {
-    value!: string;
+	value!: string;
 
-    constructor(data?: ISlug) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: ISlug) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): Slug {
-        data = typeof data === 'object' ? data : {};
-        let result = new Slug();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): Slug {
+		data = typeof data === 'object' ? data : {};
+		let result = new Slug();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		return data;
+	}
 }
 
 export interface ISlug {
-    value: string;
+	value: string;
 }
 
 export class StreamStatus implements IStreamStatus {
-    readonly isLive!: boolean;
-    readonly startedAt?: Date | null;
-    readonly endedAt?: Date | null;
+	readonly isLive!: boolean;
+	readonly startedAt?: Date | null;
+	readonly endedAt?: Date | null;
 
-    constructor(data?: IStreamStatus) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: IStreamStatus) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).isLive = _data["isLive"] !== undefined ? _data["isLive"] : <any>null;
-            (<any>this).startedAt = _data["startedAt"] ? new Date(_data["startedAt"].toString()) : <any>null;
-            (<any>this).endedAt = _data["endedAt"] ? new Date(_data["endedAt"].toString()) : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).isLive = _data['isLive'] !== undefined ? _data['isLive'] : <any>null;
+			(<any>this).startedAt = _data['startedAt']
+				? new Date(_data['startedAt'].toString())
+				: <any>null;
+			(<any>this).endedAt = _data['endedAt'] ? new Date(_data['endedAt'].toString()) : <any>null;
+		}
+	}
 
-    static fromJS(data: any): StreamStatus {
-        data = typeof data === 'object' ? data : {};
-        let result = new StreamStatus();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): StreamStatus {
+		data = typeof data === 'object' ? data : {};
+		let result = new StreamStatus();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["isLive"] = this.isLive !== undefined ? this.isLive : <any>null;
-        data["startedAt"] = this.startedAt ? this.startedAt.toISOString() : <any>null;
-        data["endedAt"] = this.endedAt ? this.endedAt.toISOString() : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['isLive'] = this.isLive !== undefined ? this.isLive : <any>null;
+		data['startedAt'] = this.startedAt ? this.startedAt.toISOString() : <any>null;
+		data['endedAt'] = this.endedAt ? this.endedAt.toISOString() : <any>null;
+		return data;
+	}
 }
 
 export interface IStreamStatus {
-    isLive: boolean;
-    startedAt?: Date | null;
-    endedAt?: Date | null;
+	isLive: boolean;
+	startedAt?: Date | null;
+	endedAt?: Date | null;
 }
 
 export class StreamStatusDto implements IStreamStatusDto {
-    readonly is_live!: boolean;
-    readonly started_at?: Date | null;
-    readonly ended_at?: Date | null;
+	readonly is_live!: boolean;
+	readonly started_at?: Date | null;
+	readonly ended_at?: Date | null;
 
-    constructor(data?: IStreamStatusDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: IStreamStatusDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).is_live = _data["is_live"] !== undefined ? _data["is_live"] : <any>null;
-            (<any>this).started_at = _data["started_at"] ? new Date(_data["started_at"].toString()) : <any>null;
-            (<any>this).ended_at = _data["ended_at"] ? new Date(_data["ended_at"].toString()) : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).is_live = _data['is_live'] !== undefined ? _data['is_live'] : <any>null;
+			(<any>this).started_at = _data['started_at']
+				? new Date(_data['started_at'].toString())
+				: <any>null;
+			(<any>this).ended_at = _data['ended_at'] ? new Date(_data['ended_at'].toString()) : <any>null;
+		}
+	}
 
-    static fromJS(data: any): StreamStatusDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new StreamStatusDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): StreamStatusDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new StreamStatusDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["is_live"] = this.is_live !== undefined ? this.is_live : <any>null;
-        data["started_at"] = this.started_at ? this.started_at.toISOString() : <any>null;
-        data["ended_at"] = this.ended_at ? this.ended_at.toISOString() : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['is_live'] = this.is_live !== undefined ? this.is_live : <any>null;
+		data['started_at'] = this.started_at ? this.started_at.toISOString() : <any>null;
+		data['ended_at'] = this.ended_at ? this.ended_at.toISOString() : <any>null;
+		return data;
+	}
 }
 
 export interface IStreamStatusDto {
-    is_live: boolean;
-    started_at?: Date | null;
-    ended_at?: Date | null;
+	is_live: boolean;
+	started_at?: Date | null;
+	ended_at?: Date | null;
 }
 
 export class Ticker implements ITicker {
-    value!: string;
+	value!: string;
 
-    constructor(data?: ITicker) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: ITicker) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): Ticker {
-        data = typeof data === 'object' ? data : {};
-        let result = new Ticker();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): Ticker {
+		data = typeof data === 'object' ? data : {};
+		let result = new Ticker();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		return data;
+	}
 }
 
 export interface ITicker {
-    value: string;
+	value: string;
 }
 
 export enum TimeStep {
-    Minute = "Minute",
-    FiveMinute = "FiveMinute",
-    FifteenMinute = "FifteenMinute",
-    ThirtyMinute = "ThirtyMinute",
-    Hour = "Hour",
-    Day = "Day",
-    Week = "Week",
-    Month = "Month",
+	Minute = 'Minute',
+	FiveMinute = 'FiveMinute',
+	FifteenMinute = 'FifteenMinute',
+	ThirtyMinute = 'ThirtyMinute',
+	Hour = 'Hour',
+	Day = 'Day',
+	Week = 'Week',
+	Month = 'Month'
 }
 
 export class TokenDto implements ITokenDto {
-    access_token!: string;
+	access_token!: string;
 
-    constructor(data?: ITokenDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: ITokenDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.access_token = _data["access_token"] !== undefined ? _data["access_token"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.access_token = _data['access_token'] !== undefined ? _data['access_token'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): TokenDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TokenDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): TokenDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new TokenDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["access_token"] = this.access_token !== undefined ? this.access_token : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['access_token'] = this.access_token !== undefined ? this.access_token : <any>null;
+		return data;
+	}
 }
 
 export interface ITokenDto {
-    access_token: string;
+	access_token: string;
 }
 
 export class Transaction implements ITransaction {
-    id!: ModelId;
-    readonly createdAt!: Date;
-    readonly updatedAt!: Date;
-    quantity!: Quantity;
-    value!: Credits;
-    action!: TransactionAction;
-    creatorId!: ModelId;
-    playerId!: ModelId;
-    creator!: Creator;
-    player!: Player;
+	id!: ModelId;
+	readonly createdAt!: Date;
+	readonly updatedAt!: Date;
+	quantity!: Quantity;
+	value!: Credits;
+	action!: TransactionAction;
+	creatorId!: ModelId;
+	playerId!: ModelId;
+	creator!: Creator;
+	player!: Player;
 
-    constructor(data?: ITransaction) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.id = new ModelId();
-            this.quantity = new Quantity();
-            this.value = new Credits();
-            this.creatorId = new ModelId();
-            this.playerId = new ModelId();
-            this.creator = new Creator();
-            this.player = new Player();
-        }
-    }
+	constructor(data?: ITransaction) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.id = new ModelId();
+			this.quantity = new Quantity();
+			this.value = new Credits();
+			this.creatorId = new ModelId();
+			this.playerId = new ModelId();
+			this.creator = new Creator();
+			this.player = new Player();
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] ? ModelId.fromJS(_data["id"]) : new ModelId();
-            (<any>this).createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>null;
-            (<any>this).updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>null;
-            this.quantity = _data["quantity"] ? Quantity.fromJS(_data["quantity"]) : new Quantity();
-            this.value = _data["value"] ? Credits.fromJS(_data["value"]) : new Credits();
-            this.action = _data["action"] !== undefined ? _data["action"] : <any>null;
-            this.creatorId = _data["creatorId"] ? ModelId.fromJS(_data["creatorId"]) : new ModelId();
-            this.playerId = _data["playerId"] ? ModelId.fromJS(_data["playerId"]) : new ModelId();
-            this.creator = _data["creator"] ? Creator.fromJS(_data["creator"]) : new Creator();
-            this.player = _data["player"] ? Player.fromJS(_data["player"]) : new Player();
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.id = _data['id'] ? ModelId.fromJS(_data['id']) : new ModelId();
+			(<any>this).createdAt = _data['createdAt']
+				? new Date(_data['createdAt'].toString())
+				: <any>null;
+			(<any>this).updatedAt = _data['updatedAt']
+				? new Date(_data['updatedAt'].toString())
+				: <any>null;
+			this.quantity = _data['quantity'] ? Quantity.fromJS(_data['quantity']) : new Quantity();
+			this.value = _data['value'] ? Credits.fromJS(_data['value']) : new Credits();
+			this.action = _data['action'] !== undefined ? _data['action'] : <any>null;
+			this.creatorId = _data['creatorId'] ? ModelId.fromJS(_data['creatorId']) : new ModelId();
+			this.playerId = _data['playerId'] ? ModelId.fromJS(_data['playerId']) : new ModelId();
+			this.creator = _data['creator'] ? Creator.fromJS(_data['creator']) : new Creator();
+			this.player = _data['player'] ? Player.fromJS(_data['player']) : new Player();
+		}
+	}
 
-    static fromJS(data: any): Transaction {
-        data = typeof data === 'object' ? data : {};
-        let result = new Transaction();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): Transaction {
+		data = typeof data === 'object' ? data : {};
+		let result = new Transaction();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id ? this.id.toJSON() : <any>null;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>null;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
-        data["quantity"] = this.quantity ? this.quantity.toJSON() : <any>null;
-        data["value"] = this.value ? this.value.toJSON() : <any>null;
-        data["action"] = this.action !== undefined ? this.action : <any>null;
-        data["creatorId"] = this.creatorId ? this.creatorId.toJSON() : <any>null;
-        data["playerId"] = this.playerId ? this.playerId.toJSON() : <any>null;
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>null;
-        data["player"] = this.player ? this.player.toJSON() : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['id'] = this.id ? this.id.toJSON() : <any>null;
+		data['createdAt'] = this.createdAt ? this.createdAt.toISOString() : <any>null;
+		data['updatedAt'] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
+		data['quantity'] = this.quantity ? this.quantity.toJSON() : <any>null;
+		data['value'] = this.value ? this.value.toJSON() : <any>null;
+		data['action'] = this.action !== undefined ? this.action : <any>null;
+		data['creatorId'] = this.creatorId ? this.creatorId.toJSON() : <any>null;
+		data['playerId'] = this.playerId ? this.playerId.toJSON() : <any>null;
+		data['creator'] = this.creator ? this.creator.toJSON() : <any>null;
+		data['player'] = this.player ? this.player.toJSON() : <any>null;
+		return data;
+	}
 }
 
 export interface ITransaction {
-    id: ModelId;
-    createdAt: Date;
-    updatedAt: Date;
-    quantity: Quantity;
-    value: Credits;
-    action: TransactionAction;
-    creatorId: ModelId;
-    playerId: ModelId;
-    creator: Creator;
-    player: Player;
+	id: ModelId;
+	createdAt: Date;
+	updatedAt: Date;
+	quantity: Quantity;
+	value: Credits;
+	action: TransactionAction;
+	creatorId: ModelId;
+	playerId: ModelId;
+	creator: Creator;
+	player: Player;
 }
 
 export enum TransactionAction {
-    Buy = "Buy",
-    Sell = "Sell",
+	Buy = 'Buy',
+	Sell = 'Sell'
 }
 
 export class TwitchId implements ITwitchId {
-    value!: string;
+	value!: string;
 
-    constructor(data?: ITwitchId) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: ITwitchId) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.value = _data['value'] !== undefined ? _data['value'] : <any>null;
+		}
+	}
 
-    static fromJS(data: any): TwitchId {
-        data = typeof data === 'object' ? data : {};
-        let result = new TwitchId();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): TwitchId {
+		data = typeof data === 'object' ? data : {};
+		let result = new TwitchId();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		return data;
+	}
 }
 
 export interface ITwitchId {
-    value: string;
+	value: string;
 }
 
 export class Vote implements IVote {
-    value!: Credits;
-    time!: Date;
-    creatorId!: ModelId;
-    creator!: Creator;
+	value!: Credits;
+	time!: Date;
+	creatorId!: ModelId;
+	creator!: Creator;
 
-    constructor(data?: IVote) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.value = new Credits();
-            this.creatorId = new ModelId();
-            this.creator = new Creator();
-        }
-    }
+	constructor(data?: IVote) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+		if (!data) {
+			this.value = new Credits();
+			this.creatorId = new ModelId();
+			this.creator = new Creator();
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] ? Credits.fromJS(_data["value"]) : new Credits();
-            this.time = _data["time"] ? new Date(_data["time"].toString()) : <any>null;
-            this.creatorId = _data["creatorId"] ? ModelId.fromJS(_data["creatorId"]) : new ModelId();
-            this.creator = _data["creator"] ? Creator.fromJS(_data["creator"]) : new Creator();
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			this.value = _data['value'] ? Credits.fromJS(_data['value']) : new Credits();
+			this.time = _data['time'] ? new Date(_data['time'].toString()) : <any>null;
+			this.creatorId = _data['creatorId'] ? ModelId.fromJS(_data['creatorId']) : new ModelId();
+			this.creator = _data['creator'] ? Creator.fromJS(_data['creator']) : new Creator();
+		}
+	}
 
-    static fromJS(data: any): Vote {
-        data = typeof data === 'object' ? data : {};
-        let result = new Vote();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): Vote {
+		data = typeof data === 'object' ? data : {};
+		let result = new Vote();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value ? this.value.toJSON() : <any>null;
-        data["time"] = this.time ? this.time.toISOString() : <any>null;
-        data["creatorId"] = this.creatorId ? this.creatorId.toJSON() : <any>null;
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['value'] = this.value ? this.value.toJSON() : <any>null;
+		data['time'] = this.time ? this.time.toISOString() : <any>null;
+		data['creatorId'] = this.creatorId ? this.creatorId.toJSON() : <any>null;
+		data['creator'] = this.creator ? this.creator.toJSON() : <any>null;
+		return data;
+	}
 }
 
 export interface IVote {
-    value: Credits;
-    time: Date;
-    creatorId: ModelId;
-    creator: Creator;
+	value: Credits;
+	time: Date;
+	creatorId: ModelId;
+	creator: Creator;
 }
 
 export class VoteDto implements IVoteDto {
-    readonly creator_id!: number;
-    readonly value!: number;
-    readonly time!: Date;
+	readonly creator_id!: number;
+	readonly value!: number;
+	readonly time!: Date;
 
-    constructor(data?: IVoteDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
+	constructor(data?: IVoteDto) {
+		if (data) {
+			for (var property in data) {
+				if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
+			}
+		}
+	}
 
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).creator_id = _data["creator_id"] !== undefined ? _data["creator_id"] : <any>null;
-            (<any>this).value = _data["value"] !== undefined ? _data["value"] : <any>null;
-            (<any>this).time = _data["time"] ? new Date(_data["time"].toString()) : <any>null;
-        }
-    }
+	init(_data?: any) {
+		if (_data) {
+			(<any>this).creator_id = _data['creator_id'] !== undefined ? _data['creator_id'] : <any>null;
+			(<any>this).value = _data['value'] !== undefined ? _data['value'] : <any>null;
+			(<any>this).time = _data['time'] ? new Date(_data['time'].toString()) : <any>null;
+		}
+	}
 
-    static fromJS(data: any): VoteDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new VoteDto();
-        result.init(data);
-        return result;
-    }
+	static fromJS(data: any): VoteDto {
+		data = typeof data === 'object' ? data : {};
+		let result = new VoteDto();
+		result.init(data);
+		return result;
+	}
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["creator_id"] = this.creator_id !== undefined ? this.creator_id : <any>null;
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        data["time"] = this.time ? this.time.toISOString() : <any>null;
-        return data;
-    }
+	toJSON(data?: any) {
+		data = typeof data === 'object' ? data : {};
+		data['creator_id'] = this.creator_id !== undefined ? this.creator_id : <any>null;
+		data['value'] = this.value !== undefined ? this.value : <any>null;
+		data['time'] = this.time ? this.time.toISOString() : <any>null;
+		return data;
+	}
 }
 
 export interface IVoteDto {
-    creator_id: number;
-    value: number;
-    time: Date;
+	creator_id: number;
+	value: number;
+	time: Date;
 }
 
 export class ApiException extends Error {
-    override message: string;
-    status: number;
-    response: string;
-    headers: { [key: string]: any; };
-    result: any;
+	override message: string;
+	status: number;
+	response: string;
+	headers: { [key: string]: any };
+	result: any;
 
-    constructor(message: string, status: number, response: string, headers: { [key: string]: any; }, result: any) {
-        super();
+	constructor(
+		message: string,
+		status: number,
+		response: string,
+		headers: { [key: string]: any },
+		result: any
+	) {
+		super();
 
-        this.message = message;
-        this.status = status;
-        this.response = response;
-        this.headers = headers;
-        this.result = result;
-    }
+		this.message = message;
+		this.status = status;
+		this.response = response;
+		this.headers = headers;
+		this.result = result;
+	}
 
-    protected isApiException = true;
+	protected isApiException = true;
 
-    static isApiException(obj: any): obj is ApiException {
-        return obj.isApiException === true;
-    }
+	static isApiException(obj: any): obj is ApiException {
+		return obj.isApiException === true;
+	}
 }
 
-function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): any {
-    if (result !== null && result !== undefined)
-        throw result;
-    else
-        throw new ApiException(message, status, response, headers, null);
+function throwException(
+	message: string,
+	status: number,
+	response: string,
+	headers: { [key: string]: any },
+	result?: any
+): any {
+	if (result !== null && result !== undefined) throw result;
+	else throw new ApiException(message, status, response, headers, null);
 }

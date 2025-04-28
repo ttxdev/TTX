@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
 import { getToken } from '$lib/auth';
-import { Order, OrderDirection } from '$lib/api';
+import { CreatorOrderBy, OrderDirection } from '$lib/api';
 
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const client = getApiClient(getToken(cookies) ?? '');
@@ -11,22 +11,20 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		url.searchParams.get('order') == 'desc' ? OrderDirection.Descending : OrderDirection.Ascending;
 	const search = url.searchParams.get('search') || '';
 
-	let safeOrderBy = [new Order({ by: 'Name', dir: order })];
-	if (orderBy === 'Name') {
-		safeOrderBy = [new Order({ by: 'Name', dir: order })];
-	} else if (orderBy === 'Value') {
-		safeOrderBy = [new Order({ by: 'Value', dir: order })];
-	} else if (orderBy === 'IsLive') {
-		safeOrderBy = [new Order({ by: 'IsLive', dir: order }), new Order({ by: 'Name', dir: OrderDirection.Ascending })];
+	let safeOrderBy: CreatorOrderBy;
+	switch (orderBy) {
+		case 'Value':
+			safeOrderBy = CreatorOrderBy.Value;
+			break;
+		case 'IsLive':
+			safeOrderBy = CreatorOrderBy.IsLive;
+			break;
+		default:
+			safeOrderBy = CreatorOrderBy.Name;
+			break;
 	}
 
-	const creators = await client.getCreators(
-		page,
-		20,
-		search ? 'Slug' : undefined, // Changed from 'All' to 'Slug'
-		search,
-		safeOrderBy
-	);
+	const creators = await client.getCreators(page, 20, search, safeOrderBy);
 
 	return {
 		channels: creators.data.map((c) => c.toJSON()),

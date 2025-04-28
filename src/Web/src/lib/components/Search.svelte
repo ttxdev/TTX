@@ -36,8 +36,8 @@
 		isLoading = true;
 		try {
 			const [players, creators] = await Promise.all([
-				client.getPlayers(1, 3, 'Name', query),
-				client.getCreators(1, 5, 'Slug', query)
+				client.getPlayers(1, 3, query),
+				client.getCreators(1, 5, query)
 			]);
 
 			searchResults = [
