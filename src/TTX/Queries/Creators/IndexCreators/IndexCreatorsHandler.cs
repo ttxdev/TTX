@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 
@@ -9,25 +9,8 @@ public class IndexCreatorsHandler(ApplicationDbContext context) : CreatorQueryHa
     public async Task<Pagination<Creator>> Handle(IndexCreatorsQuery request, CancellationToken ct = default)
     {
         var query = Context.Creators.AsQueryable();
-        if (request.Search is not null)
-            query = query.Where(e => EF.Property<string>(e, request.Search.Value.By)!.ToLower().Contains(request.Search.Value.Value.ToLower()));
-
-        if (request.Order.Length > 0)
-        {
-            // NOTE(dylhack): This is a hack to get around the fact that EF Core doesn't support
-            //                ordering by a nested property. We should probably fix this in the future.
-            IOrderedQueryable<Creator> orderedQuery = request.Order[0].By == "IsLive"
-                    ? (request.Order[0].Dir == OrderDirection.Ascending ? query.OrderBy(e => e.StreamStatus.IsLive) : query.OrderByDescending(e => e.StreamStatus.IsLive))
-                    : (request.Order[0].Dir == OrderDirection.Ascending ? query.OrderBy(e => EF.Property<object>(e, request.Order[0].By!)) : query.OrderByDescending(e => EF.Property<object>(e, request.Order[0].By!)));
-
-            foreach (Order o in request.Order.Skip(1))
-            {
-                orderedQuery = o.By == "IsLive"
-                    ? (o.Dir == OrderDirection.Ascending ? orderedQuery.ThenBy(e => e.StreamStatus.IsLive) : orderedQuery.ThenByDescending(e => e.StreamStatus.IsLive))
-                    : (o.Dir == OrderDirection.Ascending ? orderedQuery.ThenBy(e => EF.Property<object>(e, o.By!)) : orderedQuery.ThenByDescending(e => EF.Property<object>(e, o.By!)));
-            }
-            query = orderedQuery;
-        }
+        ApplySearch(ref query, request.Search);
+        ApplyOrder(ref query, request.Order);
 
         var total = await query.CountAsync(ct);
         var creators = await query.Skip((request.Page - 1) * request.Limit).Take(request.Limit).ToArrayAsync(cancellationToken: ct);
@@ -43,6 +26,39 @@ public class IndexCreatorsHandler(ApplicationDbContext context) : CreatorQueryHa
 
                 return c;
             })],
+        };
+    }
+
+    private void ApplySearch(ref IQueryable<Creator> query, string? search)
+    {
+        if (search is null)
+            return;
+
+        query = query.Where(c => EF.Functions.ILike(c.Name, $"%{search}%"));
+    }
+
+    private void ApplyOrder(ref IQueryable<Creator> query, Order<CreatorOrderBy>? order)
+    {
+        Order<CreatorOrderBy> o = order is not null
+            ? order.Value
+            : new Order<CreatorOrderBy>()
+            {
+                By = CreatorOrderBy.Name,
+                Dir = OrderDirection.Ascending
+            };
+
+        query = o.By switch
+        {
+            CreatorOrderBy.Value => (o.Dir == OrderDirection.Ascending
+                ? query.OrderBy(c => c.Value)
+                : query.OrderByDescending(c => c.Value)).ThenBy(c => c.Name),
+            CreatorOrderBy.IsLive =>
+                (o.Dir == OrderDirection.Ascending
+                    ? query.OrderBy(c => c.StreamStatus.IsLive)
+                    : query.OrderByDescending(c => c.StreamStatus.IsLive)).ThenBy(c => c.Name),
+            _ => o.Dir == OrderDirection.Ascending
+                ? query.OrderBy(c => c.Name)
+                : query.OrderByDescending(c => c.Name)
         };
     }
 }

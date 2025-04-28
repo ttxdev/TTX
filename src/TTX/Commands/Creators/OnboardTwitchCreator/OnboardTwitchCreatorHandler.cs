@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;

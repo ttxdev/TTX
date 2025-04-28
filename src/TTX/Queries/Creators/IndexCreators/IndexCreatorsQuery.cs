@@ -1,8 +1,8 @@
-﻿using TTX.Models;
+using TTX.Models;
 
 namespace TTX.Queries.Creators.IndexCreators;
 
-public class IndexCreatorsQuery : PaginatedQuery<Creator>
+public class IndexCreatorsQuery : PaginatedQuery<CreatorOrderBy, Creator>
 {
     public required HistoryParams HistoryParams { get; init; }
 }

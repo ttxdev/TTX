@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using TTX.Models;
 using TTX.ValueObjects;
 

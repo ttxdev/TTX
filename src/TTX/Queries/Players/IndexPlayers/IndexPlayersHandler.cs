@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 
@@ -9,24 +9,8 @@ public class IndexPlayersHandler(ApplicationDbContext context) : IQueryHandler<I
     public async Task<Pagination<Player>> Handle(IndexPlayersQuery request, CancellationToken ct = default)
     {
         var query = context.Players.AsQueryable();
-        if (request.Search is not null)
-            query = query.Where(e => EF.Property<string>(e, request.Search.Value.By)!.ToLower().Contains(request.Search.Value.Value.ToLower()));
-
-        if (request.Order.Length > 0)
-        {
-            var orderedQuery = request.Order[0].Dir == OrderDirection.Ascending
-                ? query.OrderBy(e => EF.Property<object>(e, request.Order[0].By!))
-                : query.OrderByDescending(e => EF.Property<object>(e, request.Order[0].By!));
-
-            foreach (Order o in request.Order.Skip(1))
-            {
-                orderedQuery = o.Dir == OrderDirection.Ascending
-                    ? orderedQuery.ThenBy(e => EF.Property<object>(e, o.By!))
-                    : orderedQuery.ThenByDescending(e => EF.Property<object>(e, o.By!));
-            }
-
-            query = orderedQuery;
-        }
+        ApplySearch(ref query, request.Search);
+        ApplyOrder(ref query, request.Order);
 
         var total = await query.CountAsync(cancellationToken: ct);
         var data = query.Skip((request.Page - 1) * request.Limit).Take(request.Limit);
@@ -36,5 +20,30 @@ public class IndexPlayersHandler(ApplicationDbContext context) : IQueryHandler<I
             Total = total,
             Data = await data.ToArrayAsync(ct)
         };
+    }
+
+    public void ApplyOrder(ref IQueryable<Player> query, Order<PlayerOrderBy>? order)
+    {
+        Order<PlayerOrderBy> o = order is not null ? order.Value : new Order<PlayerOrderBy>()
+        {
+            By = PlayerOrderBy.Credits,
+            Dir = OrderDirection.Ascending
+        };
+
+        query = o.By switch
+        {
+            PlayerOrderBy.Credits => (o.Dir == OrderDirection.Ascending
+                ? query.OrderBy(p => p.Credits)
+                : query.OrderByDescending(p => p.Credits)).ThenBy(p => p.Name),
+            _ => query.OrderBy(p => p.Name)
+        };
+    }
+
+    private void ApplySearch(ref IQueryable<Player> query, string? search)
+    {
+        if (search is null)
+            return;
+
+        query = query.Where(p => EF.Functions.ILike(p.Name, $"%{search}%"));
     }
 }
