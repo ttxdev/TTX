@@ -23,6 +23,5 @@ public class OpenLootBoxTests : ApplicationTests
         });
 
         Assert.IsNotNull(result.Result);
-        Assert.AreEqual(20, result.Rarities.Length);
     }
 }

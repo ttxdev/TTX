@@ -5,26 +5,54 @@ name: .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
-    - name: Configure NuGet source
-      run: dotnet nuget update source ttxdev --username ttxdev --password ${{ secrets.NUGET_TOKEN }} --store-password-in-clear-text
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Configure NuGet source
+        run: dotnet nuget update source ttxdev --username ttxdev --password ${{ secrets.NUGET_TOKEN }} --store-password-in-clear-text
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: timescale/timescaledb:latest-pg17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ttx_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Configure NuGet source
+        run: dotnet nuget update source ttxdev --username ttxdev --password ${{ secrets.NUGET_TOKEN }} --store-password-in-clear-text
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Test
+        env:
+          TTX_CONNECTION_STRING: "Server=localhost;Port=5432;Database=ttx_test;User Id=postgres;Password=postgres;"
+        run: dotnet test --no-build --verbosity normal

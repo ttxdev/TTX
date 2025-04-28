@@ -1,4 +1,4 @@
-﻿using Bogus;
+using Bogus;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,9 +33,7 @@ public abstract class ApplicationTests
             .AddLogging()
             .AddDbContext<ApplicationDbContext>(options =>
             {
-                var dbPath = Path.GetTempFileName();
-                Console.WriteLine($"Initialize SQLite Database {dbPath}");
-                options.UseSqlite($"Data Source={dbPath}");
+                options.UseNpgsql(Environment.GetEnvironmentVariable("TTX_CONNECTION_STRING"));
             })
             .AddMediatR(cfg =>
             {
@@ -66,7 +64,6 @@ public abstract class ApplicationTests
     [TestCleanup]
     public virtual void TestCleanup()
     {
-        DbContext.Database.EnsureDeleted();
         DbContext.Dispose();
     }
 }
