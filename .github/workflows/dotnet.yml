@@ -54,5 +54,5 @@ jobs:
         run: dotnet restore
       - name: Test
         env:
-          TTX_CONNECTION_STRING: "Server=localhost;Port=5432;Database=ttx_test;User Id=postgres;Password=postgres;"
+          TTX_CONNECTION_STRING: "Server=postgres;Port=5432;Database=ttx_test;User Id=postgres;Password=postgres;"
         run: dotnet test --verbosity normal
