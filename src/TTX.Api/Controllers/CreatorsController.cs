@@ -1,4 +1,4 @@
-﻿using System.Net.Mime;
+using System.Net.Mime;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,24 +24,20 @@ public class CreatorsController(ISender sender) : ControllerBase
     public async Task<ActionResult<PaginationDto<CreatorPartialDto>>> Index(
         [FromQuery(Name = "page")] int index = 1,
         [FromQuery] int limit = 20,
-        [FromQuery] string? searchBy = null,
-        [FromQuery] string? searchValue = null,
-        [FromQuery] Order[]? orders = null
+        [FromQuery] string? search = null,
+        [FromQuery] CreatorOrderBy? orderBy = null,
+        [FromQuery] OrderDirection? orderDir = null
     )
     {
-        Search? search = searchBy != null && searchValue != null
-            ? new Search
-            {
-                By = searchBy,
-                Value = searchValue
-            }
-            : null;
-
         var page = await sender.Send(new IndexCreatorsQuery
         {
             Page = index,
             Limit = limit,
-            Order = orders ?? [],
+            Order = orderBy is null ? null : new()
+            {
+                By = orderBy.Value,
+                Dir = orderDir ?? OrderDirection.Ascending
+            },
             Search = search,
             HistoryParams = new HistoryParams
             {

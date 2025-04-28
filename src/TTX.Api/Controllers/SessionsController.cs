@@ -35,10 +35,12 @@ public class SessionsController(ISender sender, ISessionService sessions) : Cont
     [EndpointName("DiscordCallback")]
     public async Task<ActionResult<TokenDto>> DiscordCallback([FromQuery] string code)
     {
-        return Ok(await sender.Send(new AuthenticateDiscordUserCommand
+        var result = await sender.Send(new AuthenticateDiscordUserCommand
         {
             OAuthCode = code
-        }).ContinueWith(t => new TokenDto(sessions.CreateDiscordSession(t.Result))));
+        });
+        
+        return Ok(new TokenDto(sessions.CreateDiscordSession(result)));
     }
     
     [HttpPost("discord/link")]

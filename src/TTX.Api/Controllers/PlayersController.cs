@@ -1,4 +1,4 @@
-﻿using System.Net.Mime;
+using System.Net.Mime;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,25 +23,21 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
     public async Task<ActionResult<PaginationDto<PlayerDto>>> Index(
         [FromQuery(Name = "page")] int index = 1,
         [FromQuery] int limit = 20,
-        [FromQuery] string? searchBy = null,
-        [FromQuery] string? searchValue = null,
-        [FromQuery] Order[]? orders = null
+        [FromQuery] string? search = null,
+        [FromQuery] PlayerOrderBy? orderBy = null,
+        [FromQuery] OrderDirection? orderDir = null
     )
     {
-        Search? search = searchBy != null && searchValue != null
-            ? new Search
-            {
-                By = searchBy,
-                Value = searchValue
-            }
-            : null;
-
         Pagination<Player> page = await sender.Send(new IndexPlayersQuery
         {
             Page = index,
             Limit = limit,
-            Order = orders ?? [],
             Search = search,
+            Order = orderBy is null ? null : new()
+            {
+                By = orderBy.Value,
+                Dir = orderDir ?? OrderDirection.Ascending
+            },
         });
 
         return Ok(new PaginationDto<PlayerDto>
