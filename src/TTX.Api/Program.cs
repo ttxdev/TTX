@@ -133,7 +133,7 @@ builder.Services
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "ttx.gg",
+            ValidIssuer = "api.ttx.gg",
             ValidAudience = "ttx.gg",
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSecretKey())),
         };
