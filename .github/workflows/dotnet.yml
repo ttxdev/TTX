@@ -28,12 +28,10 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-
+    container: mcr.microsoft.com/dotnet/sdk:9.0
     services:
       postgres:
         image: timescale/timescaledb:latest-pg17
-        ports:
-          - 5432:5432
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -56,5 +54,5 @@ jobs:
         run: dotnet restore
       - name: Test
         env:
-          TTX_CONNECTION_STRING: "Server=localhost;Port=5432;Database=ttx_test;Username=postgres;Password=postgres;"
+          TTX_CONNECTION_STRING: "Server=postgres;Port=5432;Database=ttx_test;Username=postgres;Password=postgres;"
         run: dotnet test --no-build --verbosity normal
