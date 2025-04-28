@@ -9,18 +9,18 @@ public class CreatorTests
     [TestMethod]
     public void GetShares_ShouldReturnCorrectShares()
     {
-        int shares = 5;
-        int creatorValue = Creator.StarterValue;
-        int credits = shares * creatorValue * 2;
+        var shares = 5;
+        var creatorValue = Creator.StarterValue;
+        var credits = shares * creatorValue * 2;
 
-        Player playerOne = PlayerFactory.Create(credits: credits, includeId: true);
-        Player playerTwo = PlayerFactory.Create(credits: credits, includeId: true);
-        Creator creator = CreatorFactory.Create(value: creatorValue);
+        var playerOne = PlayerFactory.Create(credits, true);
+        var playerTwo = PlayerFactory.Create(credits, true);
+        var creator = CreatorFactory.Create(creatorValue);
         playerOne.Buy(creator, shares);
         playerTwo.Buy(creator, shares);
 
         Assert.AreEqual(2, creator.GetShares().Length);
-        Share? share = creator.GetShares().Where(s => s.Creator == creator).FirstOrDefault();
+        var share = creator.GetShares().Where(s => s.Creator == creator).FirstOrDefault();
         Assert.IsNotNull(share);
         Assert.AreEqual(shares, share.Quantity.Value);
     }

@@ -1,30 +1,42 @@
-﻿namespace TTX.ValueObjects;
-
-public abstract class ValueObject<T> where T : notnull
+﻿namespace TTX.ValueObjects
 {
-    public required T Value { get; init; }
-    public override string ToString() => Value.ToString()!;
-    public override int GetHashCode() => Value.GetHashCode();
-
-    public override bool Equals(object? obj)
+    public abstract class ValueObject<T> where T : notnull
     {
-        return obj switch
+        public required T Value { get; init; }
+
+        public override string ToString()
         {
-            T other => Value.Equals(other),
-            ValueObject<T> other => Value.Equals(other.Value),
-            _ => false
-        };
-    }
+            return Value.ToString()!;
+        }
 
-    public static bool operator ==(ValueObject<T> left, ValueObject<T> right)
-    {
-        return left.Value.Equals(right.Value);
-    }
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
 
-    public static bool operator !=(ValueObject<T> left, ValueObject<T> right)
-    {
-        return !left.Value.Equals(right.Value);
-    }
+        public override bool Equals(object? obj)
+        {
+            return obj switch
+            {
+                T other => Value.Equals(other),
+                ValueObject<T> other => Value.Equals(other.Value),
+                _ => false
+            };
+        }
 
-    public static implicit operator T(ValueObject<T> obj) => obj.Value;
+        public static bool operator ==(ValueObject<T> left, ValueObject<T> right)
+        {
+            return left.Value.Equals(right.Value);
+        }
+
+        public static bool operator !=(ValueObject<T> left, ValueObject<T> right)
+        {
+            return !left.Value.Equals(right.Value);
+        }
+
+        public static implicit operator T(ValueObject<T> obj)
+        {
+            return obj.Value;
+        }
+    }
 }

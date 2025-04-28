@@ -11,7 +11,18 @@ public interface IConfigProvider
 
 public class ConfigProvider(IConfiguration configuration) : IConfigProvider
 {
-    public string GetConnectionString() => configuration["CONNECTION_STRING"]!;
-    public string GetTwitchClientId() => configuration["TWITCH_CLIENT_ID"]!;
-    public string GetTwitchClientSecret() => configuration["TWITCH_CLIENT_SECRET"]!;
+    public string GetConnectionString()
+    {
+        return configuration["CONNECTION_STRING"]!;
+    }
+
+    public string GetTwitchClientId()
+    {
+        return configuration["TWITCH_CLIENT_ID"]!;
+    }
+
+    public string GetTwitchClientSecret()
+    {
+        return configuration["TWITCH_CLIENT_SECRET"]!;
+    }
 }

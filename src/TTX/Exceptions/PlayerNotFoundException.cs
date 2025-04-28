@@ -1,5 +1,6 @@
-namespace TTX.Exceptions;
-
-class PlayerNotFoundException() : DomainException("User not found")
+namespace TTX.Exceptions
 {
+    internal class PlayerNotFoundException() : DomainException("User not found")
+    {
+    }
 }

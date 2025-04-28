@@ -9,5 +9,8 @@ public interface IConfigProvider
 
 public class ConfigProvider(IConfiguration configuration) : IConfigProvider
 {
-    public string GetConnectionString() => configuration["CONNECTION_STRING"]!;
+    public string GetConnectionString()
+    {
+        return configuration["CONNECTION_STRING"]!;
+    }
 }

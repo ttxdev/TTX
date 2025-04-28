@@ -9,7 +9,7 @@ public class TwitchIdTests
     [TestMethod]
     public void Create_WithValidTwitchId_ShouldReturnTwitchIdInstance()
     {
-        string validTwitchId = "12345";
+        var validTwitchId = "12345";
 
         var twitchId = TwitchId.Create(validTwitchId);
 
@@ -20,7 +20,7 @@ public class TwitchIdTests
     [TestMethod]
     public void Create_WithNullOrEmptyTwitchId_ShouldThrowException()
     {
-        string invalidTwitchId = "";
+        var invalidTwitchId = "";
 
         Assert.ThrowsException<InvalidValueObjectException>(() => TwitchId.Create(invalidTwitchId));
     }
@@ -28,7 +28,7 @@ public class TwitchIdTests
     [TestMethod]
     public void Create_WithInvalidCharacters_ShouldThrowException()
     {
-        string invalidTwitchId = "abc123";
+        var invalidTwitchId = "abc123";
 
         Assert.ThrowsException<InvalidValueObjectException>(() => TwitchId.Create(invalidTwitchId));
     }
@@ -36,7 +36,7 @@ public class TwitchIdTests
     [TestMethod]
     public void ImplicitConversion_FromString_ShouldReturnTwitchIdInstance()
     {
-        string validTwitchId = "67890";
+        var validTwitchId = "67890";
 
         TwitchId twitchId = validTwitchId;
 
@@ -46,7 +46,7 @@ public class TwitchIdTests
     [TestMethod]
     public void ImplicitConversion_FromInt_ShouldReturnTwitchIdInstance()
     {
-        int validTwitchId = 12345;
+        var validTwitchId = 12345;
 
         TwitchId twitchId = validTwitchId;
 
@@ -56,7 +56,7 @@ public class TwitchIdTests
     [TestMethod]
     public void ImplicitConversion_ToInt_ShouldReturnIntegerValue()
     {
-        string validTwitchId = "54321";
+        var validTwitchId = "54321";
         var twitchId = TwitchId.Create(validTwitchId);
 
         int intValue = twitchId;
@@ -64,4 +64,3 @@ public class TwitchIdTests
         Assert.AreEqual(54321, intValue);
     }
 }
-

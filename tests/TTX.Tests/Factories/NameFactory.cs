@@ -9,10 +9,10 @@ public partial class NameFactory
     public static Name Create()
     {
         Faker faker = new();
-        string first = faker.Name.FirstName();
-        string last = faker.Name.LastName();
+        var first = faker.Name.FirstName();
+        var suffix = faker.Random.Int(1, 100000);
 
-        return IllegalCharacters().Replace($"{first}_{last}".ToLower(), "");
+        return IllegalCharacters().Replace($"{first}_{suffix}".ToLower(), "");
     }
 
     [GeneratedRegex(@"[^A-Za-z0-9_]")]

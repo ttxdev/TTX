@@ -13,16 +13,44 @@ public interface IConfigProvider
 
 public class ConfigProvider(IConfiguration configuration) : IConfigProvider
 {
-    public string GetConnectionString() => configuration["CONNECTION_STRING"]!;
-    public string GetSecretKey() => configuration["SECRET_KEY"]!;
-    public string GetTwitchClientId() => configuration["TWITCH_CLIENT_ID"]!;
-    public string GetTwitchClientSecret() => configuration["TWITCH_CLIENT_SECRET"]!;
-    public string GetTwitchRedirectUri() => configuration["TWITCH_REDIRECT_URI"]!;
-    public string GetDiscordClientId() => configuration["DISCORD_CLIENT_ID"]!;
-    public string GetDiscordClientSecret() => configuration["DISCORD_CLIENT_SECRET"]!;
+    public string GetConnectionString()
+    {
+        return configuration["CONNECTION_STRING"]!;
+    }
+
+    public string GetSecretKey()
+    {
+        return configuration["SECRET_KEY"]!;
+    }
+
+    public string GetTwitchClientId()
+    {
+        return configuration["TWITCH_CLIENT_ID"]!;
+    }
+
+    public string GetTwitchClientSecret()
+    {
+        return configuration["TWITCH_CLIENT_SECRET"]!;
+    }
+
+    public string GetTwitchRedirectUri()
+    {
+        return configuration["TWITCH_REDIRECT_URI"]!;
+    }
+
+    public string GetDiscordClientId()
+    {
+        return configuration["DISCORD_CLIENT_ID"]!;
+    }
+
+    public string GetDiscordClientSecret()
+    {
+        return configuration["DISCORD_CLIENT_SECRET"]!;
+    }
 
     public override string ToString()
     {
-        return $"ConnectionString: {GetConnectionString()}\nSecretKey: {GetSecretKey()}\nTwitchClientId: {GetTwitchClientId()}\nTwitchClientSecret: {GetTwitchClientSecret()}\nTwitchRedirectUrl: {GetTwitchRedirectUri()}";
+        return
+            $"ConnectionString: {GetConnectionString()}\nSecretKey: {GetSecretKey()}\nTwitchClientId: {GetTwitchClientId()}\nTwitchClientSecret: {GetTwitchClientSecret()}\nTwitchRedirectUrl: {GetTwitchRedirectUri()}";
     }
 }

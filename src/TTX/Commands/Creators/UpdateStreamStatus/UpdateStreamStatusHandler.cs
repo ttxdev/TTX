@@ -3,27 +3,29 @@ using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 
-namespace TTX.Commands.Creators.UpdateStreamStatus;
-
-public class UpdateStreamStatusHandler(ApplicationDbContext context) : ICommandHandler<UpdateStreamStatusCommand, StreamStatus>
+namespace TTX.Commands.Creators.UpdateStreamStatus
 {
-    public async Task<StreamStatus> Handle(UpdateStreamStatusCommand request, CancellationToken ct = default)
+    public class UpdateStreamStatusHandler(ApplicationDbContext context)
+        : ICommandHandler<UpdateStreamStatusCommand, StreamStatus>
     {
-        var creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.CreatorSlug, ct)
-            ?? throw new CreatorNotFoundException();
-
-        if (request.IsLive)
+        public async Task<StreamStatus> Handle(UpdateStreamStatusCommand request, CancellationToken ct = default)
         {
-            creator.StreamStatus.Started(request.At);
-        }
-        else
-        {
-            creator.StreamStatus.Ended(request.At);
-        }
+            Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.CreatorSlug, ct)
+                              ?? throw new CreatorNotFoundException();
 
-        context.Update(creator);
-        await context.SaveChangesAsync(ct);
+            if (request.IsLive)
+            {
+                creator.StreamStatus.Started(request.At);
+            }
+            else
+            {
+                creator.StreamStatus.Ended(request.At);
+            }
 
-        return creator.StreamStatus;
+            context.Update(creator);
+            await context.SaveChangesAsync(ct);
+
+            return creator.StreamStatus;
+        }
     }
 }

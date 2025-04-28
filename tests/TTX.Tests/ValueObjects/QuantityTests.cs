@@ -9,7 +9,7 @@ public class QuantityTests
     [TestMethod]
     public void Create_WithValidValue_ShouldReturnQuantityInstance()
     {
-        int validValue = 10;
+        var validValue = 10;
 
         var quantity = Quantity.Create(validValue);
 
@@ -20,7 +20,7 @@ public class QuantityTests
     [TestMethod]
     public void Create_WithNegativeValue_ShouldThrowException()
     {
-        int negativeValue = -1;
+        var negativeValue = -1;
 
         Assert.ThrowsException<InvalidValueObjectException>(() => Quantity.Create(negativeValue));
     }
@@ -28,7 +28,7 @@ public class QuantityTests
     [TestMethod]
     public void ImplicitConversion_FromInt_ShouldReturnQuantityInstance()
     {
-        int value = 5;
+        var value = 5;
 
         Quantity quantity = value;
 

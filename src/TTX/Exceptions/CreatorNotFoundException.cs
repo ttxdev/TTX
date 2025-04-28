@@ -1,3 +1,4 @@
-namespace TTX.Exceptions;
-
-public class CreatorNotFoundException() : NotFoundException("Creator not found");
+namespace TTX.Exceptions
+{
+    public class CreatorNotFoundException() : NotFoundException("Creator not found");
+}

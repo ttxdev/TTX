@@ -10,21 +10,21 @@ public class PlaceOrderTests : ApplicationTests
     [TestMethod]
     public async Task PlaceBuy_ShouldPass()
     {
-        int credits = 25;
-        int quantity = 1;
-        int creatorValue = credits - 5;
-        Creator creator = CreatorFactory.Create(value: creatorValue);
-        Player player = PlayerFactory.Create(credits: credits);
+        var credits = 25;
+        var quantity = 1;
+        var creatorValue = credits - 5;
+        var creator = CreatorFactory.Create(creatorValue);
+        var player = PlayerFactory.Create(credits);
         DbContext.Players.Add(player);
         DbContext.Creators.Add(creator);
         await DbContext.SaveChangesAsync();
 
-        Transaction tx = await Sender.Send(new PlaceOrderCommand
+        var tx = await Sender.Send(new PlaceOrderCommand
         {
             Action = TransactionAction.Buy,
             Actor = player.Slug,
             Creator = creator.Slug,
-            Amount = quantity,
+            Amount = quantity
         });
 
         Assert.AreEqual(quantity, tx.Quantity.Value);
@@ -38,22 +38,22 @@ public class PlaceOrderTests : ApplicationTests
     [TestMethod]
     public async Task PlaceSell_ShouldPass()
     {
-        int credits = 25;
-        int quantity = 1;
-        int creatorValue = credits - 5;
-        Player player = PlayerFactory.Create(credits: credits);
-        Creator creator = CreatorFactory.Create(value: creatorValue);
+        var credits = 25;
+        var quantity = 1;
+        var creatorValue = credits - 5;
+        var player = PlayerFactory.Create(credits);
+        var creator = CreatorFactory.Create(creatorValue);
         player.Buy(creator, quantity);
         DbContext.Players.Add(player);
         DbContext.Creators.Add(creator);
         await DbContext.SaveChangesAsync();
 
-        Transaction tx = await Sender.Send(new PlaceOrderCommand
+        var tx = await Sender.Send(new PlaceOrderCommand
         {
             Action = TransactionAction.Sell,
             Actor = player.Slug,
             Creator = creator.Slug,
-            Amount = quantity,
+            Amount = quantity
         });
 
         Assert.AreEqual(quantity, tx.Quantity.Value);

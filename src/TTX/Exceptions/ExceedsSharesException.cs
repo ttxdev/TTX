@@ -1,7 +1,9 @@
-namespace TTX.Exceptions;
-
-public class ExceedsSharesException : DomainException
+namespace TTX.Exceptions
 {
-    public ExceedsSharesException() : base("Not enough shares")
-    { }
+    public class ExceedsSharesException : DomainException
+    {
+        public ExceedsSharesException() : base("Not enough shares")
+        {
+        }
+    }
 }

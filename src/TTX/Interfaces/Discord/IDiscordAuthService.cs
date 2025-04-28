@@ -1,6 +1,7 @@
-﻿namespace TTX.Interfaces.Discord;
-
-public interface IDiscordAuthService
+﻿namespace TTX.Interfaces.Discord
 {
-    Task<DiscordUser?> GetByOAuth(string code);
+    public interface IDiscordAuthService
+    {
+        Task<DiscordUser?> GetByOAuth(string code);
+    }
 }

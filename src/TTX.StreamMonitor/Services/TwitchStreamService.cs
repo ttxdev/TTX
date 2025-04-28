@@ -12,11 +12,11 @@ namespace TTX.StreamMonitor.Services;
 
 public class TwitchStreamService
 {
-    private readonly TwitchAPI TwitchApi;
-    private readonly IServiceProvider Services;
-    private readonly ILogger Logger;
-    private readonly LiveStreamMonitorService StreamMonitor;
     private readonly Dictionary<Slug, Creator> Creators = [];
+    private readonly ILogger Logger;
+    private readonly IServiceProvider Services;
+    private readonly LiveStreamMonitorService StreamMonitor;
+    private readonly TwitchAPI TwitchApi;
 
     public TwitchStreamService(IServiceProvider services, ILogger logger, string clientId, string clientSecret)
     {
@@ -33,8 +33,15 @@ public class TwitchStreamService
         StreamMonitor.OnStreamOffline += async (_, e) => await OnStreamOffline(e);
     }
 
-    public void AddCreator(Creator creator) => Creators[creator.Slug] = creator;
-    public void RemoveCreator(Creator creator) => Creators.Remove(creator.Slug);
+    public void AddCreator(Creator creator)
+    {
+        Creators[creator.Slug] = creator;
+    }
+
+    public void RemoveCreator(Creator creator)
+    {
+        Creators.Remove(creator.Slug);
+    }
 
     public Task Start(CancellationToken cancellationToken)
     {
@@ -42,7 +49,9 @@ public class TwitchStreamService
         StreamMonitor.Start();
         return Task.Run(() =>
         {
-            while (!cancellationToken.IsCancellationRequested) { }
+            while (!cancellationToken.IsCancellationRequested)
+            {
+            }
         }, cancellationToken);
     }
 
@@ -59,26 +68,20 @@ public class TwitchStreamService
             );
 
             foreach (var creator in Creators.Values.Where(c => chunk.Contains(c.Slug)))
-            {
                 if (liveStreams.TryGetValue(creator.Slug, out var stream))
-                {
                     await UpdateStatus(new UpdateStreamStatusCommand
                     {
                         CreatorSlug = creator.Slug,
                         IsLive = true,
-                        At = stream.StartedAt,
+                        At = stream.StartedAt
                     });
-                }
                 else if (creator.StreamStatus.IsLive)
-                {
                     await UpdateStatus(new UpdateStreamStatusCommand
                     {
                         CreatorSlug = creator.Slug,
                         IsLive = false,
-                        At = DateTime.UtcNow,
+                        At = DateTime.UtcNow
                     });
-                }
-            }
         }
 
         Logger.LogInformation("Listening...");
@@ -94,7 +97,7 @@ public class TwitchStreamService
         {
             CreatorSlug = creator.Slug,
             IsLive = true,
-            At = e.Stream.StartedAt,
+            At = e.Stream.StartedAt
         });
     }
 
@@ -109,30 +112,23 @@ public class TwitchStreamService
         {
             CreatorSlug = creator.Slug,
             IsLive = false,
-            At = DateTime.UtcNow,
+            At = DateTime.UtcNow
         });
     }
 
     private async Task UpdateStatus(UpdateStreamStatusCommand cmd)
     {
-        using AsyncServiceScope scope = Services.CreateAsyncScope();
-        ISender sender = scope.ServiceProvider.GetRequiredService<ISender>();
+        using var scope = Services.CreateAsyncScope();
+        var sender = scope.ServiceProvider.GetRequiredService<ISender>();
         await sender.Send(cmd);
         if (cmd.IsLive)
-        {
             Logger.LogInformation("{CreatorSlug} is live", cmd.CreatorSlug);
-        }
         else
-        {
             Logger.LogInformation("{CreatorSlug} stopped streaming", cmd.CreatorSlug);
-        }
     }
 
     private static IEnumerable<List<T>> SplitList<T>(List<T> items, int nSize = 30)
     {
-        for (int i = 0; i < items.Count; i += nSize)
-        {
-            yield return items.GetRange(i, Math.Min(nSize, items.Count - i));
-        }
+        for (var i = 0; i < items.Count; i += nSize) yield return items.GetRange(i, Math.Min(nSize, items.Count - i));
     }
 }

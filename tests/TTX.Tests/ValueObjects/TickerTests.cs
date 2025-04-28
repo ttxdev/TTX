@@ -9,7 +9,7 @@ public class TickerTests
     [TestMethod]
     public void Create_WithValidTicker_ShouldReturnTickerInstance()
     {
-        string validTicker = "AAPL";
+        var validTicker = "AAPL";
 
         var ticker = Ticker.Create(validTicker);
 
@@ -20,7 +20,7 @@ public class TickerTests
     [TestMethod]
     public void Create_WithNullOrEmptyTicker_ShouldThrowException()
     {
-        string invalidTicker = "";
+        var invalidTicker = "";
 
         Assert.ThrowsException<InvalidValueObjectException>(() => Ticker.Create(invalidTicker));
     }
@@ -28,7 +28,7 @@ public class TickerTests
     [TestMethod]
     public void Create_WithTickerTooShort_ShouldThrowException()
     {
-        string shortTicker = "A";
+        var shortTicker = "A";
 
         Assert.ThrowsException<InvalidValueObjectException>(() => Ticker.Create(shortTicker));
     }
@@ -36,7 +36,7 @@ public class TickerTests
     [TestMethod]
     public void Create_WithTickerTooLong_ShouldThrowException()
     {
-        string longTicker = "ABCDEFGHIJKLMNO1";
+        var longTicker = "ABCDEFGHIJKLMNO1";
 
         Assert.ThrowsException<InvalidValueObjectException>(() => Ticker.Create(longTicker));
     }
@@ -44,7 +44,7 @@ public class TickerTests
     [TestMethod]
     public void Create_WithInvalidCharacters_ShouldThrowException()
     {
-        string invalidTicker = "AAPL@";
+        var invalidTicker = "AAPL@";
 
         Assert.ThrowsException<InvalidValueObjectException>(() => Ticker.Create(invalidTicker));
     }
@@ -52,11 +52,10 @@ public class TickerTests
     [TestMethod]
     public void ImplicitConversion_FromString_ShouldReturnTickerInstance()
     {
-        string validTicker = "MSFT";
+        var validTicker = "MSFT";
 
         Ticker ticker = validTicker;
 
         Assert.AreEqual(validTicker, ticker.Value);
     }
 }
-

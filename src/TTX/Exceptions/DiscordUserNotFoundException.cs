@@ -1,3 +1,4 @@
-namespace TTX.Exceptions;
-
-public class DiscordUserNotFoundException() : NotFoundException("Discord user not found");
+namespace TTX.Exceptions
+{
+    public class DiscordUserNotFoundException() : NotFoundException("Discord user not found");
+}

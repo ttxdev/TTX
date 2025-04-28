@@ -1,7 +1,9 @@
-namespace TTX.Exceptions;
-
-public class ExceedsBalanceException : DomainException
+namespace TTX.Exceptions
 {
-    public ExceedsBalanceException() : base("Not enough credits")
-    { }
+    public class ExceedsBalanceException : DomainException
+    {
+        public ExceedsBalanceException() : base("Not enough credits")
+        {
+        }
+    }
 }

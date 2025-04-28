@@ -5,8 +5,7 @@ namespace TTX.Api.Dto;
 
 public class PlayerPartialDto(Player user) : UserDto(user)
 {
-    [JsonPropertyName("credits")]
-    public long Credits { get; } = user.Credits;
-    [JsonPropertyName("type")]
-    public PlayerType Type { get; } = user.Type;
+    [JsonPropertyName("credits")] public long Credits { get; } = user.Credits;
+
+    [JsonPropertyName("type")] public PlayerType Type { get; } = user.Type;
 }

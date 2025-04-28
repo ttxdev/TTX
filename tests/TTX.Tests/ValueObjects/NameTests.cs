@@ -9,7 +9,7 @@ public class NameTests
     [TestMethod]
     public void Create_WithValidName_ShouldReturnNameInstance()
     {
-        string validName = "Valid_Name";
+        var validName = "Valid_Name";
 
         var name = Name.Create(validName);
 
@@ -20,51 +20,39 @@ public class NameTests
     [TestMethod]
     public void Create_WithNullOrEmptyName_ShouldThrowException()
     {
-        string invalidName = "";
+        var invalidName = "";
 
-        Assert.ThrowsException<InvalidValueObjectException>(() =>
-        {
-            Name.Create(invalidName);
-        });
+        Assert.ThrowsException<InvalidValueObjectException>(() => { Name.Create(invalidName); });
     }
 
     [TestMethod]
     public void Create_WithNameTooShort_ShouldThrowException()
     {
-        string shortName = "ab";
+        var shortName = "ab";
 
-        Assert.ThrowsException<InvalidValueObjectException>(() =>
-        {
-            Name.Create(shortName);
-        });
+        Assert.ThrowsException<InvalidValueObjectException>(() => { Name.Create(shortName); });
     }
 
     [TestMethod]
     public void Create_WithNameTooLong_ShouldThrowException()
     {
-        string longName = new string('a', Name.MaxLength + 1);
+        var longName = new string('a', Name.MaxLength + 1);
 
-        Assert.ThrowsException<InvalidValueObjectException>(() =>
-        {
-            Name.Create(longName);
-        });
+        Assert.ThrowsException<InvalidValueObjectException>(() => { Name.Create(longName); });
     }
 
     [TestMethod]
     public void Create_WithInvalidCharacters_ShouldThrowException()
     {
-        string invalidName = "Invalid@Name!";
+        var invalidName = "Invalid@Name!";
 
-        Assert.ThrowsException<InvalidValueObjectException>(() =>
-        {
-            Name.Create(invalidName);
-        });
+        Assert.ThrowsException<InvalidValueObjectException>(() => { Name.Create(invalidName); });
     }
 
     [TestMethod]
     public void ImplicitConversion_FromString_ShouldReturnNameInstance()
     {
-        string validName = "Another_ValidName";
+        var validName = "Another_ValidName";
 
         Name name = validName;
 

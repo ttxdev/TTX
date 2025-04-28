@@ -1,26 +1,23 @@
 ﻿using TTX.Models;
 
-namespace TTX.Commands.LootBoxes.OpenLootBox;
-
-public class CreatorRarity
+namespace TTX.Commands.LootBoxes.OpenLootBox
 {
-    public required Creator Creator { get; set; }
-    public required Rarity Rarity { get; set; }
-
-    public static CreatorRarity Create(long sum, Creator creator)
+    public class CreatorRarity
     {
-        var calc = creator.Value / (double)sum * 100;
-        var rarity = calc switch
+        public required Creator Creator { get; set; }
+        public required Rarity Rarity { get; set; }
+
+        public static CreatorRarity Create(long sum, Creator creator)
         {
-            >= 0 and < 1 => Rarity.Pennies,
-            >= 1 and < 5 => Rarity.Common,
-            >= 5 and < 20 => Rarity.Rare,
-            _ => Rarity.Epic,
-        };
-        return new CreatorRarity
-        {
-            Creator = creator,
-            Rarity = rarity
-        };
+            double calc = creator.Value / (double)sum * 100;
+            Rarity rarity = calc switch
+            {
+                >= 0 and < 1 => Rarity.Pennies,
+                >= 1 and < 5 => Rarity.Common,
+                >= 5 and < 20 => Rarity.Rare,
+                _ => Rarity.Epic
+            };
+            return new CreatorRarity { Creator = creator, Rarity = rarity };
+        }
     }
 }

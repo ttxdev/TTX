@@ -1,20 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Data;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 
-namespace TTX.Queries.Creators.PullLatestHistory;
-
-public class PullLatestHistoryHandler(ApplicationDbContext context) : IQueryHandler<PullLatestHistoryQuery, Vote[]>
+namespace TTX.Queries.Creators.PullLatestHistory
 {
-    public async Task<Vote[]> Handle(PullLatestHistoryQuery request, CancellationToken ct = default)
+    public class PullLatestHistoryHandler(ApplicationDbContext context) : IQueryHandler<PullLatestHistoryQuery, Vote[]>
     {
-        var creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.CreatorSlug, cancellationToken: ct);
-        if (creator is null)
-            throw new CreatorNotFoundException();
+        public async Task<Vote[]> Handle(PullLatestHistoryQuery request, CancellationToken ct = default)
+        {
+            Creator? creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.CreatorSlug, ct);
+            if (creator is null)
+            {
+                throw new CreatorNotFoundException();
+            }
 
-        var interval = GetInterval(request.Step);
-        var sql = $@"
+            string interval = GetInterval(request.Step);
+            string sql = $@"
             SELECT
                 votes.creator_id AS ""CreatorId"", 
                 time_bucket(
@@ -29,44 +33,46 @@ public class PullLatestHistoryHandler(ApplicationDbContext context) : IQueryHand
             GROUP BY ""CreatorId"", ""Bucket""
             ORDER BY ""Bucket"" ASC";
 
-        using var command = context.Database.GetDbConnection().CreateCommand();
-        command.CommandText = sql;
+            using DbCommand command = context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = sql;
 
-        if (command.Connection!.State != System.Data.ConnectionState.Open)
-            await command.Connection.OpenAsync(ct);
-
-        using var rows = await command.ExecuteReaderAsync();
-        var result = new List<Vote>();
-
-        while (await rows.ReadAsync(ct))
-        {
-            var value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetInt32(2);
-            result.Add(new Vote
+            if (command.Connection!.State != ConnectionState.Open)
             {
-                Creator = creator,
-                CreatorId = creator.Id,
-                Time = rows.GetDateTime(1), // Maps "Bucket" to "Time"
-                Value = value
-            });
+                await command.Connection.OpenAsync(ct);
+            }
+
+            using DbDataReader rows = await command.ExecuteReaderAsync();
+            List<Vote> result = new();
+
+            while (await rows.ReadAsync(ct))
+            {
+                int value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetInt32(2);
+                result.Add(new Vote
+                {
+                    Creator = creator,
+                    CreatorId = creator.Id,
+                    Time = rows.GetDateTime(1), // Maps "Bucket" to "Time"
+                    Value = value
+                });
+            }
+
+            return [.. result];
         }
 
-        return [.. result];
-    }
-
-    private static string GetInterval(TimeStep step)
-    {
-        return step switch
+        private static string GetInterval(TimeStep step)
         {
-            TimeStep.Minute => "1 minute",
-            TimeStep.FiveMinute => "5 minute",
-            TimeStep.FifteenMinute => "15 minute",
-            TimeStep.ThirtyMinute => "30 minute",
-            TimeStep.Hour => "1 hour",
-            TimeStep.Day => "1 day",
-            TimeStep.Week => "1 week",
-            TimeStep.Month => "1 month",
-            _ => throw new NotImplementedException(),
-        };
+            return step switch
+            {
+                TimeStep.Minute => "1 minute",
+                TimeStep.FiveMinute => "5 minute",
+                TimeStep.FifteenMinute => "15 minute",
+                TimeStep.ThirtyMinute => "30 minute",
+                TimeStep.Hour => "1 hour",
+                TimeStep.Day => "1 day",
+                TimeStep.Week => "1 week",
+                TimeStep.Month => "1 month",
+                _ => throw new NotImplementedException()
+            };
+        }
     }
-
 }

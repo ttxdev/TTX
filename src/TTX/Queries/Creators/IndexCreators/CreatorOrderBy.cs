@@ -1,8 +1,9 @@
-namespace TTX.Queries.Creators.IndexCreators;
-
-public enum CreatorOrderBy
+namespace TTX.Queries.Creators.IndexCreators
 {
-    Name,
-    Value,
-    IsLive
+    public enum CreatorOrderBy
+    {
+        Name,
+        Value,
+        IsLive
+    }
 }

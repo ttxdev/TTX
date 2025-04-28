@@ -1,7 +1,8 @@
-namespace TTX.Queries;
-
-public enum OrderDirection
+namespace TTX.Queries
 {
-    Ascending,
-    Descending
+    public enum OrderDirection
+    {
+        Ascending,
+        Descending
+    }
 }

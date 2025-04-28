@@ -1,8 +1,9 @@
 ﻿using MediatR;
 
-namespace TTX.Commands;
-
-public interface ICommandHandler<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+namespace TTX.Commands
 {
+    public interface ICommandHandler<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
+    {
+    }
 }

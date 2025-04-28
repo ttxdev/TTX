@@ -1,12 +1,15 @@
 # API
 
-A RESTful service that queries and handles commands into our core package, there are other TTX packages like [StreamMonitor](https://github.com/ttxdev/TTX/tree/main/src/TTX.StreamMonitor) that are required to be running for the actual TTX parody to function. See root README for more details.
+A RESTful service that queries and handles commands into our core package, there are other TTX packages
+like [StreamMonitor](https://github.com/ttxdev/TTX/tree/main/src/TTX.StreamMonitor) that are required to be running for
+the actual TTX parody to function. See root README for more details.
 
 # Setup
 
 - [Download dotnet](https://dotnet.microsoft.com/en-us/)
 
-To access our dependencies we need to [Generate a GitHub PAT](https://github.com/settings/tokens/new), with the read:packages scope.
+To access our dependencies we need to [Generate a GitHub PAT](https://github.com/settings/tokens/new), with the read:
+packages scope.
 
 > [!NOTE]
 > You can skip this step if you've set a token for ttxdev already
@@ -26,7 +29,8 @@ cp .env.example .env
 
 ## Setting up Accessories
 
-For this we can utilize Docker, but you will at least need an instance of Postgres with the [Timescale extension](https://www.timescale.com/).
+For this we can utilize Docker, but you will at least need an instance of Postgres with
+the [Timescale extension](https://www.timescale.com/).
 
 ```sh
 docker compose up -d postgres
@@ -47,7 +51,7 @@ docker compose up -d postgres
 
 Then after a successful OAuth flow it should return a JWT.
 
-##  Run!
+## Run!
 
 ```sh
 dotnet run

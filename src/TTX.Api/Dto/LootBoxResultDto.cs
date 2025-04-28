@@ -5,8 +5,8 @@ namespace TTX.Api.Dto;
 
 public class LootBoxResultDto(OpenLootBoxResult result)
 {
-    [JsonPropertyName("result")]
-    public CreatorRarityDto Result { get; } = new(result.Result);
+    [JsonPropertyName("result")] public CreatorRarityDto Result { get; } = new(result.Result);
+
     [JsonPropertyName("rarities")]
     public CreatorRarityDto[] Rarities { get; } = [.. result.Rarities.Select(x => new CreatorRarityDto(x))];
 }

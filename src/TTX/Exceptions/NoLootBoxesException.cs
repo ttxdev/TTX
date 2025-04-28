@@ -1,6 +1,7 @@
-namespace TTX.Exceptions;
-
-public class NoLootBoxesException : DomainException
+namespace TTX.Exceptions
 {
-    public NoLootBoxesException() : base("No loot boxes available") { }
+    public class NoLootBoxesException : DomainException
+    {
+        public NoLootBoxesException() : base("No loot boxes available") { }
+    }
 }

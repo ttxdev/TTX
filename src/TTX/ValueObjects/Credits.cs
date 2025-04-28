@@ -1,19 +1,37 @@
 ﻿using TTX.Exceptions;
 
-namespace TTX.ValueObjects;
-
-public class Credits : ValueObject<long>
+namespace TTX.ValueObjects
 {
-    public static Credits Create(long value)
+    public class Credits : ValueObject<long>
     {
-        if (value < 0)
-            throw new InvalidValueObjectException(nameof(Credits), "cannot be negative.");
+        public static Credits Create(long value)
+        {
+            if (value < 0)
+            {
+                throw new InvalidValueObjectException(nameof(Credits), "cannot be negative.");
+            }
 
-        return new Credits { Value = value };
+            return new Credits { Value = value };
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public static implicit operator Credits(long value)
+        {
+            return Create(value);
+        }
+
+        public static implicit operator Credits(int value)
+        {
+            return Create(value);
+        }
     }
-
-    public override string ToString() => Value.ToString();
-    public override int GetHashCode() => Value.GetHashCode();
-    public static implicit operator Credits(long value) => Create(value);
-    public static implicit operator Credits(int value) => Create(value);
 }

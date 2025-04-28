@@ -1,20 +1,21 @@
-namespace TTX.Models;
-
-public class StreamStatus
+namespace TTX.Models
 {
-    public bool IsLive { get; private set; } = false;
-    public DateTimeOffset? StartedAt { get; private set; }
-    public DateTimeOffset? EndedAt { get; private set; }
-
-    public void Started(DateTimeOffset at)
+    public class StreamStatus
     {
-        StartedAt = at;
-        IsLive = true;
-    }
+        public bool IsLive { get; private set; }
+        public DateTimeOffset? StartedAt { get; private set; }
+        public DateTimeOffset? EndedAt { get; private set; }
 
-    public void Ended(DateTimeOffset at)
-    {
-        EndedAt = at;
-        IsLive = false;
+        public void Started(DateTimeOffset at)
+        {
+            StartedAt = at;
+            IsLive = true;
+        }
+
+        public void Ended(DateTimeOffset at)
+        {
+            EndedAt = at;
+            IsLive = false;
+        }
     }
 }

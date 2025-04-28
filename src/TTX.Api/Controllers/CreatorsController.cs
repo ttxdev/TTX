@@ -33,37 +33,40 @@ public class CreatorsController(ISender sender) : ControllerBase
         {
             Page = index,
             Limit = limit,
-            Order = orderBy is null ? null : new()
-            {
-                By = orderBy.Value,
-                Dir = orderDir ?? OrderDirection.Ascending
-            },
+            Order = orderBy is null
+                ? null
+                : new Order<CreatorOrderBy>
+                {
+                    By = orderBy.Value,
+                    Dir = orderDir ?? OrderDirection.Ascending
+                },
             Search = search,
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.ThirtyMinute,
                 After = DateTime.UtcNow.AddDays(-1)
-            },
+            }
         });
 
         return Ok(new PaginationDto<CreatorPartialDto>
         {
             Data = [.. page.Data.Select(c => new CreatorPartialDto(c))],
-            Total = page.Total,
+            Total = page.Total
         });
     }
 
     [HttpGet("{slug}")]
     [EndpointName("GetCreator")]
-    public async Task<ActionResult<CreatorDto>> Show(string slug, [FromQuery] TimeStep step = TimeStep.FiveMinute, [FromQuery] DateTimeOffset? after = null)
+    public async Task<ActionResult<CreatorDto>> Show(string slug, [FromQuery] TimeStep step = TimeStep.FiveMinute,
+        [FromQuery] DateTimeOffset? after = null)
     {
-        Creator? creator = await sender.Send(new FindCreatorQuery
+        var creator = await sender.Send(new FindCreatorQuery
         {
             Slug = slug,
             HistoryParams = new HistoryParams
             {
                 Step = step,
-                After = after ?? DateTimeOffset.UtcNow.AddDays(-1),
+                After = after ?? DateTimeOffset.UtcNow.AddDays(-1)
             }
         });
 
@@ -78,10 +81,10 @@ public class CreatorsController(ISender sender) : ControllerBase
     [EndpointName("CreateCreator")]
     public async Task<ActionResult<CreatorDto>> Create([FromQuery] string username, [FromQuery] Ticker ticker)
     {
-        Creator creator = await sender.Send(new OnboardTwitchCreatorCommand
+        var creator = await sender.Send(new OnboardTwitchCreatorCommand
         {
             Ticker = ticker,
-            Username = username,
+            Username = username
         });
 
         return Ok(new CreatorDto(creator));
@@ -90,12 +93,12 @@ public class CreatorsController(ISender sender) : ControllerBase
     [HttpGet("{creatorSlug}/value/latest")]
     [EndpointName("GetLatestCreatorValue")]
     public async Task<ActionResult<Vote[]>> GetLatestValues(
-      [FromRoute] string creatorSlug,
-      [FromQuery] DateTime after,
-      [FromQuery] TimeStep step = TimeStep.Minute
+        [FromRoute] string creatorSlug,
+        [FromQuery] DateTime after,
+        [FromQuery] TimeStep step = TimeStep.Minute
     )
     {
-        Vote[] votes = await sender.Send(new PullLatestHistoryQuery
+        var votes = await sender.Send(new PullLatestHistoryQuery
         {
             CreatorSlug = creatorSlug,
             Step = step,
@@ -109,13 +112,13 @@ public class CreatorsController(ISender sender) : ControllerBase
     [EndpointName("GetCreatorTransactions")]
     public async Task<ActionResult<PlayerTransactionDto[]>> IndexCreatorTransactions(string slug)
     {
-        Creator? creator = await sender.Send(new FindCreatorQuery
+        var creator = await sender.Send(new FindCreatorQuery
         {
             Slug = slug,
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.Minute,
-                After = DateTimeOffset.UtcNow,
+                After = DateTimeOffset.UtcNow
             }
         });
 

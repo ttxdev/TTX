@@ -25,7 +25,7 @@ public abstract class ApplicationTests
     [TestInitialize]
     public void Setup()
     {
-        int seed = new Random().Next(1, 1000);
+        var seed = new Random().Next(1, 1000);
         Randomizer.Seed = new Random(seed);
         Console.WriteLine($"Using seed {seed}");
 

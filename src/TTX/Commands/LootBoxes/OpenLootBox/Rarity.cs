@@ -1,9 +1,10 @@
-﻿namespace TTX.Commands.LootBoxes.OpenLootBox;
-
-public enum Rarity
+﻿namespace TTX.Commands.LootBoxes.OpenLootBox
 {
-    Pennies,
-    Common,
-    Rare,
-    Epic,
+    public enum Rarity
+    {
+        Pennies,
+        Common,
+        Rare,
+        Epic
+    }
 }

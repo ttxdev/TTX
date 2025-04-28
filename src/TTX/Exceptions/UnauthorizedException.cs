@@ -1,6 +1,7 @@
-namespace TTX.Exceptions;
-
-public class UnauthorizedException : DomainException
+namespace TTX.Exceptions
 {
-    public UnauthorizedException() : base("Unauthorized") { }
+    public class UnauthorizedException : DomainException
+    {
+        public UnauthorizedException() : base("Unauthorized") { }
+    }
 }

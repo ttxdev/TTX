@@ -27,13 +27,11 @@ using TTX.Queries.Creators.IndexCreators;
 using TTX.Queries.Creators.PullLatestHistory;
 using TTX.Queries.Players.FindPlayer;
 using TTX.Queries.Players.IndexPlayers;
+
 [assembly: ApiController]
 
 var builder = WebApplication.CreateBuilder(args);
-if (builder.Environment.IsDevelopment())
-{
-    DotEnv.Load();
-}
+if (builder.Environment.IsDevelopment()) DotEnv.Load();
 
 builder.Configuration.AddEnvironmentVariables("TTX_");
 var config = new ConfigProvider(builder.Configuration);
@@ -56,7 +54,7 @@ builder.Services
             options.EnableDetailedErrors();
         },
         700
-     )
+    )
     .AddHttpContextAccessor()
     .AddSwaggerGen(options =>
     {
@@ -66,16 +64,16 @@ builder.Services
     .AddTransient<ITwitchAuthService, TwitchAuthService>(provider =>
     {
         return new TwitchAuthService(
-            clientId: config.GetTwitchClientId(),
-            clientSecret: config.GetTwitchClientSecret(),
-            redirectUri: config.GetTwitchRedirectUri()
+            config.GetTwitchClientId(),
+            config.GetTwitchClientSecret(),
+            config.GetTwitchRedirectUri()
         );
     })
     .AddTransient<IDiscordAuthService, DiscordAuthService>(provider =>
     {
         return new DiscordAuthService(
-            clientId: config.GetDiscordClientId(),
-            clientSecret: config.GetDiscordClientSecret()
+            config.GetDiscordClientId(),
+            config.GetDiscordClientSecret()
         );
     })
     .AddMediatR(cfg =>
@@ -110,17 +108,15 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllOrigins", builder =>
     {
         builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
 if (builder.Environment.IsProduction())
-{
     builder.Services.AddDataProtection()
         .PersistKeysToFileSystem(new DirectoryInfo("/var/ttx/keys"))
         .SetApplicationName("TTX");
-}
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -135,7 +131,7 @@ builder.Services
             ValidateIssuerSigningKey = true,
             ValidIssuer = "api.ttx.gg",
             ValidAudience = "ttx.gg",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSecretKey())),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSecretKey()))
         };
     });
 
@@ -148,13 +144,9 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsProduction())
-{
     app.UseHttpsRedirection();
-}
 else
-{
     app.UseDeveloperExceptionPage();
-}
 
 app.UseHttpLogging();
 app.MapOpenApi();

@@ -9,7 +9,7 @@ public class PlayerFactory
     public static Player Create(Credits? credits = null, bool includeId = false)
     {
         Faker faker = new();
-        Name name = NameFactory.Create();
+        var name = NameFactory.Create();
 
         Faker<Player> player = new();
 

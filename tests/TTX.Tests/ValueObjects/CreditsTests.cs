@@ -22,10 +22,7 @@ public class CreditsTests
     {
         long negativeValue = -1;
 
-        Assert.ThrowsException<InvalidValueObjectException>(() =>
-        {
-            Credits.Create(negativeValue);
-        });
+        Assert.ThrowsException<InvalidValueObjectException>(() => { Credits.Create(negativeValue); });
     }
 
     [TestMethod]
@@ -40,7 +37,7 @@ public class CreditsTests
     [TestMethod]
     public void ImplicitConversion_FromInt_ShouldReturnCreditsInstance()
     {
-        int value = 25;
+        var value = 25;
         Credits credits = value;
 
         Assert.AreEqual(value, credits.Value);
@@ -52,7 +49,7 @@ public class CreditsTests
         long value = 75;
         var credits = Credits.Create(value);
 
-        string result = credits.ToString();
+        var result = credits.ToString();
 
         Assert.AreEqual(value.ToString(), result);
     }
@@ -63,7 +60,7 @@ public class CreditsTests
         long value = 100;
         var credits = Credits.Create(value);
 
-        int hashCode = credits.GetHashCode();
+        var hashCode = credits.GetHashCode();
 
         Assert.AreEqual(value.GetHashCode(), hashCode);
     }

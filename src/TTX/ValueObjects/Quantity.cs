@@ -1,16 +1,22 @@
 ﻿using TTX.Exceptions;
 
-namespace TTX.ValueObjects;
-
-public class Quantity : ValueObject<int>
+namespace TTX.ValueObjects
 {
-    public static Quantity Create(int value)
+    public class Quantity : ValueObject<int>
     {
-        if (value < 0)
-            throw new InvalidValueObjectException(nameof(Quantity), "cannot be less than zero.");
+        public static Quantity Create(int value)
+        {
+            if (value < 0)
+            {
+                throw new InvalidValueObjectException(nameof(Quantity), "cannot be less than zero.");
+            }
 
-        return new Quantity { Value = value };
+            return new Quantity { Value = value };
+        }
+
+        public static implicit operator Quantity(int value)
+        {
+            return Create(value);
+        }
     }
-
-    public static implicit operator Quantity(int value) => Create(value);
 }

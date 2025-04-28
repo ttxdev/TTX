@@ -1,9 +1,10 @@
-namespace TTX.Exceptions;
-
-[Serializable]
-public class DomainException : Exception
+namespace TTX.Exceptions
 {
-    public DomainException() { }
-    public DomainException(string message) : base(message) { }
-    public DomainException(string message, Exception inner) : base(message, inner) { }
+    [Serializable]
+    public class DomainException : Exception
+    {
+        public DomainException() { }
+        public DomainException(string message) : base(message) { }
+        public DomainException(string message, Exception inner) : base(message, inner) { }
+    }
 }

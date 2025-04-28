@@ -1,7 +1,5 @@
 ﻿using TTX.Api.Dto;
 using TTX.Commands.Players.AuthenticateDiscordUser;
-using TTX.Interfaces.Discord;
-using TTX.Interfaces.Twitch;
 using TTX.Models;
 using TTX.ValueObjects;
 

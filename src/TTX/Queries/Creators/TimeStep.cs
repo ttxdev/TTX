@@ -1,13 +1,14 @@
-﻿namespace TTX.Queries.Creators;
-
-public enum TimeStep
+﻿namespace TTX.Queries.Creators
 {
-    Minute,
-    FiveMinute,
-    FifteenMinute,
-    ThirtyMinute,
-    Hour,
-    Day,
-    Week,
-    Month
+    public enum TimeStep
+    {
+        Minute,
+        FiveMinute,
+        FifteenMinute,
+        ThirtyMinute,
+        Hour,
+        Day,
+        Week,
+        Month
+    }
 }

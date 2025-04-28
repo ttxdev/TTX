@@ -1,5 +1,4 @@
 using TTX.Commands.LootBoxes.OpenLootBox;
-using TTX.Models;
 using TTX.Tests.Factories;
 
 namespace TTX.Tests.Commands.LootBoxes;
@@ -10,14 +9,14 @@ public class OpenLootBoxTests : ApplicationTests
     [TestMethod]
     public async Task OpenLootBox_ShouldProvideResult()
     {
-        Player player = PlayerFactory.Create();
+        var player = PlayerFactory.Create();
         player.AddLootBox();
         foreach (var _ in Enumerable.Range(0, 20))
-            DbContext.Creators.Add(CreatorFactory.Create(value: OpenLootBoxHandler.MinValue));
+            DbContext.Creators.Add(CreatorFactory.Create(OpenLootBoxHandler.MinValue));
         DbContext.Players.Add(player);
         await DbContext.SaveChangesAsync();
 
-        OpenLootBoxResult result = await Sender.Send(new OpenLootBoxCommand
+        var result = await Sender.Send(new OpenLootBoxCommand
         {
             ActorSlug = player.Slug
         });

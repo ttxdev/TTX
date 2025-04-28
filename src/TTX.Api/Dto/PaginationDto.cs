@@ -4,8 +4,7 @@ namespace TTX.Api.Dto;
 
 public class PaginationDto<T>
 {
-    [JsonPropertyName("data")]
-    public required T[] Data { get; init; }
-    [JsonPropertyName("total")]
-    public required int Total { get; init; }
+    [JsonPropertyName("data")] public required T[] Data { get; init; }
+
+    [JsonPropertyName("total")] public required int Total { get; init; }
 }

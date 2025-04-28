@@ -6,7 +6,8 @@ Open-source version of TTX Value Monitor.
 
 - [Download dotnet](https://dotnet.microsoft.com/en-us/)
 
-To access our dependencies we need to [Generate a GitHub PAT](https://github.com/settings/tokens/new), with the read:packages scope.
+To access our dependencies we need to [Generate a GitHub PAT](https://github.com/settings/tokens/new), with the read:
+packages scope.
 
 > [!NOTE]  
 > You can skip this step if you've set a token for ttxdev already
@@ -32,7 +33,7 @@ For this we can utilize Docker, but you will at least need an instance of Redis.
 docker compose up -d postgres 
 ```
 
-##  Run!
+## Run!
 
 ```sh
 dotnet run

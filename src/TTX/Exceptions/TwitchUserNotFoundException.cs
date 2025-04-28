@@ -1,3 +1,4 @@
-namespace TTX.Exceptions;
-
-public class TwitchUserNotFoundException() : NotFoundException("Twitch user not found");
+namespace TTX.Exceptions
+{
+    public class TwitchUserNotFoundException() : NotFoundException("Twitch user not found");
+}

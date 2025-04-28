@@ -11,24 +11,21 @@ using TTX.StreamMonitor.Services;
 DotEnv.Load();
 ConfigProvider config = new(new ConfigurationBuilder().AddEnvironmentVariables("TTX_").Build());
 IServiceProvider services = new ServiceCollection()
-  .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(config.GetConnectionString()))
-  .AddLogging(options => options.AddConsole())
-  .AddMediatR(cfg =>
-  {
-      cfg.RegisterServicesFromAssemblyContaining<UpdateStreamStatusHandler>();
-  })
-  .BuildServiceProvider();
+    .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(config.GetConnectionString()))
+    .AddLogging(options => options.AddConsole())
+    .AddMediatR(cfg => { cfg.RegisterServicesFromAssemblyContaining<UpdateStreamStatusHandler>(); })
+    .BuildServiceProvider();
 
-ILoggerFactory loggerFactory = services.GetRequiredService<ILoggerFactory>();
+var loggerFactory = services.GetRequiredService<ILoggerFactory>();
 TwitchStreamService monitor = new(
-  services,
-  loggerFactory.CreateLogger<TwitchStreamService>(),
-  clientId: config.GetTwitchClientId(),
-  clientSecret: config.GetTwitchClientSecret()
+    services,
+    loggerFactory.CreateLogger<TwitchStreamService>(),
+    config.GetTwitchClientId(),
+    config.GetTwitchClientSecret()
 );
-using AsyncServiceScope scope = services.CreateAsyncScope();
+using var scope = services.CreateAsyncScope();
 {
-    ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await context.Creators.ForEachAsync(monitor.AddCreator);
 }
 

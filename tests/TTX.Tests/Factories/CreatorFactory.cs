@@ -14,7 +14,7 @@ public class CreatorFactory
         if (includeId)
             creator.RuleFor(c => c.Id, ModelIdFactory.Create());
 
-        Name name = NameFactory.Create();
+        var name = NameFactory.Create();
 
         return creator
             .RuleFor(c => c.Name, name)

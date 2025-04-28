@@ -6,7 +6,8 @@ StreaMonitor is responsible for listening to Twitch channels and keeping our Cre
 
 - [Download dotnet](https://dotnet.microsoft.com/en-us/)
 
-To access our dependencies we need to [Generate a GitHub PAT](https://github.com/settings/tokens/new), with the read:packages scope.
+To access our dependencies we need to [Generate a GitHub PAT](https://github.com/settings/tokens/new), with the read:
+packages scope.
 
 > [!NOTE]
 > You can skip this step if you've set a token for ttxdev already
@@ -24,7 +25,7 @@ cp .env.example .env
 # fill out env
 ```
 
-##  Run!
+## Run!
 
 ```sh
 dotnet run

@@ -5,6 +5,5 @@ namespace TTX.Api.Dto;
 
 public class CreatorTransactionDto(Transaction tx) : TransactionDto(tx)
 {
-    [JsonPropertyName("player")]
-    public PlayerPartialDto Player { get; } = new PlayerPartialDto(tx.Player);
+    [JsonPropertyName("player")] public PlayerPartialDto Player { get; } = new(tx.Player);
 }

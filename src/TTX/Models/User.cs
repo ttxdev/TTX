@@ -1,35 +1,36 @@
 ﻿using TTX.ValueObjects;
 
-namespace TTX.Models;
-
-public class User : Model
+namespace TTX.Models
 {
-    public required Name Name { get; set; }
-    public required Slug Slug { get; set; }
-    public required TwitchId TwitchId { get; init; }
-    public required Uri AvatarUrl { get; set; }
-
-    public bool Sync(Name name, Slug slug, Uri avatarUrl)
+    public class User : Model
     {
-        bool isChanged = false;
-        if (name != Name)
-        {
-            Name = name;
-            isChanged = true;
-        }
+        public required Name Name { get; set; }
+        public required Slug Slug { get; set; }
+        public required TwitchId TwitchId { get; init; }
+        public required Uri AvatarUrl { get; set; }
 
-        if (slug != Slug)
+        public bool Sync(Name name, Slug slug, Uri avatarUrl)
         {
-            Slug = slug;
-            isChanged = true;
-        }
+            bool isChanged = false;
+            if (name != Name)
+            {
+                Name = name;
+                isChanged = true;
+            }
 
-        if (avatarUrl != AvatarUrl)
-        {
-            AvatarUrl = avatarUrl;
-            isChanged = true;
-        }
+            if (slug != Slug)
+            {
+                Slug = slug;
+                isChanged = true;
+            }
 
-        return isChanged;
+            if (avatarUrl != AvatarUrl)
+            {
+                AvatarUrl = avatarUrl;
+                isChanged = true;
+            }
+
+            return isChanged;
+        }
     }
 }

@@ -1,7 +1,8 @@
-﻿namespace TTX.Models;
-
-public enum TransactionAction
+﻿namespace TTX.Models
 {
-    Buy,
-    Sell
+    public enum TransactionAction
+    {
+        Buy,
+        Sell
+    }
 }

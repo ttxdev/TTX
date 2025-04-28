@@ -1,7 +1,8 @@
-namespace TTX.Queries.Players.IndexPlayers;
-
-public enum PlayerOrderBy
+namespace TTX.Queries.Players.IndexPlayers
 {
-    Name,
-    Credits,
+    public enum PlayerOrderBy
+    {
+        Name,
+        Credits
+    }
 }

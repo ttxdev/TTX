@@ -3,28 +3,29 @@ using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 
-namespace TTX.Commands.Ordering.PlaceOrder;
-
-public class PlaceOrderHandler(ApplicationDbContext context) : ICommandHandler<PlaceOrderCommand, Transaction>
+namespace TTX.Commands.Ordering.PlaceOrder
 {
-    public async Task<Transaction> Handle(PlaceOrderCommand request, CancellationToken ct = default)
+    public class PlaceOrderHandler(ApplicationDbContext context) : ICommandHandler<PlaceOrderCommand, Transaction>
     {
-        var player = await context.Players
-            .Include(p => p.Transactions)
-            .SingleOrDefaultAsync(p => p.Slug == request.Actor, cancellationToken: ct)
-            ?? throw new PlayerNotFoundException();
+        public async Task<Transaction> Handle(PlaceOrderCommand request, CancellationToken ct = default)
+        {
+            Player player = await context.Players
+                                .Include(p => p.Transactions)
+                                .SingleOrDefaultAsync(p => p.Slug == request.Actor, ct)
+                            ?? throw new PlayerNotFoundException();
 
-        var creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.Creator, ct)
-            ?? throw new CreatorNotFoundException();
+            Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.Creator, ct)
+                              ?? throw new CreatorNotFoundException();
 
-        var tx = request.IsBuy
-              ? player.Buy(creator, request.Amount)
-              : player.Sell(creator, request.Amount);
+            Transaction tx = request.IsBuy
+                ? player.Buy(creator, request.Amount)
+                : player.Sell(creator, request.Amount);
 
-        context.Transactions.Add(tx);
-        context.Players.Update(player);
-        await context.SaveChangesAsync(ct);
+            context.Transactions.Add(tx);
+            context.Players.Update(player);
+            await context.SaveChangesAsync(ct);
 
-        return tx;
+            return tx;
+        }
     }
 }

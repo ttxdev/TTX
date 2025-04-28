@@ -1,7 +1,8 @@
-﻿namespace TTX.Interfaces.Discord;
-
-public readonly struct DiscordUser
+﻿namespace TTX.Interfaces.Discord
 {
-    public required string Token { get; init; }
-    public required DiscordConnection[] Connections { get; init; }
+    public readonly struct DiscordUser
+    {
+        public required string Token { get; init; }
+        public required DiscordConnection[] Connections { get; init; }
+    }
 }

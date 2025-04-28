@@ -1,8 +1,9 @@
 ﻿using TTX.Models;
 
-namespace TTX.Commands.Players.AuthenticateTwitchUser;
-
-public class AuthenticateTwitchUserCommand : ICommand<Player>
+namespace TTX.Commands.Players.AuthenticateTwitchUser
 {
-    public required string OAuthCode { get; init; }
+    public class AuthenticateTwitchUserCommand : ICommand<Player>
+    {
+        public required string OAuthCode { get; init; }
+    }
 }

@@ -5,11 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using TTX.Api.Dto;
 using TTX.Api.Interfaces;
 using TTX.Commands.LootBoxes.OpenLootBox;
-using TTX.Models;
 using TTX.Queries;
 using TTX.Queries.Players.FindPlayer;
 using TTX.Queries.Players.IndexPlayers;
-using TTX.ValueObjects;
 
 namespace TTX.Api.Controllers;
 
@@ -28,22 +26,24 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
         [FromQuery] OrderDirection? orderDir = null
     )
     {
-        Pagination<Player> page = await sender.Send(new IndexPlayersQuery
+        var page = await sender.Send(new IndexPlayersQuery
         {
             Page = index,
             Limit = limit,
             Search = search,
-            Order = orderBy is null ? null : new()
-            {
-                By = orderBy.Value,
-                Dir = orderDir ?? OrderDirection.Ascending
-            },
+            Order = orderBy is null
+                ? null
+                : new Order<PlayerOrderBy>
+                {
+                    By = orderBy.Value,
+                    Dir = orderDir ?? OrderDirection.Ascending
+                }
         });
 
         return Ok(new PaginationDto<PlayerDto>
         {
             Data = [.. page.Data.Select(u => new PlayerDto(u))],
-            Total = page.Total,
+            Total = page.Total
         });
     }
 
@@ -51,9 +51,9 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
     [EndpointName("GetPlayer")]
     public async Task<ActionResult<PlayerDto>> Show(string username)
     {
-        Player? player = await sender.Send(new FindPlayerQuery
+        var player = await sender.Send(new FindPlayerQuery
         {
-            Slug = username,
+            Slug = username
         });
         if (player is null)
             return NotFound();
@@ -69,7 +69,7 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
         if (username is null)
             return Unauthorized();
 
-        Player? player = await sender.Send(new FindPlayerQuery
+        var player = await sender.Send(new FindPlayerQuery
         {
             Slug = username
         });
@@ -85,13 +85,13 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
     [EndpointName("Gamba")]
     public async Task<ActionResult<LootBoxResultDto>> Gamba()
     {
-        Slug? slug = sessions.GetCurrentUserSlug();
+        var slug = sessions.GetCurrentUserSlug();
         if (slug is null)
             return Unauthorized();
 
-        OpenLootBoxResult result = await sender.Send(new OpenLootBoxCommand
+        var result = await sender.Send(new OpenLootBoxCommand
         {
-            ActorSlug = slug,
+            ActorSlug = slug
         });
 
         return Ok(new LootBoxResultDto(result));
@@ -101,9 +101,9 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
     [EndpointName("GetPlayerTransactions")]
     public async Task<ActionResult<PlayerTransactionDto[]>> IndexPlayerTransactions(string username)
     {
-        Player? player = await sender.Send(new FindPlayerQuery
+        var player = await sender.Send(new FindPlayerQuery
         {
-            Slug = username,
+            Slug = username
         });
 
         if (player is null)

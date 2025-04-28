@@ -1,3 +1,4 @@
-﻿namespace TTX.Exceptions;
-
-public class NotFoundException(string message) : DomainException(message);
+﻿namespace TTX.Exceptions
+{
+    public class NotFoundException(string message) : DomainException(message);
+}

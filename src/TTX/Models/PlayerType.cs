@@ -1,7 +1,8 @@
-﻿namespace TTX.Models;
-
-public enum PlayerType
+﻿namespace TTX.Models
 {
-    User,
-    Admin
+    public enum PlayerType
+    {
+        User,
+        Admin
+    }
 }

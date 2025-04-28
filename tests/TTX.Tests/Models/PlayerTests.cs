@@ -7,17 +7,37 @@ namespace TTX.Tests.Models;
 [TestClass]
 public class PlayerTests
 {
+    [TestMethod]
+    public void GetShares_ShouldReturnCorrectShares()
+    {
+        var shares = 5;
+        var creatorValue = Creator.StarterValue;
+        var credits = shares * creatorValue * 2;
+
+        var player = PlayerFactory.Create(credits);
+        var creatorOne = CreatorFactory.Create(creatorValue, true);
+        var creatorTwo = CreatorFactory.Create(creatorValue, true);
+        player.Buy(creatorOne, shares);
+        player.Buy(creatorTwo, shares);
+
+        Assert.AreEqual(2, player.GetShares().Length);
+        var share = player.GetShares().Where(s => s.Creator == creatorOne).FirstOrDefault();
+        Assert.IsNotNull(share);
+        Assert.AreEqual(shares, share.Quantity.Value);
+    }
+
     #region Ordering
+
     [TestMethod]
     public void ValidBuy_ShouldPass()
     {
-        int credits = 25;
-        int quantity = 1;
-        int creatorValue = credits - 5;
-        Creator creator = CreatorFactory.Create(value: creatorValue);
-        Player player = PlayerFactory.Create(credits: credits);
+        var credits = 25;
+        var quantity = 1;
+        var creatorValue = credits - 5;
+        var creator = CreatorFactory.Create(creatorValue);
+        var player = PlayerFactory.Create(credits);
 
-        Transaction tx = player.Buy(creator, quantity);
+        var tx = player.Buy(creator, quantity);
 
         Assert.AreEqual(quantity, tx.Quantity.Value);
         Assert.AreEqual(creatorValue, tx.Value);
@@ -30,14 +50,14 @@ public class PlayerTests
     [TestMethod]
     public void ValidSell_ShouldPass()
     {
-        int credits = 20;
-        int quantity = 1;
-        int creatorValue = credits + 5;
-        Creator creator = CreatorFactory.Create(value: credits, includeId: true);
-        Player player = PlayerFactory.Create(credits: creatorValue);
+        var credits = 20;
+        var quantity = 1;
+        var creatorValue = credits + 5;
+        var creator = CreatorFactory.Create(credits, true);
+        var player = PlayerFactory.Create(creatorValue);
 
         player.Buy(creator, quantity);
-        Transaction tx = player.Sell(creator, quantity);
+        var tx = player.Sell(creator, quantity);
 
         Assert.AreEqual(quantity, tx.Quantity.Value);
         Assert.AreEqual(credits, tx.Value);
@@ -50,9 +70,9 @@ public class PlayerTests
     [TestMethod]
     public void BrokeBoy_ShouldCancelBuyTransaction()
     {
-        int credits = 20;
-        Creator creator = CreatorFactory.Create(value: credits + 5);
-        Player player = PlayerFactory.Create(credits: credits);
+        var credits = 20;
+        var creator = CreatorFactory.Create(credits + 5);
+        var player = PlayerFactory.Create(credits);
 
         Assert.ThrowsException<ExceedsBalanceException>(() => player.Buy(creator, 1));
         Assert.AreEqual(credits, player.Credits);
@@ -62,9 +82,9 @@ public class PlayerTests
     [TestMethod]
     public void NoShares_ShouldCancelSellTransaction()
     {
-        int credits = 20;
-        Creator creator = CreatorFactory.Create(value: credits + 5);
-        Player player = PlayerFactory.Create(credits: credits);
+        var credits = 20;
+        var creator = CreatorFactory.Create(credits + 5);
+        var player = PlayerFactory.Create(credits);
 
         Assert.ThrowsException<ExceedsSharesException>(() => player.Sell(creator, 1));
         Assert.AreEqual(credits, player.Credits);
@@ -74,11 +94,11 @@ public class PlayerTests
     [TestMethod]
     public void MaxShares_ShouldCancelSellTransaction()
     {
-        int shares = Player.MaxShares + 1;
-        int creatorValue = Creator.StarterValue;
-        int credits = shares * creatorValue;
-        Player player = PlayerFactory.Create(credits: credits);
-        Creator creator = CreatorFactory.Create(value: creatorValue, includeId: true);
+        var shares = Player.MaxShares + 1;
+        var creatorValue = Creator.StarterValue;
+        var credits = shares * creatorValue;
+        var player = PlayerFactory.Create(credits);
+        var creator = CreatorFactory.Create(creatorValue, true);
 
         player.Buy(creator, Player.MaxShares);
 
@@ -86,24 +106,6 @@ public class PlayerTests
         Assert.AreEqual(1, player.Credits);
         Assert.AreEqual(1, player.Transactions.Count);
     }
+
     #endregion
-
-    [TestMethod]
-    public void GetShares_ShouldReturnCorrectShares()
-    {
-        int shares = 5;
-        int creatorValue = Creator.StarterValue;
-        int credits = shares * creatorValue * 2;
-
-        Player player = PlayerFactory.Create(credits: credits);
-        Creator creatorOne = CreatorFactory.Create(value: creatorValue, includeId: true);
-        Creator creatorTwo = CreatorFactory.Create(value: creatorValue, includeId: true);
-        player.Buy(creatorOne, shares);
-        player.Buy(creatorTwo, shares);
-
-        Assert.AreEqual(2, player.GetShares().Length);
-        Share? share = player.GetShares().Where(s => s.Creator == creatorOne).FirstOrDefault();
-        Assert.IsNotNull(share);
-        Assert.AreEqual(shares, share.Quantity.Value);
-    }
 }

@@ -9,7 +9,7 @@ public class SlugTests
     [TestMethod]
     public void Create_WithValidSlug_ShouldReturnSlugInstance()
     {
-        string validSlug = "valid_slug";
+        var validSlug = "valid_slug";
 
         var slug = Slug.Create(validSlug);
 
@@ -19,7 +19,7 @@ public class SlugTests
     [TestMethod]
     public void Create_WithNullOrEmptySlug_ShouldThrowException()
     {
-        string invalidSlug = "";
+        var invalidSlug = "";
 
         Assert.ThrowsException<InvalidValueObjectException>(() => Slug.Create(invalidSlug));
     }
@@ -27,7 +27,7 @@ public class SlugTests
     [TestMethod]
     public void Create_WithSlugTooShort_ShouldThrowException()
     {
-        string shortSlug = "ab";
+        var shortSlug = "ab";
 
         Assert.ThrowsException<InvalidValueObjectException>(() => Slug.Create(shortSlug));
     }
@@ -43,7 +43,7 @@ public class SlugTests
     [TestMethod]
     public void Create_WithInvalidCharacters_ShouldThrowException()
     {
-        string invalidSlug = "Invalid@Slug!";
+        var invalidSlug = "Invalid@Slug!";
 
         Assert.ThrowsException<InvalidValueObjectException>(() => Slug.Create(invalidSlug));
     }
@@ -51,7 +51,7 @@ public class SlugTests
     [TestMethod]
     public void Create_WithUppercaseCharacters_ShouldConvertToLowercase()
     {
-        string uppercaseSlug = "UPPERCASE_SLUG";
+        var uppercaseSlug = "UPPERCASE_SLUG";
 
         var slug = Slug.Create(uppercaseSlug);
 
@@ -61,7 +61,7 @@ public class SlugTests
     [TestMethod]
     public void ImplicitConversion_FromString_ShouldReturnSlugInstance()
     {
-        string validSlug = "another_valid_slug";
+        var validSlug = "another_valid_slug";
 
         Slug slug = validSlug;
 
@@ -71,7 +71,7 @@ public class SlugTests
     [TestMethod]
     public void ImplicitConversion_FromName_ShouldReturnSlugInstance()
     {
-        string nameValue = "ValidName";
+        var nameValue = "ValidName";
         var name = Name.Create(nameValue);
 
         Slug slug = name;
