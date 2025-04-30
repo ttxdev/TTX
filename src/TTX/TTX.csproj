@@ -4,7 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>1.2.0</Version>
+        <Version>1.3.0</Version>
         <Title>TTX</Title>
         <Company>TTX</Company>
         <Product>TTX</Product>
@@ -39,6 +39,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4"/>
+        <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
         <PackageReference Include="TwitchLib" Version="3.5.3"/>
     </ItemGroup>
 
