@@ -1,19 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
 using TTX.Models;
+using TTX.Notifications.Players;
 
 namespace TTX.Commands.Players.AuthenticateTwitchUser
 {
-    public class AuthenticateTwitchUserHandler(ApplicationDbContext context, ITwitchAuthService twitch)
+    public class AuthenticateTwitchUserHandler(ApplicationDbContext context, IMediator mediator, ITwitchAuthService twitch)
         : ICommandHandler<AuthenticateTwitchUserCommand, Player>
     {
         public async Task<Player> Handle(AuthenticateTwitchUserCommand request, CancellationToken ct)
         {
             TwitchUser tUser = await twitch.FindByOAuth(request.OAuthCode) ?? throw new TwitchUserNotFoundException();
 
-            Player? player = await context.Players.SingleOrDefaultAsync(p => p.TwitchId == tUser.Id);
+            Player? player = await context.Players.SingleOrDefaultAsync(p => p.TwitchId == tUser.Id, ct);
             if (player is not null)
             {
                 return await Sync(tUser, player);
@@ -27,6 +29,10 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
             );
             context.Players.Add(player);
             await context.SaveChangesAsync(ct);
+            await mediator.Publish(new CreatePlayer
+            {
+                Player = player
+            }, ct);
 
             return player;
         }

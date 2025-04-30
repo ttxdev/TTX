@@ -4,10 +4,13 @@ using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
 using TTX.Models;
 using TTX.ValueObjects;
+using TTX.Notifications.Creators;
+using MediatR;
 
 namespace TTX.Commands.Creators.OnboardTwitchCreator
 {
     public class OnboardTwitchCreatorHandler(
+        IMediator mediatr,
         ApplicationDbContext context,
         ITwitchAuthService twitch
     ) : ICommandHandler<OnboardTwitchCreatorCommand, Creator>
@@ -30,6 +33,11 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
 
             context.Creators.Add(creator);
             await context.SaveChangesAsync(ct);
+
+            await mediatr.Publish(new CreateCreator
+            {
+                Creator = creator
+            }, ct);
 
             return creator;
         }

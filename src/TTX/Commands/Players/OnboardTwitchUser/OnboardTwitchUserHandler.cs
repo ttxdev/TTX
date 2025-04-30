@@ -1,11 +1,13 @@
-﻿using TTX.Exceptions;
+﻿using MediatR;
+using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
 using TTX.Models;
+using TTX.Notifications.Players;
 
 namespace TTX.Commands.Players.OnboardTwitchUser
 {
-    public class OnboardTwitchUserHandler(ApplicationDbContext context, ITwitchAuthService twitch)
+    public class OnboardTwitchUserHandler(ApplicationDbContext context, IMediator mediator, ITwitchAuthService twitch)
         : ICommandHandler<OnboardTwitchUserCommand, Player>
     {
         public async Task<Player> Handle(OnboardTwitchUserCommand request, CancellationToken ct = default)
@@ -22,6 +24,10 @@ namespace TTX.Commands.Players.OnboardTwitchUser
 
             context.Players.Add(player);
             await context.SaveChangesAsync(ct);
+            await mediator.Publish(new CreatePlayer
+            {
+                Player = player
+            }, ct);
 
             return player;
         }

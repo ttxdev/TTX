@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
+using TTX.Notifications.Transactions;
 
 namespace TTX.Commands.Ordering.PlaceOrder
 {
-    public class PlaceOrderHandler(ApplicationDbContext context) : ICommandHandler<PlaceOrderCommand, Transaction>
+    public class PlaceOrderHandler(ApplicationDbContext context, IMediator mediator) : ICommandHandler<PlaceOrderCommand, Transaction>
     {
         public async Task<Transaction> Handle(PlaceOrderCommand request, CancellationToken ct = default)
         {
@@ -24,6 +26,10 @@ namespace TTX.Commands.Ordering.PlaceOrder
             context.Transactions.Add(tx);
             context.Players.Update(player);
             await context.SaveChangesAsync(ct);
+            await mediator.Publish(new CreateTransaction
+            {
+                Transaction = tx,
+            }, ct);
 
             return tx;
         }

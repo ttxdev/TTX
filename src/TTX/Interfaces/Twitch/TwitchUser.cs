@@ -2,11 +2,11 @@ using TTX.ValueObjects;
 
 namespace TTX.Interfaces.Twitch
 {
-    public readonly struct TwitchUser
+    public class TwitchUser
     {
-        public TwitchId Id { get; init; }
-        public Slug Login { get; init; }
-        public Name DisplayName { get; init; }
-        public Uri AvatarUrl { get; init; }
+        public required TwitchId Id { get; init; }
+        public required Slug Login { get; init; }
+        public required Name DisplayName { get; init; }
+        public required Uri AvatarUrl { get; init; }
     }
 }
