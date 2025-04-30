@@ -8,11 +8,13 @@ using TTX.Commands.Creators.UpdateStreamStatus;
 using TTX.Commands.LootBoxes.OpenLootBox;
 using TTX.Commands.Ordering.PlaceOrder;
 using TTX.Infrastructure.Data;
+using TTX.Interfaces.Twitch;
 using TTX.Queries.Creators.FindCreator;
 using TTX.Queries.Creators.IndexCreators;
 using TTX.Queries.Creators.PullLatestHistory;
 using TTX.Queries.Players.FindPlayer;
 using TTX.Queries.Players.IndexPlayers;
+using TTX.Tests.Infrastructure.Twitch;
 
 namespace TTX.Tests;
 
@@ -25,9 +27,10 @@ public abstract class ApplicationTests
     [TestInitialize]
     public void Setup()
     {
-        var seed = new Random().Next(1, 1000);
-        Randomizer.Seed = new Random(seed);
-        Console.WriteLine($"Using seed {seed}");
+        var seedI = new Random().Next(1, 1000);
+        var seed = new Random(seedI);
+        Randomizer.Seed = seed;
+        Console.WriteLine($"Using seed {seedI}");
 
         ServiceProvider = new ServiceCollection()
             .AddLogging()
@@ -54,6 +57,8 @@ public abstract class ApplicationTests
                 // ordering commands
                 cfg.RegisterServicesFromAssemblyContaining<PlaceOrderHandler>();
             })
+            .AddSingleton(seed)
+            .AddSingleton<ITwitchAuthService, TwitchAuthService>(_ => new TwitchAuthService())
             .BuildServiceProvider();
 
         DbContext = ServiceProvider.GetRequiredService<ApplicationDbContext>();
