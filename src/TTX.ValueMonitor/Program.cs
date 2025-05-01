@@ -3,16 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 using TTX.Commands.Creators.UpdateStreamStatus;
 using TTX.Infrastructure.Data;
 using TTX.ValueMonitor.Provider;
 using TTX.ValueMonitor.Services;
 
 DotEnv.Load();
-ConfigProvider config = new(new ConfigurationBuilder().AddEnvironmentVariables("TTX_").Build());
+IConfigProvider config = new ConfigProvider(new ConfigurationBuilder().AddEnvironmentVariables("TTX_").Build());
 IServiceProvider services = new ServiceCollection()
     .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(config.GetConnectionString()))
     .AddLogging(options => { options.AddConsole(); })
+    .AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(config.GetRedisConnectionString()))
     .AddMediatR(cfg => { cfg.RegisterServicesFromAssemblyContaining<UpdateStreamStatusHandler>(); })
     .BuildServiceProvider();
 
