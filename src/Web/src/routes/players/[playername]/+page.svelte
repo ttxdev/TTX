@@ -15,7 +15,7 @@
 	<meta name="description" content={`Player profile for ${data.player.name}`} />
 	<meta property="og:title" content={data.player.name} />
 	<meta property="og:description" content={`Player profile for ${data.player.name}`} />
-	<meta property="og:image" content={data.player.avatar} />
+	<meta property="og:image" content={data.player.avatar_url} />
 </svelte:head>
 
 <div class="mx-auto w-full max-w-[1000px]">
