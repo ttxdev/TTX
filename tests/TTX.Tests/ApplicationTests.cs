@@ -5,10 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
-using TTX.Notifications.Players;
 using TTX.Tests.Infrastructure.Twitch;
 using TTX.Tests.Notifications;
-using INotification = TTX.Notifications.INotification;
 
 namespace TTX.Tests;
 

@@ -28,7 +28,7 @@ public class OnboardPlayerCommandTests : ApplicationTests
         Assert.AreEqual(player.AvatarUrl, result.AvatarUrl);
         Assert.AreEqual(player.TwitchId, result.TwitchId);
     }
-    
+
     [TestMethod]
     public async Task OnboardPlayer_ShouldNotifyCreatePlayer()
     {
@@ -39,7 +39,7 @@ public class OnboardPlayerCommandTests : ApplicationTests
 
         await Sender.Send(new OnboardTwitchUserCommand
         {
-            Id = player.TwitchId,
+            Id = player.TwitchId
         });
 
         var result = cHandler.FindNotification<CreatePlayer>(c => c.Slug == player.Slug);

@@ -37,14 +37,14 @@ public class RecordNetChangeTests : ApplicationTests
         var vHandler = ServiceProvider.GetRequiredService<UpdateCreatorValueNotificationHandler>();
         DbContext.Creators.Add(creator);
         await DbContext.SaveChangesAsync();
-        
+
         await Sender.Send(new RecordNetChangeCommand
         {
             CreatorSlug = creator.Slug,
             NetChange = netChange
         });
         var result = vHandler.FindNotification<UpdateCreatorValue>(v => v.CreatorId == creator.Id);
-        
+
         Assert.IsNotNull(result);
         Assert.AreEqual(value + netChange, result.Value);
     }

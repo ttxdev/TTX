@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using TTX.Commands.LootBoxes.OpenLootBox;
+using TTX.Notifications.LootBoxes;
 using TTX.Tests.Factories;
 using TTX.Tests.Notifications;
 
@@ -14,7 +15,7 @@ public class OpenLootBoxTests : ApplicationTests
         var player = PlayerFactory.Create();
         var lb = player.AddLootBox();
         foreach (var _ in Enumerable.Range(0, 20))
-            DbContext.Creators.Add(CreatorFactory.Create(value: OpenLootBoxHandler.MinValue));
+            DbContext.Creators.Add(CreatorFactory.Create(OpenLootBoxHandler.MinValue));
         DbContext.Players.Add(player);
         await DbContext.SaveChangesAsync();
 
@@ -33,7 +34,7 @@ public class OpenLootBoxTests : ApplicationTests
         var player = PlayerFactory.Create();
         var lb = player.AddLootBox();
         foreach (var _ in Enumerable.Range(0, 20))
-            DbContext.Creators.Add(CreatorFactory.Create(value: OpenLootBoxHandler.MinValue));
+            DbContext.Creators.Add(CreatorFactory.Create(OpenLootBoxHandler.MinValue));
         DbContext.Players.Add(player);
         await DbContext.SaveChangesAsync();
         var lHandler = ServiceProvider.GetRequiredService<OpenLootBoxNotificationHandler>();
@@ -44,7 +45,7 @@ public class OpenLootBoxTests : ApplicationTests
             LootBoxId = lb.Id
         });
 
-        var result = lHandler.FindNotification<TTX.Notifications.LootBoxes.OpenLootBox>(r => r.LootBoxId == lb.Id);
+        var result = lHandler.FindNotification<OpenLootBox>(r => r.LootBoxId == lb.Id);
         Assert.IsNotNull(result);
     }
 }

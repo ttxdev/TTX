@@ -50,7 +50,7 @@ public class AuthenticateTwitchUserTests : ApplicationTests
         Assert.AreEqual(player.AvatarUrl, result.AvatarUrl);
         Assert.AreEqual(player.TwitchId, result.TwitchId);
     }
-    
+
     [TestMethod]
     public async Task AuthenticateNewPlayer_ShouldNotifyCreatePlayer()
     {
