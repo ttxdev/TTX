@@ -34,7 +34,7 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
             context.Creators.Add(creator);
             await context.SaveChangesAsync(ct);
 
-            await mediatr.Publish(new CreateCreator(creator), ct);
+            await mediatr.Publish(CreateCreator.Create(creator), ct);
 
             return creator;
         }

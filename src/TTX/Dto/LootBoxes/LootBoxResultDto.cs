@@ -4,15 +4,22 @@ using TTX.ValueObjects;
 
 namespace TTX.Dto.LootBoxes
 {
-    public class LootBoxResultDto(OpenLootBoxResult result)
+    public class LootBoxResultDto
     {
-        [JsonPropertyName("lootbox_id")] public ModelId LootBoxId { get; } = result.LootBox.Id;
+        [JsonPropertyName("lootbox_id")] public required ModelId LootBoxId { get; init; }
+        [JsonPropertyName("player")] public required PlayerPartialDto Player { get; init; }
+        [JsonPropertyName("result")] public required CreatorRarityDto Result { get; init; }
+        [JsonPropertyName("rarities")] public required CreatorRarityDto[] Rarities { get; init; }
 
-        [JsonPropertyName("player")] public PlayerPartialDto Player { get; } = new(result.LootBox.Player);
-
-        [JsonPropertyName("result")] public CreatorRarityDto Result { get; } = new(result.Result);
-
-        [JsonPropertyName("rarities")]
-        public CreatorRarityDto[] Rarities { get; } = [.. result.Rarities.Select(x => new CreatorRarityDto(x))];
+        public static LootBoxResultDto Create(OpenLootBoxResult result)
+        {
+            return new LootBoxResultDto
+            {
+                LootBoxId = result.LootBox.Id,
+                Player = PlayerPartialDto.Create(result.LootBox.Player),
+                Result = CreatorRarityDto.Create(result.Result),
+                Rarities = result.Rarities.Select(CreatorRarityDto.Create).ToArray()
+            };
+        }
     }
 }

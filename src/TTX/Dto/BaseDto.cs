@@ -1,20 +1,13 @@
 using System.Text.Json.Serialization;
-using TTX.Models;
 
 namespace TTX.Dto
 {
-    public abstract class BaseDto(Model entity)
+    public abstract class BaseDto
     {
-        [JsonPropertyName("id")]
-        [JsonPropertyOrder(0)]
-        public int Id { get; } = entity.Id;
+        [JsonPropertyName("id")] public required int Id { get; init; }
 
-        [JsonPropertyName("created_at")]
-        [JsonPropertyOrder(90)]
-        public DateTime CreatedAt { get; } = entity.CreatedAt;
+        [JsonPropertyName("created_at")] public required DateTime CreatedAt { get; init; }
 
-        [JsonPropertyName("updated_at")]
-        [JsonPropertyOrder(91)]
-        public DateTime UpdatedAt { get; } = entity.UpdatedAt;
+        [JsonPropertyName("updated_at")] public required DateTime UpdatedAt { get; init; }
     }
 }

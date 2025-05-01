@@ -28,7 +28,7 @@ namespace TTX.Commands.LootBoxes.OpenLootBox
                 await context.Creators.Where(c => c.Value >= MinValue).ToArrayAsync(ct),
                 Random);
 
-            await mediator.Publish(new Notifications.LootBoxes.OpenLootBox(result), ct);
+            await mediator.Publish(Notifications.LootBoxes.OpenLootBox.Create(result), ct);
 
             return result;
         }

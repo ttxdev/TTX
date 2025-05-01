@@ -31,7 +31,7 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
             );
             context.Players.Add(player);
             await context.SaveChangesAsync(ct);
-            await mediator.Publish(new CreatePlayer(player), ct);
+            await mediator.Publish(CreatePlayer.Create(player), ct);
 
             return player;
         }
@@ -46,7 +46,8 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
             else if (request.UserId is not null)
             {
                 tUser = await twitch.FindById(request.UserId);
-            } else
+            }
+            else
             {
                 throw new InvalidOperationException("Invalid request, Twitch identifier not provided");
             }

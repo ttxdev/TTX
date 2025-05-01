@@ -4,10 +4,14 @@ using TTX.Models;
 
 namespace TTX.Dto.Creators
 {
-    public class CreatorShareDto(Share share)
+    public class CreatorShareDto
     {
-        [JsonPropertyName("player")] public PlayerPartialDto Player { get; } = new(share.Player);
+        [JsonPropertyName("player")] public required PlayerPartialDto Player { get; init; }
+        [JsonPropertyName("quantity")] public int Quantity { get; init; }
 
-        [JsonPropertyName("quantity")] public int Quantity { get; } = share.Quantity;
+        public static CreatorShareDto Create(Share share)
+        {
+            return new CreatorShareDto { Player = PlayerPartialDto.Create(share.Player), Quantity = share.Quantity };
+        }
     }
 }

@@ -3,12 +3,18 @@ using TTX.Models;
 
 namespace TTX.Dto.Creators
 {
-    public class StreamStatusDto(StreamStatus streamStatus)
+    public class StreamStatusDto
     {
-        [JsonPropertyName("is_live")] public bool IsLive { get; } = streamStatus.IsLive;
+        [JsonPropertyName("is_live")] public required bool IsLive { get; init; }
+        [JsonPropertyName("started_at")] public DateTimeOffset? StartedAt { get; init; }
+        [JsonPropertyName("ended_at")] public DateTimeOffset? EndedAt { get; init; }
 
-        [JsonPropertyName("started_at")] public DateTimeOffset? StartedAt { get; } = streamStatus.StartedAt;
-
-        [JsonPropertyName("ended_at")] public DateTimeOffset? EndedAt { get; } = streamStatus.EndedAt;
+        public static StreamStatusDto Create(StreamStatus streamStatus)
+        {
+            return new StreamStatusDto
+            {
+                IsLive = streamStatus.IsLive, StartedAt = streamStatus.StartedAt, EndedAt = streamStatus.EndedAt
+            };
+        }
     }
 }

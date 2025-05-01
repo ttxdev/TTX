@@ -5,16 +5,31 @@ using TTX.Models;
 
 namespace TTX.Dto.Players
 {
-    public class PlayerDto(Player player) : PlayerPartialDto(player)
+    public class PlayerDto : PlayerPartialDto
     {
-        [JsonPropertyName("transactions")]
-        public PlayerTransactionDto[] Transactions { get; } =
-            [.. player.Transactions.Take(20).Select(x => new PlayerTransactionDto(x))];
+        [JsonPropertyName("transactions")] public required PlayerTransactionDto[] Transactions { get; init; }
 
-        [JsonPropertyName("loot_boxes")]
-        public LootBoxDto[] LootBoxes { get; } = [.. player.LootBoxes.Select(x => new LootBoxDto(x))];
+        [JsonPropertyName("loot_boxes")] public required LootBoxDto[] LootBoxes { get; init; }
 
-        [JsonPropertyName("shares")]
-        public PlayerShareDto[] Shares { get; } = [.. player.GetShares().Select(x => new PlayerShareDto(x))];
+        [JsonPropertyName("shares")] public required PlayerShareDto[] Shares { get; init; }
+
+        public static new PlayerDto Create(Player player)
+        {
+            return new PlayerDto
+            {
+                Id = player.Id,
+                Name = player.Name,
+                Slug = player.Slug,
+                TwitchId = player.TwitchId,
+                Credits = player.Credits,
+                Type = player.Type,
+                AvatarUrl = player.AvatarUrl.ToString(),
+                Transactions = player.Transactions.Select(PlayerTransactionDto.Create).ToArray(),
+                LootBoxes = player.LootBoxes.Select(LootBoxDto.Create).ToArray(),
+                Shares = player.GetShares().Select(PlayerShareDto.Create).ToArray(),
+                CreatedAt = player.CreatedAt,
+                UpdatedAt = player.UpdatedAt
+            };
+        }
     }
 }

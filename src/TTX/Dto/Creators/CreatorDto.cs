@@ -4,15 +4,30 @@ using TTX.Models;
 
 namespace TTX.Dto.Creators
 {
-    public class CreatorDto(Creator creator) : CreatorPartialDto(creator)
+    public class CreatorDto : CreatorPartialDto
     {
-        [JsonPropertyName("transactions")]
-        [JsonPropertyOrder(17)]
-        public CreatorTransactionDto[] Transactions { get; } =
-            [.. creator.Transactions.Select(x => new CreatorTransactionDto(x))];
+        [JsonPropertyName("transactions")] public required CreatorTransactionDto[] Transactions { get; init; }
 
-        [JsonPropertyName("shares")]
-        [JsonPropertyOrder(18)]
-        public CreatorShareDto[] Shares { get; } = [.. creator.GetShares().Select(x => new CreatorShareDto(x))];
+        [JsonPropertyName("shares")] public required CreatorShareDto[] Shares { get; init; }
+
+        public static new CreatorDto Create(Creator creator)
+        {
+            return new CreatorDto
+            {
+                Id = creator.Id,
+                Name = creator.Name,
+                Slug = creator.Slug,
+                Ticker = creator.Ticker,
+                TwitchId = creator.TwitchId,
+                Value = creator.Value,
+                AvatarUrl = creator.AvatarUrl.ToString(),
+                StreamStatus = StreamStatusDto.Create(creator.StreamStatus),
+                Transactions = creator.Transactions.Select(CreatorTransactionDto.Create).ToArray(),
+                Shares = creator.GetShares().Select(CreatorShareDto.Create).ToArray(),
+                History = creator.History.Select(VoteDto.Create).ToArray(),
+                CreatedAt = creator.CreatedAt,
+                UpdatedAt = creator.UpdatedAt
+            };
+        }
     }
 }

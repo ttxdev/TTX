@@ -27,7 +27,7 @@ namespace TTX.Commands.Ordering.PlaceOrder
             context.Transactions.Add(tx);
             context.Players.Update(player);
             await context.SaveChangesAsync(ct);
-            await mediator.Publish(new CreateTransaction(tx), ct);
+            await mediator.Publish(CreateTransaction.Create(tx), ct);
 
             return tx;
         }

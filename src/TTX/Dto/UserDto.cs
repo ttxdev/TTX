@@ -1,29 +1,18 @@
-﻿using System.Text.Json.Serialization;
-using TTX.Models;
+using System.Text.Json.Serialization;
 using TTX.ValueObjects;
 
 namespace TTX.Dto
 {
-    public class UserDto(User user) : BaseDto(user)
+    public class UserDto : BaseDto
     {
-        [JsonPropertyName("name")]
-        [JsonPropertyOrder(10)]
-        public string Name { get; } = user.Name;
+        [JsonPropertyName("name")] public required string Name { get; init; }
 
-        [JsonPropertyName("slug")]
-        [JsonPropertyOrder(12)]
-        public string Slug { get; } = user.Slug;
+        [JsonPropertyName("slug")] public required string Slug { get; init; }
 
-        [JsonPropertyName("twitch_id")]
-        [JsonPropertyOrder(13)]
-        public TwitchId TwitchId { get; } = user.TwitchId;
+        [JsonPropertyName("twitch_id")] public required TwitchId TwitchId { get; init; }
 
-        [JsonPropertyName("url")]
-        [JsonPropertyOrder(14)]
-        public string Url => $"https://twitch.tv/{Slug}";
+        [JsonPropertyName("url")] public string Url => $"https://twitch.tv/{Slug}";
 
-        [JsonPropertyName("avatar_url")]
-        [JsonPropertyOrder(16)]
-        public string AvatarUrl { get; } = user.AvatarUrl.ToString();
+        [JsonPropertyName("avatar_url")] public required string AvatarUrl { get; init; }
     }
 }

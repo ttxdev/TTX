@@ -4,8 +4,24 @@ using TTX.Models;
 
 namespace TTX.Dto.Transactions
 {
-    public class PlayerTransactionDto(Transaction tx) : TransactionDto(tx)
+    public class PlayerTransactionDto : TransactionDto
     {
-        [JsonPropertyName("creator")] public CreatorPartialDto Creator { get; } = new(tx.Creator);
+        [JsonPropertyName("creator")] public required CreatorPartialDto Creator { get; init; }
+
+        public static PlayerTransactionDto Create(Transaction tx)
+        {
+            return new PlayerTransactionDto
+            {
+                Id = tx.Id,
+                Action = tx.Action,
+                Value = tx.Value,
+                Quantity = tx.Quantity,
+                Creator = CreatorPartialDto.Create(tx.Creator),
+                CreatorId = tx.CreatorId,
+                PlayerId = tx.PlayerId,
+                CreatedAt = tx.CreatedAt,
+                UpdatedAt = tx.UpdatedAt
+            };
+        }
     }
 }

@@ -25,8 +25,7 @@ namespace TTX.Commands.Creators.UpdateStreamStatus
 
             context.Update(creator);
             await context.SaveChangesAsync(ct);
-            await mediator.Publish(
-                new Notifications.Creators.UpdateStreamStatus(creator), ct);
+            await mediator.Publish(Notifications.Creators.UpdateStreamStatus.Create(creator), ct);
 
             return creator.StreamStatus;
         }

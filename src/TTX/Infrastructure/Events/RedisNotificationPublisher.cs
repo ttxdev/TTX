@@ -8,6 +8,7 @@ namespace TTX.Infrastructure.Events
     public class RedisNotificationPublisher<T>(IConnectionMultiplexer redis)
         : INotificationPublisher<T> where T : INotification
     {
+        [Obsolete]
         public async Task Handle(T notification, CancellationToken cancellationToken)
         {
             ISubscriber db = redis.GetSubscriber();

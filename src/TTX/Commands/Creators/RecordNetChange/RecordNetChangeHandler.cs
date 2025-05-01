@@ -21,7 +21,7 @@ namespace TTX.Commands.Creators.RecordNetChange
                 ct);
             context.Creators.Update(creator);
             await context.SaveChangesAsync(ct);
-            await mediator.Publish(new UpdateCreatorValue(vote), ct);
+            await mediator.Publish(UpdateCreatorValue.Create(vote), ct);
 
             return vote;
         }
