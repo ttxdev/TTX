@@ -38,21 +38,26 @@
 	transactionStore.subscribe((store) => {
 		const storeTxs = store.get(creator.id);
 		if (storeTxs) {
-    		transactions = storeTxs.toSorted((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+			transactions = storeTxs.toSorted(
+				(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+			);
 		}
 	});
 
 	transactionStore.subscribe((store) => {
-		const storeTxs = store.get(data.creator.id)
-		  ?.toSorted((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+		const storeTxs = store
+			.get(data.creator.id)
+			?.toSorted((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 		if (!storeTxs) {
 			return;
 		}
 
 		const newShares = new Map<number, ICreatorShareDto>();
 		storeTxs.forEach((t) => {
-    		const share: ICreatorShareDto = newShares.get(t.player_id)
-                      ?? { player: t.player, quantity: 0 };
+			const share: ICreatorShareDto = newShares.get(t.player_id) ?? {
+				player: t.player,
+				quantity: 0
+			};
 
 			if (t.action === TransactionAction.Buy) {
 				share.quantity += t.quantity;
@@ -63,7 +68,10 @@
 			newShares.set(share.player.id, share);
 		});
 
-		shares = newShares.values().filter((share) => share.quantity > 0).toArray();
+		shares = newShares
+			.values()
+			.filter((share) => share.quantity > 0)
+			.toArray();
 	});
 
 	onDestroy(() => {
@@ -109,15 +117,15 @@
 	onMount(() => {
 		setTransactions(data.creator.id, data.transactions);
 		setVotes(data.creator.id, data.creator.history);
-	})
+	});
 
 	$effect(() => {
 		if (data.creator.slug === creator.slug && data.interval === interval) return;
 
-        creator = data.creator;
-        interval = data.interval;
-        shares = data.creator.shares;
-        setTransactions(data.creator.id, data.transactions);
+		creator = data.creator;
+		interval = data.interval;
+		shares = data.creator.shares;
+		setTransactions(data.creator.id, data.transactions);
 		setVotes(data.creator.id, data.creator.history);
 	});
 </script>
