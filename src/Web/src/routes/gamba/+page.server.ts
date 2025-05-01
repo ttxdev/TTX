@@ -1,8 +1,8 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
-import { getToken } from '$lib/auth';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import { type CreatorPartialDto, type CreatorRarityDto, type LootBoxDto } from '$lib/api';
+import { getToken } from '$lib/auth/sessions';
 
 
 export const load: PageServerLoad = async ({ cookies }) => {

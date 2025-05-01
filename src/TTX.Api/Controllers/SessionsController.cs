@@ -34,19 +34,19 @@ public class SessionsController(ISender sender, ISessionService sessions) : Cont
 
     [HttpGet("discord/callback")]
     [EndpointName("DiscordCallback")]
-    public async Task<ActionResult<TokenDto>> DiscordCallback([FromQuery] string code)
+    public async Task<ActionResult<DiscordTokenDto>> DiscordCallback([FromQuery] string code)
     {
         var result = await sender.Send(new AuthenticateDiscordUserCommand
         {
             OAuthCode = code
         });
 
-        return Ok(new TokenDto(sessions.CreateDiscordSession(result)));
+        return Ok(new DiscordTokenDto(result, sessions.CreateDiscordSession(result)));
     }
 
     [HttpPost("discord/link")]
     [EndpointName("LinkDiscordTwitch")]
-    public async Task<ActionResult<TokenDto>> DiscordCallback([FromBody] LinkDiscordTwitchDto req)
+    public async Task<ActionResult<TokenDto>> LinkDiscordTwitch([FromBody] LinkDiscordTwitchDto req)
     {
         var tUser = sessions.ParseDiscordSession(req.Token).FirstOrDefault(t => t.Id == req.TwitchId);
         if (tUser is null)

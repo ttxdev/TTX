@@ -3,13 +3,24 @@ using TTX.Interfaces.Twitch;
 
 namespace TTX.Api.Dto;
 
-public class TwitchUserDto(TwitchUser user)
+public class TwitchUserDto
 {
-    [JsonPropertyName("id")] public string Id { get; } = user.Id;
+    [JsonPropertyName("id")] public required string Id { get; init; }
 
-    [JsonPropertyName("display_name")] public string DisplayName { get; } = user.DisplayName;
+    [JsonPropertyName("display_name")] public required string DisplayName { get; init; }
 
-    [JsonPropertyName("login")] public string Login { get; } = user.Login;
+    [JsonPropertyName("login")] public required string Login { get; init; }
 
-    [JsonPropertyName("avatar_url")] public string AvatarUrl { get; } = user.AvatarUrl.ToString();
+    [JsonPropertyName("avatar_url")] public required string AvatarUrl { get; init; }
+
+    public static TwitchUserDto Create(TwitchUser user)
+    {
+        return new TwitchUserDto
+        {
+            Id = user.Id,
+            DisplayName = user.DisplayName,
+            Login = user.Login,
+            AvatarUrl = user.AvatarUrl.ToString()
+        };
+    }
 }

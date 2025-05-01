@@ -1,4 +1,5 @@
-import { handleTwitchCallback, login } from '$lib/auth';
+import { getApiClient } from '$lib';
+import { login } from '$lib/auth/sessions';
 import { redirect, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
@@ -9,8 +10,9 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		return new Response('Missing code or state', { status: 400 });
 	}
 
-	const token = await handleTwitchCallback(code, state);
-	login(cookies, token);
+	const client = getApiClient('');
+	const { access_token } = await client.twitchCallback(code);
+	login(cookies, access_token);
 
 	const redir = cookies.get('redirect');
 	if (redir) {
