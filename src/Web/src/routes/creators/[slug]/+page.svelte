@@ -7,10 +7,10 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { setVotes, voteStore } from '$lib/stores/votes';
 	import {
-		CreatorTransactionDto,
+	type CreatorShareDto,
+		type CreatorTransactionDto,
 		TransactionAction,
-		VoteDto,
-		type ICreatorShareDto
+		type VoteDto,
 	} from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
 	import { discordSdk } from '$lib/discord';
@@ -22,7 +22,7 @@
 
 	let history = $state<VoteDto[]>(data.creator.history);
 	let transactions = $state<CreatorTransactionDto[]>(data.creator.transactions);
-	let shares = $state<ICreatorShareDto[]>(data.creator.shares);
+	let shares = $state<CreatorShareDto[]>(data.creator.shares);
 	setVotes(data.creator.id, data.creator.history);
 	let buySellModal: TransactionAction | null = $state(null);
 	let interval = $state(data.interval);
@@ -44,18 +44,19 @@
 		}
 
 		transactions = storeTxs;
-		const newShares: ICreatorShareDto[] = [];
-		shares.forEach((share: ICreatorShareDto) => {
+		const newShares: CreatorShareDto[] = [];
+		shares.forEach((share: CreatorShareDto) => {
+		    let quantity = share.quantity;
 			storeTxs.forEach((t) => {
 				if (t.action === TransactionAction.Buy) {
-					share.quantity += t.quantity;
+					quantity += t.quantity;
 				} else if (t.action === TransactionAction.Sell) {
-					share.quantity -= t.quantity;
+					quantity -= t.quantity;
 				}
 			});
 
-			if (share.quantity > 0) {
-				newShares.push(share);
+			if (quantity > 0) {
+				newShares.push({ ...share, quantity });
 			}
 		});
 

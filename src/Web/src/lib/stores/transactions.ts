@@ -1,4 +1,4 @@
-import { CreatorTransactionDto } from '$lib/api';
+import type { CreatorTransactionDto } from '$lib/api';
 import { createCreatorStore } from './creators';
 
 export const {

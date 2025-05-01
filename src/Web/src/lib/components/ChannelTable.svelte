@@ -3,10 +3,10 @@
 	import Chart from 'chart.js/auto';
 	import { goto } from '$app/navigation';
 	import { formatTicker, formatValue } from '$lib/util';
-	import { OrderDirection, type ICreatorDto } from '$lib/api';
+	import { OrderDirection, type CreatorDto } from '$lib/api';
 
 	type TableProps = {
-		creators: ICreatorDto[];
+		creators: CreatorDto[];
 		total: number;
 		currentPage: number;
 		sortField: string;
@@ -44,7 +44,7 @@
 	// Remove client-side sorting
 	let sortedChannels = $derived(creators);
 
-	function calculatePercentChange(history: ICreatorDto['history']) {
+	function calculatePercentChange(history: CreatorDto['history']) {
 		const oldest = history[0]?.value;
 		const current = history[history.length - 1]?.value;
 		if (!oldest) return 0;
@@ -53,7 +53,7 @@
 		return isNaN(change) ? 0 : change;
 	}
 
-	function createChart(canvas: HTMLCanvasElement, history: ICreatorDto['history']) {
+	function createChart(canvas: HTMLCanvasElement, history: CreatorDto['history']) {
 		const isUpward = history[history.length - 1]?.value > history[0]?.value;
 		const lineColor = isUpward ? '#22c55e' : '#ef4444';
 

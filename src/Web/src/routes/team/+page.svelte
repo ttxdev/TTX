@@ -36,7 +36,7 @@
 			class="mx-auto flex w-full max-w-[600px] flex-row flex-wrap items-center gap-3 text-center"
 		>
 			{#each thankYou as entry (entry[0])}
-				<ExternalLink target="_blank" href={entry[1]} clasName="hover:text-violet-400">
+				<ExternalLink target="_blank" href={entry[1]} className="hover:text-violet-400">
 					{entry[0]}
 				</ExternalLink>
 			{/each}

@@ -5,7 +5,7 @@
 	import { formatTicker, formatValue } from '$lib/util';
 	import { getApiClient } from '$lib';
 	import { invalidateAll } from '$app/navigation';
-	import { CreateTransactionDto, TransactionAction, type TTXClient } from '$lib/api';
+	import { TransactionAction, type TTXClient } from '$lib/api';
 	import { Tween } from 'svelte/motion';
 	import { token, user } from '$lib/stores/data';
 
@@ -93,11 +93,11 @@
 			return;
 		}
 		try {
-			const data = await client.placeOrder(new CreateTransactionDto({
+			const data = await client.placeOrder({
 				creator: slug,
 				action: type!,
 				amount: amount,
-			}));
+			});
 			if (type === TransactionAction.Buy) {
 				userBalance -= data.value * data.quantity;
 				userOwns += data.quantity;

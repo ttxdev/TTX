@@ -1,24 +1,24 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
 import { getToken } from '$lib/auth';
-import { Rarity, type CreatorDto } from '$lib/api';
+import { Rarity, type CreatorRarityDto } from '$lib/api';
 
 export type RarityClass = 'pennies' | 'normal' | 'rare' | 'epic';
 
-export type CreatorBox = CreatorDto & {
+export type CreatorBox = CreatorRarityDto & {
 	rarity_class: RarityClass;
 };
 
 export const load: PageServerLoad = async ({ cookies, depends }) => {
 	depends('gamba');
 	const client = getApiClient(getToken(cookies) ?? '');
-	const gamba = await client.gamba();
+	const gamba = await client.gamba(0);
 
 	const mappedChannels = gamba.rarities
 		.sort(() => Math.random() - 0.5)
-		.map<CreatorBox>((channel) => {
-			let rarity_class;
-			switch (channel.rarity) {
+		.map<CreatorBox>((creator: CreatorRarityDto) => {
+			let rarity_class: RarityClass;
+			switch (creator.rarity) {
 				case Rarity.Pennies:
 					rarity_class = 'pennies';
 					break;
@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ cookies, depends }) => {
 			}
 
 			return {
-				...channel.toJSON(),
+				...creator,
 				rarity_class
 			};
 		});

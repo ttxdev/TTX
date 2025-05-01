@@ -5,7 +5,7 @@ import {
 	CreatorOrderBy,
 	OrderDirection,
 	PlayerOrderBy,
-	VoteDto,
+	type VoteDto,
 	type CreatorPartialDto
 } from '$lib/api';
 
@@ -22,7 +22,7 @@ export type UserStats = {
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const client = getApiClient(getToken(cookies) ?? '');
-	const featuredCreator = await client.getCreator('dougdoug').then((channel) => channel.toJSON());
+	const featuredCreator = await client.getCreator('dougdoug');
 	const featuredCreators = await client
 		.getCreators(1, 3, undefined, CreatorOrderBy.IsLive, OrderDirection.Descending)
 		.then((creators) =>
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 				slug: channel.slug,
 				value: channel.value,
 				isLive: channel.stream_status.is_live ?? false,
-				history: channel.history.map((v) => v.toJSON()) ?? [],
+				history: channel.history,
 				url: `/creators/${channel.slug}`
 			}))
 		);
@@ -47,7 +47,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 				slug: channel.slug,
 				value: channel.value,
 				isLive: channel.stream_status.is_live ?? false,
-				history: channel.history.map((v) => v.toJSON()) ?? [],
+				history: channel.history,
 				url: `/creators/${channel.slug}`
 			}))
 		);

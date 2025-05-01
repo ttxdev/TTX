@@ -5,16 +5,19 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { getRecentStreamers, type RecentStreamer } from '$lib/utils/recentStreamers';
+	import type { CreatorPartialDto, PlayerDto } from '$lib/api';
+
+	type SearchResult = {
+     	id: number;
+     	name: string;
+     	ticker?: string;
+     	type: 'user' | 'creator';
+     	slug: string;
+     	avatar_url: string;
+	}
 
 	let searchQuery: string = $state('');
-	let searchResults: Array<{
-		id: number;
-		name: string;
-		ticker?: string;
-		type: 'user' | 'creator';
-		slug: string;
-		avatar_url: string;
-	}> = $state([]);
+	let searchResults: Array<SearchResult> = $state([]);
 	let isLoading = $state(false);
 	let recentStreamers: RecentStreamer[] = $state([]);
 	let selectedIndex = $state(-1);
@@ -41,7 +44,7 @@
 			]);
 
 			searchResults = [
-				...creators.data.map((creator: any) => ({
+				...creators.data.map<SearchResult>((creator: CreatorPartialDto) => ({
 					id: creator.id,
 					name: creator.name,
 					ticker: creator.ticker,
@@ -49,7 +52,7 @@
 					slug: creator.slug,
 					avatar_url: creator.avatar_url
 				})),
-				...players.data.map((player: any) => ({
+				...players.data.map<SearchResult>((player: PlayerDto) => ({
 					id: player.id,
 					name: player.name,
 					type: 'user' as const,

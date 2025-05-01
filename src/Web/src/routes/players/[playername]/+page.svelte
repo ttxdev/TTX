@@ -1,10 +1,9 @@
 <script lang="ts">
 	import LatestTransactions from '$lib/components/player/LatestPlayerTransactions.svelte';
-	import type { PageData } from './$types';
 	import PlayerCard from '$lib/components/player/PlayerCard.svelte';
 	import BiggestShares from '$lib/components/player/MostCreatorShares.svelte';
 
-	let { data }: { data: PageData } = $props();
+	let { data } = $props();
 	const place = Math.floor(Math.random() * 4) + 1;
 
 	let player = $derived(data.player);
@@ -15,7 +14,7 @@
 	<meta name="description" content={`Player profile for ${data.player.name}`} />
 	<meta property="og:title" content={data.player.name} />
 	<meta property="og:description" content={`Player profile for ${data.player.name}`} />
-	<meta property="og:image" content={data.player.avatar} />
+	<meta property="og:image" content={data.player.avatar_url} />
 </svelte:head>
 
 <div class="mx-auto w-full max-w-[1000px]">

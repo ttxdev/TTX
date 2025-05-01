@@ -1,8 +1,9 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
 import { getToken } from '$lib/auth';
+import type { UserStats } from '../../+page.server';
 
-export const load = (async ({ cookies, params }) => {
+export const load: PageServerLoad = (async ({ cookies, params }) => {
 	const token = getToken(cookies);
 	const client = getApiClient(token ?? '');
 
@@ -10,12 +11,13 @@ export const load = (async ({ cookies, params }) => {
 
 	return {
 		player: {
-			...player.toJSON(),
+			...player,
 			value: player.credits,
-			url: `https://www.twitch.tv/${player.name}`,
+			ticker: '',
+			isLive: false,
 			history: []
-		},
-		shares: player.shares.map((s) => s.toJSON()),
-		transactions: player.transactions.map((t) => t.toJSON())
+		} as UserStats,
+		shares: player.shares,
+		transactions: player.transactions
 	};
-}) satisfies PageServerLoad;
+});
