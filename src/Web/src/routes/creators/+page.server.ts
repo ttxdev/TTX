@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	const creators = await client.getCreators(page, 20, search, safeOrderBy, orderDir);
 
 	return {
-		channels: creators.data,
+		channels: creators.data.map(c => c.toJSON()),
 		total: creators.total,
 		currentPage: page,
 		sortField: orderBy,
