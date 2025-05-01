@@ -45,7 +45,7 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
 
         return Ok(new PaginationDto<PlayerDto>
         {
-            Data = [.. page.Data.Select(u => new PlayerDto(u))],
+            Data = [.. page.Data.Select(PlayerDto.Create)],
             Total = page.Total
         });
     }
@@ -61,7 +61,7 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
         if (player is null)
             return NotFound();
 
-        return Ok(new PlayerDto(player));
+        return Ok(PlayerDto.Create(player));
     }
 
     [HttpGet("me")]
@@ -80,7 +80,7 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
         if (player is null)
             return NotFound();
 
-        return Ok(new PlayerDto(player));
+        return Ok(PlayerDto.Create(player));
     }
 
     [Authorize]
@@ -98,7 +98,7 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
             LootBoxId = lootBoxId
         });
 
-        return Ok(new LootBoxResultDto(result));
+        return Ok(LootBoxResultDto.Create(result));
     }
 
     [HttpGet("{username}/transactions")]
@@ -114,6 +114,6 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
             return NotFound();
 
 
-        return Ok(player.Transactions.Select(t => new PlayerTransactionDto(t)).ToArray());
+        return Ok(player.Transactions.Select(PlayerTransactionDto.Create).ToArray());
     }
 }

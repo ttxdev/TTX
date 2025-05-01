@@ -5,7 +5,6 @@ using TTX.Api.Dto;
 using TTX.Api.Interfaces;
 using TTX.Commands.Players.AuthenticateDiscordUser;
 using TTX.Commands.Players.AuthenticateTwitchUser;
-using TTX.Commands.Players.OnboardTwitchUser;
 
 namespace TTX.Api.Controllers;
 
@@ -53,9 +52,9 @@ public class SessionsController(ISender sender, ISessionService sessions) : Cont
         if (tUser is null)
             return NotFound();
 
-        return Ok(await sender.Send(new OnboardTwitchUserCommand
+        return Ok(await sender.Send(new AuthenticateTwitchUserCommand
         {
-            Id = tUser.Id
+            UserId = tUser.Id
         }).ContinueWith(t => new TokenDto(sessions.CreateSession(t.Result))));
     }
 }

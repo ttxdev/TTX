@@ -14,30 +14,16 @@ using TTX.Api.Middleware;
 using TTX.Api.Notifications;
 using TTX.Api.Provider;
 using TTX.Api.Services;
-using TTX.Commands.Creators.OnboardTwitchCreator;
-using TTX.Commands.Creators.RecordNetChange;
-using TTX.Commands.Creators.UpdateStreamStatus;
-using TTX.Commands.LootBoxes.OpenLootBox;
-using TTX.Commands.Ordering.PlaceOrder;
-using TTX.Commands.Players.AuthenticateDiscordUser;
-using TTX.Commands.Players.OnboardTwitchUser;
 using TTX.Infrastructure.Data;
 using TTX.Infrastructure.Discord;
 using TTX.Infrastructure.Twitch;
 using TTX.Interfaces.Discord;
 using TTX.Interfaces.Twitch;
-using TTX.Queries.Creators.FindCreator;
-using TTX.Queries.Creators.IndexCreators;
-using TTX.Queries.Creators.PullLatestHistory;
-using TTX.Queries.Players.FindPlayer;
-using TTX.Queries.Players.IndexPlayers;
+
 [assembly: ApiController]
 
 var builder = WebApplication.CreateBuilder(args);
-if (builder.Environment.IsDevelopment())
-{
-    DotEnv.Load();
-}
+if (builder.Environment.IsDevelopment()) DotEnv.Load();
 
 builder.Configuration.AddEnvironmentVariables("TTX_");
 IConfigProvider config = new ConfigProvider(builder.Configuration);
@@ -106,11 +92,9 @@ builder.Services.AddCors(options =>
 });
 
 if (builder.Environment.IsProduction())
-{
     builder.Services.AddDataProtection()
         .PersistKeysToFileSystem(new DirectoryInfo("/var/ttx/keys"))
         .SetApplicationName("TTX");
-}
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -138,13 +122,9 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsProduction())
-{
     app.UseHttpsRedirection();
-}
 else
-{
     app.UseDeveloperExceptionPage();
-}
 
 app.UseHttpLogging();
 app.MapOpenApi();

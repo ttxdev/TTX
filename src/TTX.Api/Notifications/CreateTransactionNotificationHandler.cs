@@ -5,4 +5,7 @@ using TTX.Notifications.Transactions;
 
 namespace TTX.Api.Notifications;
 
-public class CreateTransactionNotificationHandler(ILogger<CreateTransactionNotificationHandler> logger, IConnectionMultiplexer redis, IHubContext<EventHub> hub) : RedisNotificationHandler<CreateTransaction, EventHub>(logger, redis, hub);
+public class CreateTransactionNotificationHandler(
+    ILogger<CreateTransactionNotificationHandler> logger,
+    IConnectionMultiplexer redis,
+    IHubContext<EventHub> hub) : RedisNotificationHandler<CreateTransaction, EventHub>(logger, redis, hub);

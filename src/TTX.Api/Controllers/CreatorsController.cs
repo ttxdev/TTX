@@ -52,7 +52,7 @@ public class CreatorsController(ISender sender) : ControllerBase
 
         return Ok(new PaginationDto<CreatorPartialDto>
         {
-            Data = [.. page.Data.Select(c => new CreatorPartialDto(c))],
+            Data = [.. page.Data.Select(CreatorPartialDto.Create)],
             Total = page.Total
         });
     }
@@ -75,7 +75,7 @@ public class CreatorsController(ISender sender) : ControllerBase
         if (creator is null)
             return NotFound();
 
-        return Ok(new CreatorDto(creator));
+        return Ok(CreatorDto.Create(creator));
     }
 
     [HttpPost]
@@ -89,7 +89,7 @@ public class CreatorsController(ISender sender) : ControllerBase
             Username = username
         });
 
-        return Ok(new CreatorDto(creator));
+        return Ok(CreatorDto.Create(creator));
     }
 
     [HttpGet("{creatorSlug}/value/latest")]
@@ -127,6 +127,6 @@ public class CreatorsController(ISender sender) : ControllerBase
         if (creator is null)
             return NotFound();
 
-        return Ok(creator.Transactions.Select(t => new CreatorTransactionDto(t)).ToArray());
+        return Ok(creator.Transactions.Select(CreatorTransactionDto.Create).ToArray());
     }
 }

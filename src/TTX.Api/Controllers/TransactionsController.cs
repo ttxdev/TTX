@@ -1,9 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using TTX.Api.Dto;
-using TTX.Api.Hubs;
 using TTX.Api.Interfaces;
 using TTX.Commands.Ordering.PlaceOrder;
 using TTX.Dto.Transactions;
@@ -31,6 +29,6 @@ public class TransactionsController(ISender sender, ISessionService sessions) : 
             Amount = order.Amount
         });
 
-        return Ok(new CreatorTransactionDto(tx));
+        return Ok(CreatorTransactionDto.Create(tx));
     }
 }
