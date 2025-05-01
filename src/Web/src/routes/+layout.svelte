@@ -80,7 +80,7 @@
 	{@render children()}
 </main>
 <Footer />
-{#if data.liveHoldings}
+{#if data.drawerData}
 	<button
 		class="fixed right-4 bottom-4 cursor-pointer rounded-full bg-purple-600 p-4 text-white shadow-lg transition-colors hover:bg-purple-700"
 		onclick={() => (showDrawer = true)}
@@ -96,12 +96,12 @@
 			>
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
 			</svg>
-			{#await data.liveHoldings then holdings}
-				{#if holdings.filter((h) => h.isLive).length > 1}
+			{#await data.drawerData then [holdings, unOpenedBoxes]}
+				{#if holdings.filter((h) => h.isLive).length >= 1}
 					<span
 						class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold"
 					>
-						{holdings.filter((h) => h.isLive).length}
+						{holdings.filter((h) => h.isLive).length + unOpenedBoxes}
 					</span>
 				{/if}
 			{/await}
@@ -109,14 +109,29 @@
 	</button>
 {/if}
 
-{#if showDrawer && data.liveHoldings}
+{#if showDrawer && data.drawerData}
 	<Drawer closeDrawer={() => (showDrawer = false)}>
-		{#await data.liveHoldings}
+		{#await data.drawerData}
 			<div class="flex flex-col items-center justify-center">
 				<p>Loading...</p>
 			</div>
-		{:then holdings}
+		{:then [holdings, unOpenedBoxes]}
 			<div class="flex flex-col gap-4">
+				{#if unOpenedBoxes}
+					<a
+						href="/gamba"
+						class="flex items-center justify-between rounded-lg bg-purple-600 p-4 text-white transition-colors hover:bg-purple-700"
+						onclick={() => (showDrawer = false)}
+					>
+						<span class="text-lg font-semibold">Unopened Lootboxes</span>
+						<span
+							class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-lg font-bold"
+						>
+							{unOpenedBoxes}
+						</span>
+					</a>
+				{/if}
+
 				<h3 class="text-xl font-semibold text-purple-500">Currently Live</h3>
 				{#if holdings.filter((h) => h.isLive).length === 0}
 					<p class="text-gray-500">No streamers are currently live</p>
