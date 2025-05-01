@@ -8,6 +8,7 @@ namespace TTX.Api.Interfaces;
 public interface ISessionService
 {
     public Slug? GetCurrentUserSlug();
+    public ModelId? GetCurrentUserId();
     public string GetTwitchLoginUrl();
     public string CreateSession(Player player);
     public string CreateDiscordSession(AuthenticateDiscordUserResult user);

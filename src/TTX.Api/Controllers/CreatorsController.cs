@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TTX.Api.Dto;
 using TTX.Commands.Creators.OnboardTwitchCreator;
+using TTX.Dto.Creators;
+using TTX.Dto.Transactions;
 using TTX.Models;
 using TTX.Queries;
 using TTX.Queries.Creators;
@@ -124,7 +126,6 @@ public class CreatorsController(ISender sender) : ControllerBase
 
         if (creator is null)
             return NotFound();
-
 
         return Ok(creator.Transactions.Select(t => new CreatorTransactionDto(t)).ToArray());
     }

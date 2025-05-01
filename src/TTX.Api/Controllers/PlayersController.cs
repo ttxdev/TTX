@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using TTX.Api.Dto;
 using TTX.Api.Interfaces;
 using TTX.Commands.LootBoxes.OpenLootBox;
+using TTX.Dto.LootBoxes;
+using TTX.Dto.Players;
+using TTX.Dto.Transactions;
 using TTX.Queries;
 using TTX.Queries.Players.FindPlayer;
 using TTX.Queries.Players.IndexPlayers;
@@ -81,17 +84,18 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
     }
 
     [Authorize]
-    [HttpPost]
+    [HttpPut("me/lootboxes/{lootBoxId}/open")]
     [EndpointName("Gamba")]
-    public async Task<ActionResult<LootBoxResultDto>> Gamba()
+    public async Task<ActionResult<LootBoxResultDto>> Gamba(int lootBoxId)
     {
-        var slug = sessions.GetCurrentUserSlug();
-        if (slug is null)
+        var id = sessions.GetCurrentUserId();
+        if (id is null)
             return Unauthorized();
 
         var result = await sender.Send(new OpenLootBoxCommand
         {
-            ActorSlug = slug
+            ActorId = id,
+            LootBoxId = lootBoxId
         });
 
         return Ok(new LootBoxResultDto(result));

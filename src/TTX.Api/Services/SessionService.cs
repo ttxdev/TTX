@@ -20,10 +20,13 @@ public class SessionService(
     public Slug? GetCurrentUserSlug()
     {
         var val = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
-        if (val is null)
-            return null;
+        return val ?? null;
+    }
 
-        return val;
+    public ModelId? GetCurrentUserId()
+    {
+        var val = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return val is null ? null : ModelId.Create(int.Parse(val));
     }
 
     public string GetTwitchLoginUrl()

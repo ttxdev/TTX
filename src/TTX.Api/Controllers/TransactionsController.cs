@@ -1,9 +1,12 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using TTX.Api.Dto;
+using TTX.Api.Hubs;
 using TTX.Api.Interfaces;
 using TTX.Commands.Ordering.PlaceOrder;
+using TTX.Dto.Transactions;
 
 namespace TTX.Api.Controllers;
 
