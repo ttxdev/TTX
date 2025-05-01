@@ -25,7 +25,7 @@ namespace TTX.Commands.LootBoxes.OpenLootBox
             LootBox lootBox = player.LootBoxes.SingleOrDefault(l => l.Id == request.LootBoxId) ??
                               throw new LootBoxNotFoundException();
             OpenLootBoxResult result = lootBox.Open(
-                await context.Creators.Where(c => c.Value >= MinValue).ToArrayAsync(ct), 
+                await context.Creators.Where(c => c.Value >= MinValue).ToArrayAsync(ct),
                 Random);
 
             await mediator.Publish(new Notifications.LootBoxes.OpenLootBox(result), ct);

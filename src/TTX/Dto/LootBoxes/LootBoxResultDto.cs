@@ -7,7 +7,7 @@ namespace TTX.Dto.LootBoxes
     public class LootBoxResultDto(OpenLootBoxResult result)
     {
         [JsonPropertyName("lootbox_id")] public ModelId LootBoxId { get; } = result.LootBox.Id;
-        
+
         [JsonPropertyName("player")] public PlayerPartialDto Player { get; } = new(result.LootBox.Player);
 
         [JsonPropertyName("result")] public CreatorRarityDto Result { get; } = new(result.Result);

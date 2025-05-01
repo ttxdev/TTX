@@ -30,7 +30,8 @@ namespace TTX.Models
             }
 
             long sum = creators.Sum(creator => creator.Value);
-            var rarities = creators.Select(creator => CreatorRarity.Create(sum, creator)).ToImmutableArray();
+            ImmutableArray<CreatorRarity> rarities =
+                creators.Select(creator => CreatorRarity.Create(sum, creator)).ToImmutableArray();
             random ??= new Random();
             var weightedRarities = rarities.Select(rarity => new
             {

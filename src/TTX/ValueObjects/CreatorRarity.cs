@@ -17,7 +17,7 @@ namespace TTX.ValueObjects
                 >= 5 and < 20 => Rarity.Rare,
                 _ => Rarity.Epic
             };
-            
+
             return new CreatorRarity { Creator = creator, Rarity = rarity };
         }
     }
