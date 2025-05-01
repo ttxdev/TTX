@@ -30,6 +30,10 @@ IConfigProvider config = new ConfigProvider(builder.Configuration);
 
 // Add services to the container.
 builder.Services
+    .Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
+    {
+        o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    })
     .AddLogging(options =>
     {
         options.AddConsole();
@@ -80,7 +84,10 @@ builder.Services
     .AddHostedService<UpdateStreamStatusNotificationHandler>()
     .AddTransient<ISessionService, SessionService>();
 
-builder.Services.AddSignalR().AddStackExchangeRedis(config.GetRedisConnectionString());
+builder.Services.AddSignalR()
+    .AddJsonProtocol(o =>
+        o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+    .AddStackExchangeRedis(config.GetRedisConnectionString());
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", cors =>
