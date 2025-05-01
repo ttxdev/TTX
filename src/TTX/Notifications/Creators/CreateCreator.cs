@@ -1,8 +1,7 @@
+using TTX.Dto.Creators;
 using TTX.Models;
 
-namespace TTX.Notifications.Creators;
-
-public class CreateCreator : INotification
+namespace TTX.Notifications.Creators
 {
-    public required Creator Creator { get; init; }
+    public class CreateCreator(Creator creator) : CreatorDto(creator), INotification;
 }

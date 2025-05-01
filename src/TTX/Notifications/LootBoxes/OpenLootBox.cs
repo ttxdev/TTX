@@ -1,8 +1,7 @@
-using TTX.Commands.LootBoxes.OpenLootBox;
+using TTX.Dto.LootBoxes;
+using TTX.ValueObjects;
 
-namespace TTX.Notifications.LootBoxes;
-
-public class OpenLootBox : INotification
+namespace TTX.Notifications.LootBoxes
 {
-  public required OpenLootBoxResult Result { get; init; }
+    public class OpenLootBox(OpenLootBoxResult result) : LootBoxResultDto(result), INotification;
 }

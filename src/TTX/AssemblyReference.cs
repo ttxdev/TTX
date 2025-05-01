@@ -1,3 +1,4 @@
-namespace TTX;
-
-public class AssemblyReference;
+namespace TTX
+{
+    public class AssemblyReference;
+}

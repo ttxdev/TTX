@@ -8,7 +8,10 @@ using TTX.Notifications.Players;
 
 namespace TTX.Commands.Players.AuthenticateTwitchUser
 {
-    public class AuthenticateTwitchUserHandler(ApplicationDbContext context, IMediator mediator, ITwitchAuthService twitch)
+    public class AuthenticateTwitchUserHandler(
+        ApplicationDbContext context,
+        IMediator mediator,
+        ITwitchAuthService twitch)
         : ICommandHandler<AuthenticateTwitchUserCommand, Player>
     {
         public async Task<Player> Handle(AuthenticateTwitchUserCommand request, CancellationToken ct)
@@ -29,10 +32,7 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
             );
             context.Players.Add(player);
             await context.SaveChangesAsync(ct);
-            await mediator.Publish(new CreatePlayer
-            {
-                Player = player
-            }, ct);
+            await mediator.Publish(new CreatePlayer(player), ct);
 
             return player;
         }

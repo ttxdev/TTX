@@ -24,10 +24,7 @@ namespace TTX.Commands.Players.OnboardTwitchUser
 
             context.Players.Add(player);
             await context.SaveChangesAsync(ct);
-            await mediator.Publish(new CreatePlayer
-            {
-                Player = player
-            }, ct);
+            await mediator.Publish(new CreatePlayer(player), ct);
 
             return player;
         }

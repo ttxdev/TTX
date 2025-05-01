@@ -7,7 +7,8 @@ using TTX.Notifications.Creators;
 
 namespace TTX.Commands.Creators.RecordNetChange
 {
-    public class RecordNetChangeHandler(ApplicationDbContext context, IMediator mediator) : ICommandHandler<RecordNetChangeCommand, Vote>
+    public class RecordNetChangeHandler(ApplicationDbContext context, IMediator mediator)
+        : ICommandHandler<RecordNetChangeCommand, Vote>
     {
         public async Task<Vote> Handle(RecordNetChangeCommand request, CancellationToken ct = default)
         {
@@ -20,10 +21,7 @@ namespace TTX.Commands.Creators.RecordNetChange
                 ct);
             context.Creators.Update(creator);
             await context.SaveChangesAsync(ct);
-            await mediator.Publish(new UpdateCreatorValue
-            {
-                Vote = vote,
-            }, ct);
+            await mediator.Publish(new UpdateCreatorValue(vote), ct);
 
             return vote;
         }

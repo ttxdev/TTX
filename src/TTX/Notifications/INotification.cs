@@ -1,3 +1,4 @@
-namespace TTX.Notifications;
-
-public interface INotification : MediatR.INotification;
+namespace TTX.Notifications
+{
+    public interface INotification : MediatR.INotification;
+}

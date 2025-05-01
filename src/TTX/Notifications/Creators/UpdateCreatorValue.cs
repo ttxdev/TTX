@@ -1,8 +1,7 @@
+using TTX.Dto.Creators;
 using TTX.Models;
 
-namespace TTX.Notifications.Creators;
-
-public class UpdateCreatorValue : INotification
+namespace TTX.Notifications.Creators
 {
-    public required Vote Vote { get; init; }
+    public class UpdateCreatorValue(Vote vote) : VoteDto(vote), INotification;
 }

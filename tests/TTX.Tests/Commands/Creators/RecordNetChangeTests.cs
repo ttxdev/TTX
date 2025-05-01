@@ -1,5 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
 using TTX.Commands.Creators.RecordNetChange;
+using TTX.Notifications.Creators;
 using TTX.Tests.Factories;
+using TTX.Tests.Notifications;
 
 namespace TTX.Tests.Commands.Creators;
 
@@ -22,6 +25,27 @@ public class RecordNetChangeTests : ApplicationTests
         });
 
         Assert.AreEqual(value + netChange, result.Creator.Value);
+        Assert.AreEqual(value + netChange, result.Value);
+    }
+
+    [TestMethod]
+    public async Task RecordNetChange_ShouldNotifyUpdateCreator()
+    {
+        var netChange = 50;
+        var value = 100;
+        var creator = CreatorFactory.Create(value);
+        var vHandler = ServiceProvider.GetRequiredService<UpdateCreatorValueNotificationHandler>();
+        DbContext.Creators.Add(creator);
+        await DbContext.SaveChangesAsync();
+        
+        await Sender.Send(new RecordNetChangeCommand
+        {
+            CreatorSlug = creator.Slug,
+            NetChange = netChange
+        });
+        var result = vHandler.FindNotification<UpdateCreatorValue>(v => v.CreatorId == creator.Id);
+        
+        Assert.IsNotNull(result);
         Assert.AreEqual(value + netChange, result.Value);
     }
 }

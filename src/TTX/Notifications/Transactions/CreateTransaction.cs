@@ -1,8 +1,7 @@
+using TTX.Dto.Transactions;
 using TTX.Models;
 
-namespace TTX.Notifications.Transactions;
-
-public class CreateTransaction : INotification
+namespace TTX.Notifications.Transactions
 {
-    public required Transaction Transaction { get; init; }
+    public class CreateTransaction(Transaction tx) : CreatorTransactionDto(tx), INotification;
 }

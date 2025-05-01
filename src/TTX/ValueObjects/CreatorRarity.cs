@@ -1,11 +1,11 @@
 ﻿using TTX.Models;
 
-namespace TTX.Commands.LootBoxes.OpenLootBox
+namespace TTX.ValueObjects
 {
-    public class CreatorRarity
+    public readonly struct CreatorRarity
     {
-        public required Creator Creator { get; set; }
-        public required Rarity Rarity { get; set; }
+        public required Creator Creator { get; init; }
+        public required Rarity Rarity { get; init; }
 
         public static CreatorRarity Create(long sum, Creator creator)
         {
@@ -17,6 +17,7 @@ namespace TTX.Commands.LootBoxes.OpenLootBox
                 >= 5 and < 20 => Rarity.Rare,
                 _ => Rarity.Epic
             };
+            
             return new CreatorRarity { Creator = creator, Rarity = rarity };
         }
     }

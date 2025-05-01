@@ -1,4 +1,4 @@
-﻿namespace TTX.Commands.LootBoxes.OpenLootBox
+﻿namespace TTX.ValueObjects
 {
     public enum Rarity
     {

@@ -1,8 +1,7 @@
+using TTX.Dto.Players;
 using TTX.Models;
 
-namespace TTX.Notifications.Players;
-
-public class CreatePlayer : INotification
+namespace TTX.Notifications.Players
 {
-    public required Player Player { get; init; }
+    public class CreatePlayer(Player player) : PlayerDto(player), INotification;
 }

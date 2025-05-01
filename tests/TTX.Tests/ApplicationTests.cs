@@ -2,19 +2,13 @@ using Bogus;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TTX.Commands.Creators.OnboardTwitchCreator;
-using TTX.Commands.Creators.RecordNetChange;
-using TTX.Commands.Creators.UpdateStreamStatus;
-using TTX.Commands.LootBoxes.OpenLootBox;
-using TTX.Commands.Ordering.PlaceOrder;
+using StackExchange.Redis;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
-using TTX.Queries.Creators.FindCreator;
-using TTX.Queries.Creators.IndexCreators;
-using TTX.Queries.Creators.PullLatestHistory;
-using TTX.Queries.Players.FindPlayer;
-using TTX.Queries.Players.IndexPlayers;
+using TTX.Notifications.Players;
 using TTX.Tests.Infrastructure.Twitch;
+using TTX.Tests.Notifications;
+using INotification = TTX.Notifications.INotification;
 
 namespace TTX.Tests;
 
@@ -40,29 +34,22 @@ public abstract class ApplicationTests
             })
             .AddMediatR(cfg =>
             {
-                // creator queries
-                cfg.RegisterServicesFromAssemblyContaining<IndexCreatorsHandler>();
-                cfg.RegisterServicesFromAssemblyContaining<FindCreatorHandler>();
-                cfg.RegisterServicesFromAssemblyContaining<PullLatestHistoryHandler>();
-                // player queries
-                cfg.RegisterServicesFromAssemblyContaining<FindPlayerHandler>();
-                cfg.RegisterServicesFromAssemblyContaining<IndexPlayersHandler>();
-
-                // creator commands
-                cfg.RegisterServicesFromAssemblyContaining<OnboardTwitchCreatorHandler>();
-                cfg.RegisterServicesFromAssemblyContaining<RecordNetChangeHandler>();
-                cfg.RegisterServicesFromAssemblyContaining<UpdateStreamStatusHandler>();
-                // lootbox commands
-                cfg.RegisterServicesFromAssemblyContaining<OpenLootBoxCommand>();
-                // ordering commands
-                cfg.RegisterServicesFromAssemblyContaining<PlaceOrderHandler>();
+                cfg.RegisterServicesFromAssemblyContaining<AssemblyReference>();
+                cfg.RegisterServicesFromAssemblyContaining<ApplicationTests>();
             })
             .AddSingleton(seed)
+            .AddSingleton<CreateCreatorNotificationHandler>()
+            .AddSingleton<CreatePlayerNotificationHandler>()
+            .AddSingleton<UpdateCreatorValueNotificationHandler>()
+            .AddSingleton<OpenLootBoxNotificationHandler>()
             .AddSingleton<ITwitchAuthService, TwitchAuthService>(_ => new TwitchAuthService())
+            .AddSingleton<IConnectionMultiplexer>(_ =>
+                ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("TTX_REDIS_URL")!))
             .BuildServiceProvider();
 
         DbContext = ServiceProvider.GetRequiredService<ApplicationDbContext>();
         Sender = ServiceProvider.GetRequiredService<ISender>();
+        DbContext.Database.EnsureDeleted();
         DbContext.Database.EnsureCreated();
     }
 

@@ -1,11 +1,11 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
 using TTX.Models;
-using TTX.ValueObjects;
 using TTX.Notifications.Creators;
-using MediatR;
+using TTX.ValueObjects;
 
 namespace TTX.Commands.Creators.OnboardTwitchCreator
 {
@@ -34,10 +34,7 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
             context.Creators.Add(creator);
             await context.SaveChangesAsync(ct);
 
-            await mediatr.Publish(new CreateCreator
-            {
-                Creator = creator
-            }, ct);
+            await mediatr.Publish(new CreateCreator(creator), ct);
 
             return creator;
         }
