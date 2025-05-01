@@ -5,7 +5,7 @@
 	import PlayerPlacement from '../shared/PlayerPlacement.svelte';
 
 	let { shares, price }: { shares: CreatorShareDto[]; price: number } = $props();
-	const sortedHolders = $derived([...shares].sort((a, b) => b.quantity - a.quantity));
+	const sortedHolders = $derived(shares.toSorted((a, b) => b.quantity - a.quantity));
 
 	const total = $derived(
 		Object.fromEntries(
