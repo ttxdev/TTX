@@ -40,6 +40,7 @@ public abstract class ApplicationTests
             .AddSingleton<CreatePlayerNotificationHandler>()
             .AddSingleton<UpdateCreatorValueNotificationHandler>()
             .AddSingleton<OpenLootBoxNotificationHandler>()
+            .AddSingleton<CreateTransactionNotificationHandler>()
             .AddSingleton<ITwitchAuthService, TwitchAuthService>(_ => new TwitchAuthService())
             .AddSingleton<IConnectionMultiplexer>(_ =>
                 ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("TTX_REDIS_URL")!))

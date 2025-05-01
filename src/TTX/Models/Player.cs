@@ -29,6 +29,15 @@ namespace TTX.Models
             return [.. shares.Values.Where(share => share.Quantity > 0)];
         }
 
+        public Transaction Give(Creator creator)
+        {
+            Transaction tx = Transaction.CreateBuy(this, creator, 1);
+            creator.RecordTransaction(tx);
+            Transactions.Add(tx);
+
+            return tx;
+        }
+
         public Transaction Buy(Creator creator, Quantity amount)
         {
             long value = creator.Value * amount;

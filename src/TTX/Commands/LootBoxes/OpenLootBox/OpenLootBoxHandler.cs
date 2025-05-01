@@ -27,7 +27,11 @@ namespace TTX.Commands.LootBoxes.OpenLootBox
             OpenLootBoxResult result = lootBox.Open(
                 await context.Creators.Where(c => c.Value >= MinValue).ToArrayAsync(ct),
                 Random);
+            Transaction tx = player.Give(lootBox.Result!);
 
+            context.Transactions.Add(tx);
+            await context.SaveChangesAsync(ct);
+            await mediator.Publish(Notifications.Transactions.CreateTransaction.Create(tx), ct);
             await mediator.Publish(Notifications.LootBoxes.OpenLootBox.Create(result), ct);
 
             return result;
