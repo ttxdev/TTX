@@ -25,7 +25,8 @@ TwitchStreamService monitor = new(
     config.GetTwitchClientId(),
     config.GetTwitchClientSecret()
 );
-using var scope = services.CreateAsyncScope();
+await using var scope = services.CreateAsyncScope();
+
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await context.Creators.ForEachAsync(monitor.AddCreator);
