@@ -4,16 +4,16 @@
 	// @ts-expect-error Confetti is not a module
 	import Confetti from 'confetti-js';
 	import { onMount } from 'svelte';
-	import type { CreatorBox } from '../../routes/gamba/+page.server';
 	import { formatTicker, formatValue } from '$lib/util';
+	import type { CreatorPartialDto, Rarity } from '$lib/api';
+	import { rarityColors, rarityGlow } from '$lib/utils/gamba';
 
 	type WinnerModalProps = {
-		winner: CreatorBox;
-		rarityColors: Record<string, string>;
-		rarityGlow: Record<string, string>;
+		winner: CreatorPartialDto;
+		rarity: Rarity;
 	};
 
-	const { winner, rarityColors, rarityGlow }: WinnerModalProps = $props();
+	const { winner, rarity }: WinnerModalProps = $props();
 
 	onMount(() => {
 		const confetti = new Confetti({
@@ -44,7 +44,7 @@
 
 		<div
 			class="flex w-full flex-col items-center rounded-2xl border-2 bg-gradient-to-b from-slate-900 to-black p-8 shadow-[0_0_30px_rgba(124,58,237,0.5)]"
-			style="border-color: {rarityColors[winner.rarity_class]};"
+			style="border-color: {rarityColors[rarity]};"
 		>
 			<div
 				class="mb-6 bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-300 bg-clip-text text-3xl font-bold text-transparent"
@@ -54,10 +54,8 @@
 			<div
 				class="animate-pulse-slow mb-6 h-36 w-36 rounded-full border-3 bg-black p-1 transition-all"
 				style="
-                    border-color: {rarityColors[winner.rarity_class]};
-                    box-shadow: {rarityGlow[winner.rarity_class]} {rarityColors[
-					winner.rarity_class
-				]};
+                    border-color: {rarityColors[rarity]};
+                    box-shadow: {rarityGlow[rarity]} {rarityColors[rarity]};
                 "
 			>
 				<img

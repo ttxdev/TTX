@@ -1,49 +1,63 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
 import { getToken } from '$lib/auth';
-import { Rarity, type CreatorDto } from '$lib/api';
+import { fail, redirect, type Actions } from '@sveltejs/kit';
+import { type CreatorPartialDto, type CreatorRarityDto, type LootBoxDto } from '$lib/api';
 
-export type RarityClass = 'pennies' | 'normal' | 'rare' | 'epic';
 
-export type CreatorBox = CreatorDto & {
-	rarity_class: RarityClass;
+export const load: PageServerLoad = async ({ cookies }) => {
+	const client = getApiClient(getToken(cookies) ?? '');
+
+	try {
+		const user = await client.getSelf();
+		if (!user) {
+			throw redirect(307, '/');
+		}
+
+		const unopenedBoxes = user.loot_boxes
+			.filter((box) => !box.is_open)
+			.map((box) => box.toJSON()) as LootBoxDto[];
+
+		const openedBoxes = user.loot_boxes
+			.filter((box) => box.is_open)
+			.map((box) => box.toJSON()) as LootBoxDto[];
+
+		return {
+			unopenedBoxes,
+			openedBoxes
+		};
+	} catch {
+		throw redirect(307, '/');
+	}
 };
 
-export const load: PageServerLoad = async ({ cookies, depends }) => {
-	depends('gamba');
-	const client = getApiClient(getToken(cookies) ?? '');
-	const gamba = await client.gamba();
+export const actions: Actions = {
+	openLootbox: async ({ cookies, request }) => {
+		const client = getApiClient(getToken(cookies) ?? '');
+		const data = await request.formData();
+		const lootboxId = data.get('lootboxId');
+		if (!lootboxId) {
+			return fail(400, { message: 'Lootbox ID is required' });
+		}
 
-	const mappedChannels = gamba.rarities
-		.sort(() => Math.random() - 0.5)
-		.map<CreatorBox>((channel) => {
-			let rarity_class;
-			switch (channel.rarity) {
-				case Rarity.Pennies:
-					rarity_class = 'pennies';
-					break;
-				case Rarity.Common:
-					rarity_class = 'normal';
-					break;
-				case Rarity.Rare:
-					rarity_class = 'rare';
-					break;
-				case Rarity.Epic:
-					rarity_class = 'epic';
-					break;
-			}
+		const parsedLootboxId = parseInt(lootboxId as string);
+		if (isNaN(parsedLootboxId)) {
+			return fail(400, { message: 'Invalid lootbox ID' });
+		}
 
+		try {
+			const res = await client.gamba(parsedLootboxId);
+
+			const rarities = res.rarities.map((r) => r.toJSON()) as CreatorRarityDto[];
+			const dupedRarities = [...rarities, ...rarities];
+			const winnerIndex = rarities.findIndex((r) => r.creator.id === res.result.creator.id) + rarities.length;
 			return {
-				...channel.toJSON(),
-				rarity_class
+				winner: res.result.creator.toJSON() as CreatorPartialDto,
+				rarities: dupedRarities,
+				winnerIndex
 			};
-		});
-
-	// Repeat the choices 3 times to make the spin **cooler** (maybe redundant)
-	const choices = [...new Array(2)].flatMap(() => mappedChannels);
-	const winnerIndex = Math.floor(Math.random() * mappedChannels.length) + mappedChannels.length;
-	return {
-		choices,
-		winnerIndex
-	};
+		} catch {
+			return fail(400, { message: 'Failed to open lootbox' });
+		}
+	}
 };
