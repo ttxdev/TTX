@@ -14,7 +14,7 @@ namespace TTX.Commands.Ordering.PlaceOrder
         {
             Player player = await context.Players
                                 .Include(p => p.Transactions)
-                                .SingleOrDefaultAsync(p => p.Slug == request.Actor, ct)
+                                .SingleOrDefaultAsync(p => p.Id == request.Actor, ct)
                             ?? throw new PlayerNotFoundException();
 
             Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.Creator, ct)

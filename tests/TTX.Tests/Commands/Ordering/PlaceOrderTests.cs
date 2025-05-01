@@ -22,7 +22,7 @@ public class PlaceOrderTests : ApplicationTests
         var tx = await Sender.Send(new PlaceOrderCommand
         {
             Action = TransactionAction.Buy,
-            Actor = player.Slug,
+            Actor = player.Id,
             Creator = creator.Slug,
             Amount = quantity
         });
@@ -51,7 +51,7 @@ public class PlaceOrderTests : ApplicationTests
         var tx = await Sender.Send(new PlaceOrderCommand
         {
             Action = TransactionAction.Sell,
-            Actor = player.Slug,
+            Actor = player.Id,
             Creator = creator.Slug,
             Amount = quantity
         });
