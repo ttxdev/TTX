@@ -17,13 +17,13 @@ public class TransactionsController(ISender sender, ISessionService sessions) : 
     [EndpointName("PlaceOrder")]
     public async Task<ActionResult<CreatorTransactionDto>> Create([FromBody] CreateTransactionDto order)
     {
-        var slug = sessions.GetCurrentUserSlug();
-        if (slug is null)
+        var actorId = sessions.GetCurrentUserId();
+        if (actorId is null)
             return Unauthorized();
 
         var tx = await sender.Send(new PlaceOrderCommand
         {
-            Actor = slug,
+            Actor = actorId,
             Creator = order.CreatorSlug,
             Action = order.Action,
             Amount = order.Amount
