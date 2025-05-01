@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
+using TTX;
 using TTX.Commands.Creators.UpdateStreamStatus;
 using TTX.Infrastructure.Data;
 using TTX.StreamMonitor.Provider;
@@ -13,7 +15,11 @@ ConfigProvider config = new(new ConfigurationBuilder().AddEnvironmentVariables("
 IServiceProvider services = new ServiceCollection()
     .AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(config.GetConnectionString()))
     .AddLogging(options => options.AddConsole())
-    .AddMediatR(cfg => { cfg.RegisterServicesFromAssemblyContaining<UpdateStreamStatusHandler>(); })
+    .AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(config.GetRedisConnectionString()))
+    .AddMediatR(cfg =>
+    {
+        cfg.RegisterServicesFromAssemblyContaining<AssemblyReference>();
+    })
     .BuildServiceProvider();
 
 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
