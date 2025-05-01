@@ -10,6 +10,13 @@ public interface IConfigProvider
 
 public class ConfigProvider(IConfiguration configuration) : IConfigProvider
 {
-    public string GetConnectionString() => configuration["CONNECTION_STRING"]!;
-    public string GetRedisConnectionString() => configuration["REDIS_URL"]!;
+    public string GetConnectionString()
+    {
+        return configuration["CONNECTION_STRING"]!;
+    }
+
+    public string GetRedisConnectionString()
+    {
+        return configuration["REDIS_URL"]!;
+    }
 }
