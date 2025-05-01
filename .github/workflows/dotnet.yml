@@ -35,6 +35,7 @@ jobs:
           - 5432:5432
         env:
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ttx_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -62,5 +63,5 @@ jobs:
         run: dotnet restore
       - name: Test
         env:
-          TTX_CONNECTION_STRING: "Server=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres;"
+          TTX_CONNECTION_STRING: "Server=localhost;Port=5432;Database=ttx_test;Username=postgres;Password=postgres;"
         run: dotnet test --verbosity normal
