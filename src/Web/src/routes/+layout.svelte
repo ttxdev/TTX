@@ -3,7 +3,7 @@
 	import Navbar from '$lib/components/Navbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import type { LayoutProps } from './$types';
-	import { onMount, setContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { ProgressBar } from '@prgm/sveltekit-progress-bar';
 	import { Toaster } from 'svelte-french-toast';
 	import Search from '$lib/components/Search.svelte';
@@ -12,6 +12,10 @@
 	import { patchUrlMappings } from '@discord/embedded-app-sdk';
 	import { discordSdk } from '$lib/discord';
 	import { token, user } from '$lib/stores/data';
+	import { startConnection } from '$lib/signalr';
+	import type { CreatorTransactionDto, VoteDto } from '$lib/api';
+	import { addVote } from '$lib/stores/votes';
+	import { addTransaction } from '$lib/stores/transactions';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -40,19 +44,24 @@
 
 	onMount(async () => {
 		if (discordSdk) {
-			const query = new URLSearchParams(window.location.search);
-
 			const url = new URL(apiBaseUrl);
 
 			patchUrlMappings([{ prefix: '/external-api', target: url.hostname }]);
 
-			patchUrlMappings([
-				{ prefix: '/twitch-cdn', target: 'static-cdn.jtvnw.net' },
-				{ prefix: '/github-cdn', target: 'avatars.githubusercontent.com' },
-			], {
-				patchSrcAttributes: true
-			});
+			patchUrlMappings(
+				[
+					{ prefix: '/twitch-cdn', target: 'static-cdn.jtvnw.net' },
+					{ prefix: '/github-cdn', target: 'avatars.githubusercontent.com' }
+				],
+				{
+					patchSrcAttributes: true
+				}
+			);
 		}
+
+		const conn = await startConnection('events');
+		conn.on('UpdateCreatorValue', (message: VoteDto) => addVote(message));
+		conn.on('CreateTransaction', (message: CreatorTransactionDto) => addTransaction(message));
 	});
 </script>
 

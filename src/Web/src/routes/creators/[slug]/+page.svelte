@@ -5,28 +5,64 @@
 	import BuySellModal from '$lib/components/channel/BuySellModal.svelte';
 	import IntervalSelector from './IntervalSelector.svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { getApiClient } from '$lib';
-	import { TimeStep, TransactionAction, Vote, VoteDto } from '$lib/api';
+	import { setVotes, voteStore } from '$lib/stores/votes';
+	import {
+		CreatorTransactionDto,
+		TransactionAction,
+		VoteDto,
+		type ICreatorShareDto
+	} from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
 	import { discordSdk } from '$lib/discord';
 	import type { PageProps } from './$types';
+	import { transactionStore } from '$lib/stores/transactions';
 
 	let { data }: PageProps = $props();
 	let creator = $state(data.creator);
 
 	let history = $state<VoteDto[]>(data.creator.history);
+	let transactions = $state<CreatorTransactionDto[]>(data.creator.transactions);
+	let shares = $state<ICreatorShareDto[]>(data.creator.shares);
+	setVotes(data.creator.id, data.creator.history);
 	let buySellModal: TransactionAction | null = $state(null);
-	let pullTask: number | null = $state(null);
 	let interval = $state(data.interval);
 	function setModal(modal: TransactionAction) {
 		buySellModal = modal;
 	}
 
-	onDestroy(() => {
-		if (pullTask) {
-			clearInterval(pullTask);
+	voteStore.subscribe((store) => {
+		const votes = store.get(data.creator.id);
+		if (votes) {
+			history = votes;
+		}
+	});
+
+	transactionStore.subscribe((store) => {
+		const storeTxs = store.get(data.creator.id);
+		if (!storeTxs) {
+			return;
 		}
 
+		transactions = storeTxs;
+		const newShares: ICreatorShareDto[] = [];
+		shares.forEach((share: ICreatorShareDto) => {
+			storeTxs.forEach((t) => {
+				if (t.action === TransactionAction.Buy) {
+					share.quantity += t.quantity;
+				} else if (t.action === TransactionAction.Sell) {
+					share.quantity -= t.quantity;
+				}
+			});
+
+			if (share.quantity > 0) {
+				newShares.push(share);
+			}
+		});
+
+		shares = newShares;
+	});
+
+	onDestroy(() => {
 		if (discordSdk) {
 			void discordSdk.commands.setActivity({
 				activity: {
@@ -49,21 +85,6 @@
 			avatar_url: creator.avatar_url,
 			ticker: creator.ticker
 		});
-
-		const client = getApiClient('');
-		let last = new Date();
-
-		pullTask = setInterval(async () => {
-			const data = await client
-				.getLatestCreatorValue(creator.slug, last, TimeStep.Minute)
-				.then((history) => history.map((v) => v.toJSON()));
-			last = new Date();
-			if (data.length === 0) return;
-
-			history = [...history, ...data];
-			// @ts-ignore
-			creator.value = data[data.length - 1].value;
-		}, 1_500);
 
 		if (discordSdk) {
 			await discordSdk.commands.setActivity({
@@ -138,7 +159,7 @@
 
 <section class="mx-auto flex w-full max-w-[1000px] flex-col gap-4 px-4">
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-		<BiggestHolders shares={data.shares} price={creator.value} />
-		<LatestTransactions transactions={data.transactions} />
+		<BiggestHolders {shares} price={creator.value} />
+		<LatestTransactions {transactions} />
 	</div>
 </section>
