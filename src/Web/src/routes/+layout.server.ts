@@ -22,18 +22,23 @@ export const load: LayoutServerLoad = async ({ cookies, url }) => {
 	}
 
 	try {
-		const self = await client.getSelf();
-		const liveHoldings = self.shares.map((s) => ({
+		const self = client.getSelf();
+		const liveHoldings = self.then((s) => s.shares.map((s) => ({
 			creator: s.creator.name,
 			slug: s.creator.slug,
 			avatar: s.creator.avatar_url,
 			isLive: s.creator.stream_status.is_live
-		}));
+		})));
+
+		const unOpenedBoxes = self.then(s => s.loot_boxes.filter(b => !b.is_open).length)
+
+		const drawerData = Promise.all([liveHoldings, unOpenedBoxes])
+
 
 		return {
 			user,
 			token,
-			liveHoldings
+			drawerData
 		};
 	} catch {
 		logout(cookies);
