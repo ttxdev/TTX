@@ -16,8 +16,7 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
     {
         public async Task<Player> Handle(AuthenticateTwitchUserCommand request, CancellationToken ct)
         {
-            TwitchUser tUser = await twitch.FindByOAuth(request.OAuthCode) ?? throw new TwitchUserNotFoundException();
-
+            TwitchUser tUser = await FindTwitchUser(request);
             Player? player = await context.Players.SingleOrDefaultAsync(p => p.TwitchId == tUser.Id, ct);
             if (player is not null)
             {
@@ -35,6 +34,24 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
             await mediator.Publish(new CreatePlayer(player), ct);
 
             return player;
+        }
+
+        private async Task<TwitchUser> FindTwitchUser(AuthenticateTwitchUserCommand request)
+        {
+            TwitchUser? tUser;
+            if (request.OAuthCode is not null)
+            {
+                tUser = await twitch.FindByOAuth(request.OAuthCode);
+            }
+            else if (request.UserId is not null)
+            {
+                tUser = await twitch.FindById(request.UserId);
+            } else
+            {
+                throw new InvalidOperationException("Invalid request, Twitch identifier not provided");
+            }
+
+            return tUser ?? throw new TwitchUserNotFoundException();
         }
 
         private async Task<Player> Sync(TwitchUser tUser, Player player)
