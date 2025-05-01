@@ -20,9 +20,8 @@ public class RedisNotificationHandler<TNotification, THub>(
                 if (!rMsg.HasValue)
                     return;
 
-                using var doc = JsonDocument.Parse(rMsg.ToString());
-                var jsonPayload = doc.RootElement;
-                await hub.Clients.All.SendAsync(typeof(TNotification).Name, jsonPayload, ct);
+                var parsed = JsonSerializer.Deserialize<TNotification>(rMsg.ToString());
+                await hub.Clients.All.SendAsync(typeof(TNotification).Name, parsed, ct);
             }
             catch (Exception e)
             {
