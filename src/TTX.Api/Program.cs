@@ -49,11 +49,16 @@ builder.Services
         options.AddConsole();
         options.AddDebug();
     })
+    .AddLogging(cfg =>
+    {
+        cfg.AddConsole();
+        cfg.AddDebug();
+    })
     .AddHttpLogging()
     .AddEndpointsApiExplorer()
     .AddOpenApi()
     .AddSingleton<CreateTransactionNotificationHandler>()
-    .AddSingleton<CreatorValueNotificationHandler>()
+    .AddSingleton<UpdateCreatorValueNotificationHandler>()
     .AddSingleton<IConfigProvider>(config)
     .AddDbContextPool<ApplicationDbContext>(
         options =>
@@ -84,11 +89,12 @@ builder.Services
         cfg.RegisterServicesFromAssemblyContaining<Program>();
         cfg.RegisterServicesFromAssemblyContaining<AssemblyReference>();
     })
+    .AddHostedService<UpdateCreatorValueNotificationHandler>()
+    .AddHostedService<CreateTransactionNotificationHandler>()
+    .AddHostedService<UpdateStreamStatusNotificationHandler>()
     .AddTransient<ISessionService, SessionService>();
 
 builder.Services.AddSignalR().AddStackExchangeRedis(config.GetRedisConnectionString());
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", cors =>
