@@ -5,6 +5,7 @@
 	import { TransactionAction, type CreatorTransactionDto } from '$lib/api';
 
 	let { transactions }: { transactions: CreatorTransactionDto[] } = $props();
+	transactions = transactions.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
 </script>
 
 <Card title="Latest Transactions">

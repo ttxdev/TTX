@@ -5,6 +5,7 @@
 	import Card from '../shared/Card.svelte';
 
 	let { transactions }: { transactions: PlayerTransactionDto[] } = $props();
+	transactions = transactions.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
 </script>
 
 <Card title="Latest Transactions">
