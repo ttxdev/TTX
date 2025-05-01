@@ -20,7 +20,8 @@ IServiceProvider services = new ServiceCollection()
 
 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
 TwitchBotService bot = new(services, loggerFactory.CreateLogger<TwitchBotService>());
-using var scope = services.CreateAsyncScope();
+await using var scope = services.CreateAsyncScope();
+
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await context.Creators.ForEachAsync(bot.AddCreator);
