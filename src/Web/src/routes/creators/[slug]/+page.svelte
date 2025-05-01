@@ -15,15 +15,13 @@
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
 	import { discordSdk } from '$lib/discord';
 	import type { PageProps } from './$types';
-	import { transactionStore } from '$lib/stores/transactions';
+	import { setTransactions, transactionStore } from '$lib/stores/transactions';
 
 	let { data }: PageProps = $props();
-	let creator = $state(data.creator);
-
-	let history = $state<VoteDto[]>(data.creator.history);
-	let transactions = $state<CreatorTransactionDto[]>(data.transactions);
-	let shares = $state<ICreatorShareDto[]>(data.creator.shares);
-	setVotes(data.creator.id, data.creator.history);
+	let creator = $state.raw(data.creator);
+	let history = $state.raw<VoteDto[]>([]);
+	let transactions = $state.raw<CreatorTransactionDto[]>(data.transactions);
+	let shares = $state.raw<ICreatorShareDto[]>(data.creator.shares);
 	let buySellModal: TransactionAction | null = $state(null);
 	let interval = $state(data.interval);
 	function setModal(modal: TransactionAction) {
@@ -31,35 +29,41 @@
 	}
 
 	voteStore.subscribe((store) => {
-		const votes = store.get(data.creator.id);
+		const votes = store.get(creator.id);
 		if (votes) {
 			history = votes;
 		}
 	});
 
 	transactionStore.subscribe((store) => {
-		const storeTxs = store.get(data.creator.id);
+		const storeTxs = store.get(creator.id);
+		if (storeTxs) {
+    		transactions = storeTxs.toSorted((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+		}
+	});
+
+	transactionStore.subscribe((store) => {
+		const storeTxs = store.get(data.creator.id)
+		  ?.toSorted((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 		if (!storeTxs) {
 			return;
 		}
 
-		transactions = storeTxs;
-		const newShares: ICreatorShareDto[] = [];
-		shares.forEach((share: ICreatorShareDto) => {
-			storeTxs.forEach((t) => {
-				if (t.action === TransactionAction.Buy) {
-					share.quantity += t.quantity;
-				} else if (t.action === TransactionAction.Sell) {
-					share.quantity -= t.quantity;
-				}
-			});
+		const newShares = new Map<number, ICreatorShareDto>();
+		storeTxs.forEach((t) => {
+    		const share: ICreatorShareDto = newShares.get(t.player_id)
+                      ?? { player: t.player, quantity: 0 };
 
-			if (share.quantity > 0) {
-				newShares.push(share);
+			if (t.action === TransactionAction.Buy) {
+				share.quantity += t.quantity;
+			} else if (t.action === TransactionAction.Sell) {
+				share.quantity -= t.quantity;
 			}
+
+			newShares.set(share.player.id, share);
 		});
 
-		shares = newShares;
+		shares = newShares.values().filter((share) => share.quantity > 0).toArray();
 	});
 
 	onDestroy(() => {
@@ -102,11 +106,19 @@
 		}
 	});
 
+	onMount(() => {
+		setTransactions(data.creator.id, data.transactions);
+		setVotes(data.creator.id, data.creator.history);
+	})
+
 	$effect(() => {
 		if (data.creator.slug === creator.slug && data.interval === interval) return;
-		creator = data.creator;
-		history = data.creator.history;
-		interval = data.interval;
+
+        creator = data.creator;
+        interval = data.interval;
+        shares = data.creator.shares;
+        setTransactions(data.creator.id, data.transactions);
+		setVotes(data.creator.id, data.creator.history);
 	});
 </script>
 
