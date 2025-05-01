@@ -2,7 +2,7 @@ import { getApiClient } from '$lib';
 import { getToken } from '$lib/auth';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types.js';
-import { CreatorDto, CreatorShareDto, CreatorTransactionDto, TimeStep } from '$lib/api.js';
+import { TimeStep } from '$lib/api.js';
 
 export type Interval = '24h' | '12h' | '6h' | '1h'
 
@@ -20,9 +20,9 @@ export const load: PageServerLoad = async ({ cookies, params, url }) => {
 		);
 
 		return {
-			creator: creator.toJSON() as CreatorDto,
-			shares: creator.shares.map((d) => d.toJSON() as CreatorShareDto),
-			transactions: creator.transactions.map((d) => d.toJSON() as CreatorTransactionDto),
+			creator: creator,
+			shares: creator.shares,
+			transactions: creator.transactions,
 			interval
 		};
 	} catch (err) {

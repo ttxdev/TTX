@@ -4,7 +4,6 @@ import {
 } from '$env/static/public';
 import { getApiClient } from '$lib';
 import { redirect, type Cookies } from '@sveltejs/kit';
-import type { AuthenticateDiscordUserDto } from './api';
 
 export const COOKIE_NAME = 'TTX.Session';
 
@@ -49,14 +48,14 @@ export function getTwitchRedirect(): string {
 	return `https://id.twitch.tv/oauth2/authorize?client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(twitchRedirectUrl)}&response_type=code&scope=&state=${state}`;
 }
 
-export async function handleTwitchCallback(code: string, state: string): Promise<string> {
+export async function handleTwitchCallback(code: string): Promise<string> {
 	const client = getApiClient('');
 	const { access_token } = await client.twitchCallback(code);
 
 	return access_token;
 }
 
-export async function handleDiscordCallback(code: string): Promise<AuthenticateDiscordUserDto> {
+export async function handleDiscordCallback(code: string): Promise<any> {
 	const client = getApiClient('');
 	return client.discordCallback(code);
 }
