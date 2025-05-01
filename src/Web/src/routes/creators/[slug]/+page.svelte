@@ -21,7 +21,7 @@
 	let creator = $state(data.creator);
 
 	let history = $state<VoteDto[]>(data.creator.history);
-	let transactions = $state<CreatorTransactionDto[]>(data.creator.transactions);
+	let transactions = $state<CreatorTransactionDto[]>(data.transactions);
 	let shares = $state<ICreatorShareDto[]>(data.creator.shares);
 	setVotes(data.creator.id, data.creator.history);
 	let buySellModal: TransactionAction | null = $state(null);

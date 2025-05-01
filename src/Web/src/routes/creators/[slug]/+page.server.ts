@@ -22,7 +22,9 @@ export const load: PageServerLoad = async ({ cookies, params, url }) => {
 		return {
 			creator: creator.toJSON() as CreatorDto,
 			shares: creator.shares.map((d) => d.toJSON() as CreatorShareDto),
-			transactions: creator.transactions.map((d) => d.toJSON() as CreatorTransactionDto),
+			transactions: creator.transactions
+  			.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
+		  	.map((d) => d.toJSON() as CreatorTransactionDto),
 			interval
 		};
 	} catch (err) {
