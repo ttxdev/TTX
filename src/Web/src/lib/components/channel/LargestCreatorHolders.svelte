@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { CreatorShareDto } from '$lib/api';
+	import type { ICreatorShareDto } from '$lib/api';
 	import { formatShareAmount, formatValue } from '$lib/util';
 	import Card from '../shared/Card.svelte';
 	import PlayerPlacement from '../shared/PlayerPlacement.svelte';
 
-	let { shares, price }: { shares: CreatorShareDto[]; price: number } = $props();
+	let { shares, price }: { shares: ICreatorShareDto[]; price: number } = $props();
 	const sortedHolders = $derived(shares.toSorted((a, b) => b.quantity - a.quantity));
 
 	const total = $derived(
