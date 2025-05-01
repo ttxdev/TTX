@@ -13,7 +13,7 @@ namespace TTX.Commands.Ordering.PlaceOrder
         public async Task<Transaction> Handle(PlaceOrderCommand request, CancellationToken ct = default)
         {
             Player player = await context.Players
-                                .Include(p => p.Transactions)
+                                .Include(p => p.Transactions.OrderBy(t => t.CreatedAt))
                                 .ThenInclude(t => t.Creator)
                                 .SingleOrDefaultAsync(p => p.Id == request.Actor, ct)
                             ?? throw new PlayerNotFoundException();
