@@ -15,8 +15,8 @@ spec:
         backend:
           service:
             name: ttx-api
-            port: 
-              number: 3000
+            port:
+              number: 3030
   - host: ttx.gg
     http:
       paths:
@@ -25,5 +25,5 @@ spec:
         backend:
           service:
             name: ttx-web
-            port: 
-              number: 3001
+            port:
+              number: 3031
