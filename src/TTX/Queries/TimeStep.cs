@@ -1,4 +1,4 @@
-﻿namespace TTX.Queries.Creators
+﻿namespace TTX.Queries
 {
     public enum TimeStep
     {

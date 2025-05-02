@@ -23,7 +23,12 @@ public class IndexPlayersQueryTests : ApplicationTests
 
         var page = await Sender.Send(new IndexPlayersQuery
         {
-            Limit = limit
+            Limit = limit,
+            HistoryParams = new HistoryParams
+            {
+                Step = TimeStep.ThirtyMinute,
+                After = DateTime.UtcNow.AddDays(-1)
+            },
         });
 
         Assert.AreEqual(limit, page.Data.Length);
@@ -44,6 +49,11 @@ public class IndexPlayersQueryTests : ApplicationTests
         var page = await Sender.Send(new IndexPlayersQuery
         {
             Limit = total,
+            HistoryParams = new HistoryParams
+            {
+                After = DateTimeOffset.Now,
+                Step = TimeStep.Day
+            },
             Order = new Order<PlayerOrderBy>
             {
                 By = PlayerOrderBy.Credits,
@@ -73,6 +83,11 @@ public class IndexPlayersQueryTests : ApplicationTests
         var page = await Sender.Send(new IndexPlayersQuery
         {
             Limit = total,
+            HistoryParams = new HistoryParams
+            {
+                Step = TimeStep.ThirtyMinute,
+                After = DateTime.UtcNow.AddDays(-1)
+            },
             Order = new Order<PlayerOrderBy>
             {
                 By = PlayerOrderBy.Credits,
@@ -98,6 +113,11 @@ public class IndexPlayersQueryTests : ApplicationTests
         var player = DbContext.Players.Skip(random.Next(0, total)).First();
         var page = await Sender.Send(new IndexPlayersQuery
         {
+            HistoryParams = new HistoryParams
+            {
+                Step = TimeStep.ThirtyMinute,
+                After = DateTime.UtcNow.AddDays(-1)
+            },
             Limit = total,
             Search = player.Name
         });
