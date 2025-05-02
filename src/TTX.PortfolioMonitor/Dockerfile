@@ -10,24 +10,24 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/TTX.ValueMonitor/nuget.config", "src/TTX.ValueMonitor/"]
+COPY ["src/TTX.PortfolioMonitor/nuget.config", "src/TTX.PortfolioMonitor/"]
 COPY ["nuget.config", "."]
-COPY ["src/TTX.ValueMonitor/TTX.ValueMonitor.csproj", "src/TTX.ValueMonitor/"]
+COPY ["src/TTX.PortfolioMonitor/TTX.PortfolioMonitor.csproj", "src/TTX.PortfolioMonitor/"]
 RUN --mount=type=secret,id=github_token \
   export GITHUB_TOKEN=$(cat /run/secrets/github_token) && \
   dotnet nuget update source ttxdev --username ttxdev --password $GITHUB_TOKEN --store-password-in-clear-text && \
-  dotnet restore "./src/TTX.ValueMonitor/TTX.ValueMonitor.csproj"
+  dotnet restore "./src/TTX.PortfolioMonitor/TTX.PortfolioMonitor.csproj"
 COPY . .
-WORKDIR "/src/src/TTX.ValueMonitor"
-RUN dotnet build "./TTX.ValueMonitor.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/src/TTX.PortfolioMonitor"
+RUN dotnet build "./TTX.PortfolioMonitor.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./TTX.ValueMonitor.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./TTX.PortfolioMonitor.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TTX.ValueMonitor.dll"]
+ENTRYPOINT ["dotnet", "TTX.PortfolioMonitor.dll"]
