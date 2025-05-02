@@ -121,6 +121,31 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: ttx-portfoliomonitor
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-portfoliomonitor
+  template:
+    metadata:
+      labels:
+        app: ttx-portfoliomonitor
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+      - name: portfoliomonitor
+        image: ghcr.io/ttxdev/ttx.portfoliomonitor:main
+        imagePullPolicy: Always
+        envFrom:
+          - secretRef:
+              name: ttx-config
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: redis
   namespace: ttx
 spec:
