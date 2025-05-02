@@ -11,6 +11,8 @@ export const load = (async ({ cookies, params }) => {
 	const transactions = player.transactions.sort((b, a) => a.created_at.getTime() - b.created_at.getTime())
 		.map((t) => t.toJSON()) as PlayerTransactionDto[];
 
+	const isStreamer = client.getCreator(player.name).then(res => res !== null)
+
 	return {
 		player: {
 			...player.toJSON(),
@@ -19,6 +21,7 @@ export const load = (async ({ cookies, params }) => {
 			history: []
 		} as UserStats,
 		shares: player.shares.map((s) => s.toJSON()) as PlayerShareDto[],
-		transactions
+		transactions,
+		isStreamer
 	};
 }) satisfies PageServerLoad;

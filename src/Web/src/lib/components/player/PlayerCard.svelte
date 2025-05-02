@@ -4,7 +4,11 @@
 	import type { UserStats } from '../../../routes/+page.server';
 	import { formatValue } from '$lib/util';
 
-	let { player }: { player: UserStats; place: number } = $props();
+	let {
+		player,
+		place,
+		isStreamer
+	}: { player: UserStats; place: number; isStreamer: Promise<boolean> } = $props();
 
 	let canvas: HTMLCanvasElement | null = null;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -145,30 +149,52 @@
 <!-- Player Card Layout -->
 
 <div
-	class="player-card bg-base-200/50 w-full rounded-lg p-4 shadow-md
-         backdrop-blur backdrop-contrast-100 backdrop-saturate-100"
+	class="player-card bg-base-200/50 w-full rounded-lg p-2 shadow-md backdrop-blur
+         backdrop-contrast-100 backdrop-saturate-100 sm:p-4"
 >
 	<!-- Chart Section -->
-	<div class="m-3 flex">
-		<div class="bg-base-300 top-4 left-4 rounded-lg px-3 py-1 text-xl font-medium">
+	<div class="m-2 flex flex-col gap-2 sm:m-3 sm:flex-row sm:items-center sm:justify-between">
+		<div class="bg-base-300 rounded-lg px-2 py-1 text-base font-medium sm:text-xl">
 			Portfolio Value
 		</div>
+		{#await isStreamer then isStreamer}
+			{#if isStreamer}
+				<a
+					href="/creators/{player.name}"
+					class="bg-primary hover:bg-primary/80 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white transition-colors sm:text-sm"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-3 w-3 sm:h-4 sm:w-4"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+					<p>Switch to streamer profile</p>
+				</a>
+			{/if}
+		{/await}
 	</div>
-	<div class="chart-container relative mb-4 h-48 w-full">
+	<div class="chart-container relative mb-3 h-36 w-full sm:mb-4 sm:h-48">
 		<canvas bind:this={canvas}></canvas>
 	</div>
 
 	<!-- Bottom Info Section -->
-	<div class="flex items-center justify-between px-2">
+	<div class="flex items-center justify-between px-1 sm:px-2">
 		<!-- Left: Avatar + Name/#Place -->
-		<div class="flex items-center gap-3">
+		<div class="flex items-center gap-1.5 sm:gap-3">
 			<img
 				src={player.avatar_url}
 				alt="Avatar"
-				class="h-12 w-12 rounded-full border-2 border-white object-cover shadow-lg"
+				class="h-8 w-8 rounded-full border-2 border-white object-cover shadow-lg sm:h-12 sm:w-12"
 			/>
 			<div class="flex flex-col">
-				<span class="text-lg font-semibold">
+				<span class="text-sm font-semibold sm:text-lg">
 					{player.name}
 				</span>
 				<div class="flex">
@@ -179,7 +205,7 @@
 
 		<!-- Right: Net Value + Change -->
 		<div class="text-right">
-			<p class="text-xl font-bold">
+			<p class="text-base font-bold sm:text-xl">
 				{formatValue(player.value)}
 			</p>
 		</div>
