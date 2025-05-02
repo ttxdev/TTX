@@ -520,7 +520,7 @@ export class TTXClient {
      * @param code (optional)
      * @return OK
      */
-    discordCallback(code?: string | undefined): Promise<TokenDto> {
+    discordCallback(code?: string | undefined): Promise<DiscordTokenDto> {
         let url_ = this.baseUrl + "/sessions/discord/callback?";
         if (code === null)
             throw new Error("The parameter 'code' cannot be null.");
@@ -540,14 +540,14 @@ export class TTXClient {
         });
     }
 
-    protected processDiscordCallback(response: Response): Promise<TokenDto> {
+    protected processDiscordCallback(response: Response): Promise<DiscordTokenDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = TokenDto.fromJS(resultData200);
+            result200 = DiscordTokenDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -555,7 +555,7 @@ export class TTXClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<TokenDto>(null as any);
+        return Promise.resolve<DiscordTokenDto>(null as any);
     }
 
     /**
@@ -1277,6 +1277,64 @@ export interface ICredits {
     value: number;
 }
 
+export class DiscordTokenDto implements IDiscordTokenDto {
+    access_token!: string;
+    link_token!: string;
+    readonly twitch_users!: TwitchUserDto[];
+
+    constructor(data?: IDiscordTokenDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.twitch_users = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.access_token = _data["access_token"] !== undefined ? _data["access_token"] : <any>null;
+            this.link_token = _data["link_token"] !== undefined ? _data["link_token"] : <any>null;
+            if (Array.isArray(_data["twitch_users"])) {
+                (<any>this).twitch_users = [] as any;
+                for (let item of _data["twitch_users"])
+                    (<any>this).twitch_users!.push(TwitchUserDto.fromJS(item));
+            }
+            else {
+                (<any>this).twitch_users = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): DiscordTokenDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DiscordTokenDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["access_token"] = this.access_token !== undefined ? this.access_token : <any>null;
+        data["link_token"] = this.link_token !== undefined ? this.link_token : <any>null;
+        if (Array.isArray(this.twitch_users)) {
+            data["twitch_users"] = [];
+            for (let item of this.twitch_users)
+                data["twitch_users"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IDiscordTokenDto {
+    access_token: string;
+    link_token: string;
+    twitch_users: TwitchUserDto[];
+}
+
 export class LinkDiscordTwitchDto implements ILinkDiscordTwitchDto {
     access_token!: string;
     twitch_id!: string;
@@ -1924,6 +1982,7 @@ export interface IPlayerDtoPaginationDto {
 export enum PlayerOrderBy {
     Name = "Name",
     Credits = "Credits",
+    Portfolio = "Portfolio",
 }
 
 export class PlayerPartialDto implements IPlayerPartialDto {
@@ -2598,6 +2657,54 @@ export class TwitchId implements ITwitchId {
 
 export interface ITwitchId {
     value: string;
+}
+
+export class TwitchUserDto implements ITwitchUserDto {
+    id!: string;
+    display_name!: string;
+    login!: string;
+    avatar_url!: string;
+
+    constructor(data?: ITwitchUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.display_name = _data["display_name"] !== undefined ? _data["display_name"] : <any>null;
+            this.login = _data["login"] !== undefined ? _data["login"] : <any>null;
+            this.avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): TwitchUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TwitchUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["display_name"] = this.display_name !== undefined ? this.display_name : <any>null;
+        data["login"] = this.login !== undefined ? this.login : <any>null;
+        data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
+        return data;
+    }
+}
+
+export interface ITwitchUserDto {
+    id: string;
+    display_name: string;
+    login: string;
+    avatar_url: string;
 }
 
 export class Vote implements IVote {

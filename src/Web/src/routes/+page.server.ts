@@ -29,7 +29,7 @@ export const load: PageServerLoad = async () => {
 			}))
 		);
 	const topPlayers = await client
-		.getPlayers(1, 3, undefined, PlayerOrderBy.Credits, OrderDirection.Descending)
+		.getPlayers(1, 3, undefined, PlayerOrderBy.Portfolio, OrderDirection.Descending)
 		.then((users) =>
 			users.data.map<LinkableUser<PlayerDto>>((player) => ({
   			...player.toJSON(),
