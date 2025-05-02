@@ -5,13 +5,14 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { getRecentStreamers, type RecentStreamer } from '$lib/utils/recentStreamers';
+	import type { CreatorPartialDto, PlayerPartialDto } from '$lib/api';
 
 	let searchQuery: string = $state('');
 	let searchResults: Array<{
 		id: number;
 		name: string;
 		ticker?: string;
-		type: 'user' | 'creator';
+		type: 'player' | 'creator';
 		slug: string;
 		avatar_url: string;
 	}> = $state([]);
@@ -41,7 +42,7 @@
 			]);
 
 			searchResults = [
-				...creators.data.map((creator: any) => ({
+				...creators.data.map((creator: CreatorPartialDto) => ({
 					id: creator.id,
 					name: creator.name,
 					ticker: creator.ticker,
@@ -49,10 +50,10 @@
 					slug: creator.slug,
 					avatar_url: creator.avatar_url
 				})),
-				...players.data.map((player: any) => ({
+				...players.data.map((player: PlayerPartialDto) => ({
 					id: player.id,
 					name: player.name,
-					type: 'user' as const,
+					type: 'player' as const,
 					slug: player.name.toLowerCase(),
 					avatar_url: player.avatar_url
 				}))
@@ -111,7 +112,7 @@
 						// Handle search results
 						const searchResult = result as (typeof searchResults)[0];
 						url =
-							searchResult.type === 'user'
+							searchResult.type === 'player'
 								? `/players/${searchResult.slug}`
 								: `/creators/${searchResult.slug}`;
 					} else {
@@ -201,7 +202,7 @@
 								>
 									<td class="w-full p-0">
 										<a
-											href={result.type === 'user'
+											href={result.type === 'player'
 												? `/players/${result.slug}`
 												: `/creators/${result.slug}`}
 											onclick={handleLinkClick}
@@ -240,7 +241,7 @@
 															? 'text-purple-400'
 															: 'opacity-70'}"
 													>
-														USER
+														PLAYER
 													</div>
 												{/if}
 											</div>

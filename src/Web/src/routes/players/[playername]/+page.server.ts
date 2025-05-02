@@ -1,8 +1,8 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
 import { getToken } from '$lib/auth';
-import type { PlayerTransactionDto, PlayerShareDto } from '$lib/api';
-import type { UserStats } from '../../+page.server';
+import type { PlayerTransactionDto, PlayerShareDto, PlayerDto } from '$lib/api';
+import type { LinkableUser } from '$lib/types';
 export const load = (async ({ cookies, params }) => {
 	const token = getToken(cookies);
 	const client = getApiClient(token ?? '');
@@ -14,10 +14,8 @@ export const load = (async ({ cookies, params }) => {
 	return {
 		player: {
 			...player.toJSON(),
-			value: player.credits,
 			url: `https://www.twitch.tv/${player.name}`,
-			history: []
-		} as UserStats,
+		} as LinkableUser<PlayerDto>,
 		shares: player.shares.map((s) => s.toJSON()) as PlayerShareDto[],
 		transactions
 	};
