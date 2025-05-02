@@ -20,7 +20,7 @@ namespace TTX.Queries.Players.IndexPlayers
 
             return new Pagination<Player>
             {
-                Total = total, 
+                Total = total,
                 Data =
                 [
                     ..players.Select(p =>
@@ -48,6 +48,9 @@ namespace TTX.Queries.Players.IndexPlayers
                 PlayerOrderBy.Credits => (o.Dir == OrderDirection.Ascending
                     ? query.OrderBy(p => p.Credits)
                     : query.OrderByDescending(p => p.Credits)).ThenBy(p => p.Name),
+                PlayerOrderBy.Portfolio => (o.Dir == OrderDirection.Ascending
+                    ? query.OrderBy(p => p.Portfolio)
+                    : query.OrderByDescending(p => p.Portfolio)).ThenBy(p => p.Name),
                 _ => query.OrderBy(p => p.Name)
             };
         }
