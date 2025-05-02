@@ -48,6 +48,7 @@ builder.Services
     .AddOpenApi()
     .AddSingleton<CreateTransactionNotificationHandler>()
     .AddSingleton<UpdateCreatorValueNotificationHandler>()
+    .AddSingleton<UpdatePlayerPortfolioNotificationHandler>()
     .AddSingleton<IConfigProvider>(config)
     .AddDbContextPool<ApplicationDbContext>(
         options =>
@@ -79,6 +80,7 @@ builder.Services
         cfg.RegisterServicesFromAssemblyContaining<AssemblyReference>();
     })
     .AddHostedService<UpdateCreatorValueNotificationHandler>()
+    .AddHostedService<UpdatePlayerPortfolioNotificationHandler>()
     .AddHostedService<CreateTransactionNotificationHandler>()
     .AddHostedService<UpdateStreamStatusNotificationHandler>()
     .AddTransient<ISessionService, SessionService>();
