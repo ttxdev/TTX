@@ -1,6 +1,5 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
-import { getToken } from '$lib/auth';
 import {
 	CreatorOrderBy,
 	OrderDirection,
@@ -10,8 +9,8 @@ import {
 } from '$lib/api';
 import type { LinkableUser } from '$lib/types';
 
-export const load: PageServerLoad = async ({ cookies }) => {
-	const client = getApiClient(getToken(cookies) ?? '');
+export const load: PageServerLoad = async () => {
+	const client = getApiClient('');
 	const featuredCreator = await client.getCreator('dougdoug').then((channel) => channel.toJSON());
 	const featuredCreators = await client
 		.getCreators(1, 3, undefined, CreatorOrderBy.IsLive, OrderDirection.Descending)

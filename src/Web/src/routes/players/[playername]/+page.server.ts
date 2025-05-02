@@ -1,12 +1,10 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
-import { getToken } from '$lib/auth';
 import type { PlayerTransactionDto, PlayerShareDto, PlayerDto } from '$lib/api';
 import type { LinkableUser } from '$lib/types';
-export const load = (async ({ cookies, params }) => {
-	const token = getToken(cookies);
-	const client = getApiClient(token ?? '');
 
+export const load = (async ({ params }) => {
+	const client = getApiClient('');
 	const player = await client.getPlayer(params.playername);
 	const transactions = player.transactions.sort((b, a) => a.created_at.getTime() - b.created_at.getTime())
 		.map((t) => t.toJSON()) as PlayerTransactionDto[];

@@ -1,10 +1,9 @@
 import type { PageServerLoad } from './$types';
 import { getApiClient } from '$lib';
-import { getToken } from '$lib/auth';
 import { CreatorOrderBy, OrderDirection } from '$lib/api';
 
-export const load: PageServerLoad = async ({ cookies, url }) => {
-	const client = getApiClient(getToken(cookies) ?? '');
+export const load: PageServerLoad = async ({ url }) => {
+	const client = getApiClient('');
 	const page = Number(url.searchParams.get('page')) || 1;
 	const orderBy = url.searchParams.get('orderBy') || 'Name';
 	const orderDir =

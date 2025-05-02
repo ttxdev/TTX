@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { getContext, onMount } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { errorToast } from '$lib/toast';
 	import { formatTicker, formatValue } from '$lib/util';
@@ -7,7 +7,6 @@
 	import { invalidateAll } from '$app/navigation';
 	import { CreateTransactionDto, TransactionAction, type TTXClient } from '$lib/api';
 	import { Tween } from 'svelte/motion';
-	import { token, user } from '$lib/stores/data';
 
 	type ModalProps = {
 		type: TransactionAction | null;
@@ -141,10 +140,11 @@
 	}
 
 	async function initModal(): Promise<void> {
-		if ($user && $token) {
+     	const token = getContext('token');
+		if (token) {
 			isLoading = true;
 			try {
-				client = getApiClient($token);
+				client = getApiClient(getContext('token'));
 				const user = await client.getSelf();
 				userBalance = user.credits;
 				userOwns = user.shares.find((share) => share.creator.slug === slug)?.quantity || 0;

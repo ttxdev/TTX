@@ -55,8 +55,8 @@ public class SessionService(
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            "api.ttx.gg",
-            "ttx.gg",
+            issuer: "api.ttx.gg",
+            audience: "ttx.gg",
             claims,
             expires: DateTime.Now.AddDays(7),
             signingCredentials: creds
@@ -70,7 +70,7 @@ public class SessionService(
         var claims = new[]
         {
             new Claim("connections", JsonSerializer.Serialize(
-                result.TwitchUsers.Select(u => new TwitchUserDto(u))
+                result.TwitchUsers.Select(u => TwitchUserDto.Create(u))
             ))
         };
 
@@ -78,8 +78,8 @@ public class SessionService(
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            "api.ttx.gg",
-            "discord.ttx.gg",
+            issuer: "api.ttx.gg",
+            audience: "discord.ttx.gg",
             claims,
             expires: DateTime.Now.AddDays(1),
             signingCredentials: creds
@@ -98,7 +98,7 @@ public class SessionService(
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "ttx.gg",
+            ValidIssuer = "api.ttx.gg",
             ValidAudience = "discord.ttx.gg",
             IssuerSigningKey = new SymmetricSecurityKey(key)
         };

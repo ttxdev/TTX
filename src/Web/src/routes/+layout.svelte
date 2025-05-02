@@ -3,7 +3,7 @@
 	import Navbar from '$lib/components/Navbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import type { LayoutProps } from './$types';
-	import { onMount } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import { ProgressBar } from '@prgm/sveltekit-progress-bar';
 	import { Toaster } from 'svelte-french-toast';
 	import Search from '$lib/components/Search.svelte';
@@ -11,7 +11,6 @@
 	import { PUBLIC_API_BASE_URL as apiBaseUrl } from '$env/static/public';
 	import { patchUrlMappings } from '@discord/embedded-app-sdk';
 	import { discordSdk } from '$lib/discord';
-	import { token, user } from '$lib/stores/data';
 	import { startConnection } from '$lib/signalr';
 	import type { CreatorTransactionDto, VoteDto } from '$lib/api';
 	import { addVote } from '$lib/stores/votes';
@@ -19,11 +18,11 @@
 
 	let { data, children }: LayoutProps = $props();
 
-	user.set(data.user);
-	token.set(data.token);
-
 	let searchModal = $state(false);
 	let showDrawer = $state(false);
+
+	setContext('user', data.user)
+	setContext('token', data.token);
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {

@@ -19,7 +19,6 @@ using TTX.Infrastructure.Discord;
 using TTX.Infrastructure.Twitch;
 using TTX.Interfaces.Discord;
 using TTX.Interfaces.Twitch;
-
 [assembly: ApiController]
 
 var builder = WebApplication.CreateBuilder(args);

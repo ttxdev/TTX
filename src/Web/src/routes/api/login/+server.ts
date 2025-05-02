@@ -1,5 +1,5 @@
+import { requestLogin } from '$lib/auth/sessions';
 import { type RequestHandler } from '@sveltejs/kit';
-import { requestLogin } from '$lib/auth';
 
 export const GET: RequestHandler = ({ cookies, url }) => {
 	const from = url.searchParams.get('from') ?? '/';
