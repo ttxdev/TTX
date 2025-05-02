@@ -49,20 +49,24 @@ namespace TTX.Infrastructure.Data
                     .HasConversion(new CreditsConverter())
                     .HasColumnOrder(5)
                     .HasColumnName("credits");
-                entity.Property(u => u.Type)
+                entity.Property(u => u.Portfolio)
                     .HasColumnOrder(6)
+                    .HasColumnName("portfolio");
+                entity.Property(u => u.Type)
+                    .HasColumnOrder(7)
                     .HasConversion(
                         t => t.ToString(),
                         t => Enum.Parse<PlayerType>(t)
                     )
                     .HasColumnName("type");
                 entity.Property(l => l.CreatedAt)
-                    .HasColumnOrder(7)
+                    .HasColumnOrder(8)
                     .HasColumnName("created_at");
                 entity.Property(l => l.UpdatedAt)
-                    .HasColumnOrder(8)
+                    .HasColumnOrder(9)
                     .HasColumnName("updated_at");
 
+                entity.Ignore(p => p.History);
                 entity.HasMany(c => c.Transactions)
                     .WithOne(t => t.Player)
                     .HasForeignKey(t => t.PlayerId)
@@ -178,6 +182,30 @@ namespace TTX.Infrastructure.Data
                     .IsRequired();
 
                 entity.HasIndex(v => new { v.CreatorId, v.Time });
+            });
+
+            modelBuilder.Entity<PortfolioSnapshot>(entity =>
+            {
+                entity.ToTable("player_portfolios");
+
+                entity.HasNoKey();
+                entity.Property(p => p.PlayerId)
+                    .HasConversion(new ModelIdConverter())
+                    .HasColumnOrder(0)
+                    .HasColumnName("player_id");
+                entity.Property(p => p.Value)
+                    .HasColumnOrder(2)
+                    .HasColumnName("value");
+                entity.Property(p => p.Time)
+                    .HasColumnOrder(3)
+                    .HasColumnName("time");;
+                
+                entity.HasOne(p => p.Player)
+                    .WithMany()
+                    .HasForeignKey(p => p.PlayerId)
+                    .IsRequired();
+
+                entity.HasIndex(p => new { p.PlayerId, p.Time });
             });
 
             modelBuilder.Entity<LootBox>(entity =>
@@ -305,6 +333,7 @@ namespace TTX.Infrastructure.Data
         public DbSet<Player> Players => Set<Player>();
         public DbSet<Creator> Creators => Set<Creator>();
         public DbSet<Transaction> Transactions => Set<Transaction>();
+        public DbSet<PortfolioSnapshot> Portfolios => Set<PortfolioSnapshot>();
         public DbSet<LootBox> LootBoxes => Set<LootBox>();
         public DbSet<Vote> Votes => Set<Vote>();
 

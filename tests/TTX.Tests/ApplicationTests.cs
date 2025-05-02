@@ -15,13 +15,14 @@ public abstract class ApplicationTests
     protected IServiceProvider ServiceProvider { get; private set; } = null!;
     protected ISender Sender { get; private set; } = null!;
     protected ApplicationDbContext DbContext { get; private set; } = null!;
+    protected Random Seed { get; private set; } = null!;
 
     [TestInitialize]
     public void Setup()
     {
         var seedI = new Random().Next(1, 1000);
-        var seed = new Random(seedI);
-        Randomizer.Seed = seed;
+        Seed = new Random(seedI);
+        Randomizer.Seed = Seed;
         Console.WriteLine($"Using seed {seedI}");
 
         ServiceProvider = new ServiceCollection()
@@ -35,12 +36,13 @@ public abstract class ApplicationTests
                 cfg.RegisterServicesFromAssemblyContaining<AssemblyReference>();
                 cfg.RegisterServicesFromAssemblyContaining<ApplicationTests>();
             })
-            .AddSingleton(seed)
+            .AddSingleton(Seed)
             .AddSingleton<CreateCreatorNotificationHandler>()
             .AddSingleton<CreatePlayerNotificationHandler>()
             .AddSingleton<UpdateCreatorValueNotificationHandler>()
             .AddSingleton<OpenLootBoxNotificationHandler>()
             .AddSingleton<CreateTransactionNotificationHandler>()
+            .AddSingleton<UpdatePlayerPortfolioNotificationHandler>()
             .AddSingleton<ITwitchAuthService, TwitchAuthService>(_ => new TwitchAuthService())
             .AddSingleton<IConnectionMultiplexer>(_ =>
                 ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("TTX_REDIS_URL")!))
@@ -48,6 +50,7 @@ public abstract class ApplicationTests
 
         DbContext = ServiceProvider.GetRequiredService<ApplicationDbContext>();
         Sender = ServiceProvider.GetRequiredService<ISender>();
+        TestNotificationHandler.Notifications.Clear();
         DbContext.Database.EnsureDeleted();
         DbContext.Database.EnsureCreated();
     }
