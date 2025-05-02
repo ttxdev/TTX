@@ -7,60 +7,58 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { setVotes, voteStore } from '$lib/stores/votes';
 	import {
-		CreatorTransactionDto,
 		TransactionAction,
-		VoteDto,
 		type ICreatorShareDto
 	} from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
 	import { discordSdk } from '$lib/discord';
 	import type { PageProps } from './$types';
-	import { transactionStore } from '$lib/stores/transactions';
+	import { setTransactions, transactionStore } from '$lib/stores/transactions';
 
 	let { data }: PageProps = $props();
-	let creator = $state(data.creator);
-
-	let history = $state<VoteDto[]>(data.creator.history);
-	let transactions = $state<CreatorTransactionDto[]>(data.transactions);
-	let shares = $state<ICreatorShareDto[]>(data.creator.shares);
-	setVotes(data.creator.id, data.creator.history);
+	let creator = $derived(data.creator);
 	let buySellModal: TransactionAction | null = $state(null);
-	let interval = $state(data.interval);
+	let interval = $derived(data.interval);
+
+	$effect(() => {
+		setTransactions(data.creator.id, data.transactions);
+		setVotes(data.creator.id, data.creator.history);
+	});
+
+	let history = $derived.by(() => $voteStore.get(creator.id) ?? data.creator.history);
+	let transactions = $derived.by(() => {
+		return ($transactionStore.get(creator.id) ?? data.transactions).toSorted(
+			(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+		);
+	});
+
+	let shares = $derived.by(() => {
+		const storeTxs = ($transactionStore.get(creator.id) ?? data.transactions)
+			.toSorted((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+		const newShares = new Map<number, ICreatorShareDto>();
+
+		storeTxs.forEach((t) => {
+			const share: ICreatorShareDto = newShares.get(t.player_id) ?? {
+				player: t.player,
+				quantity: 0
+			};
+
+			if (t.action === TransactionAction.Buy) {
+				share.quantity += t.quantity;
+			} else if (t.action === TransactionAction.Sell) {
+				share.quantity -= t.quantity;
+			}
+
+			newShares.set(t.player.id, share);
+		});
+
+		return Array.from(newShares.values())
+			.filter((share) => share.quantity > 0);
+	});
+
 	function setModal(modal: TransactionAction) {
 		buySellModal = modal;
 	}
-
-	voteStore.subscribe((store) => {
-		const votes = store.get(data.creator.id);
-		if (votes) {
-			history = votes;
-		}
-	});
-
-	transactionStore.subscribe((store) => {
-		const storeTxs = store.get(data.creator.id);
-		if (!storeTxs) {
-			return;
-		}
-
-		transactions = storeTxs;
-		const newShares: ICreatorShareDto[] = [];
-		shares.forEach((share: ICreatorShareDto) => {
-			storeTxs.forEach((t) => {
-				if (t.action === TransactionAction.Buy) {
-					share.quantity += t.quantity;
-				} else if (t.action === TransactionAction.Sell) {
-					share.quantity -= t.quantity;
-				}
-			});
-
-			if (share.quantity > 0) {
-				newShares.push(share);
-			}
-		});
-
-		shares = newShares;
-	});
 
 	onDestroy(() => {
 		if (discordSdk) {
@@ -100,13 +98,6 @@
 				}
 			});
 		}
-	});
-
-	$effect(() => {
-		if (data.creator.slug === creator.slug && data.interval === interval) return;
-		creator = data.creator;
-		history = data.creator.history;
-		interval = data.interval;
 	});
 </script>
 
