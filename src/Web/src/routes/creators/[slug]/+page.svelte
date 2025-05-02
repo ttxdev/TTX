@@ -127,11 +127,34 @@
 <section class="mx-auto flex w-full max-w-[1000px] flex-col gap-4 p-4">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
 		<h1 class="text-2xl font-bold">{creator.name}</h1>
+		{#await data.isPlayer then isPlayer}
+			{#if isPlayer}
+				<a
+					href="/players/{creator.slug}"
+					class="bg-primary hover:bg-primary/80 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white transition-colors sm:text-sm"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-3 w-3 sm:h-4 sm:w-4"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+					<p>Switch to player profile</p>
+				</a>
+			{/if}
+		{/await}
 		<div class="flex justify-end">
 			<IntervalSelector {interval} />
 		</div>
 	</div>
 	<CreatorCard {creator} {history} />
+
 	<div class="flex flex-col gap-4 md:flex-row">
 		<div class="divider divider-vertical md:hidden"></div>
 		<div class="join flex w-full flex-col items-center justify-center md:flex-row">
