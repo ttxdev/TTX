@@ -5,7 +5,6 @@ using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 using TTX.Notifications.Players;
-using TTX.ValueObjects;
 
 namespace TTX.Commands.Players.CalculatePortfolio
 {
@@ -23,12 +22,7 @@ namespace TTX.Commands.Players.CalculatePortfolio
                                 .ThenInclude(t => t.Creator)
                                 .SingleOrDefaultAsync(p => p.Id == request.PlayerId, ct) ??
                             throw new PlayerNotFoundException();
-            Transaction[] transactions = await GetTransactions(player.Id, last, ct);
-            if (transactions.Length == 0 && last is not null)
-            {
-                return last;
-            }
-            
+
             PortfolioSnapshot snapshot = CalculatePortfolio(player);
 
             await context.Database.ExecuteSqlAsync(
@@ -49,18 +43,6 @@ namespace TTX.Commands.Players.CalculatePortfolio
                     (acc, share) => acc + (share.Creator.Value * share.Quantity.Value));
 
             return player.RecordPortfolio(portfolio);
-        }
-
-        private async Task<Transaction[]> GetTransactions(ModelId playerId, PortfolioSnapshot? last = null,
-            CancellationToken ct = default)
-        {
-            IQueryable<Transaction> query = context.Transactions.Where(t => t.PlayerId == playerId);
-            if (last is not null)
-            {
-                query = query.Where(t => t.CreatedAt > last.Time);
-            }
-
-            return await query.OrderBy(t => t.CreatedAt).ToArrayAsync(ct);
         }
     }
 }
