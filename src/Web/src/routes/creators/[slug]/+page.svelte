@@ -7,9 +7,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { setVotes, voteStore } from '$lib/stores/votes';
 	import {
-		CreatorTransactionDto,
 		TransactionAction,
-		VoteDto,
 		type ICreatorShareDto
 	} from '$lib/api';
 	import { addRecentStreamer } from '$lib/utils/recentStreamers';
@@ -18,41 +16,27 @@
 	import { setTransactions, transactionStore } from '$lib/stores/transactions';
 
 	let { data }: PageProps = $props();
-	let creator = $state.raw(data.creator);
-	let history = $state.raw<VoteDto[]>([]);
-	let transactions = $state.raw<CreatorTransactionDto[]>(data.transactions);
-	let shares = $state.raw<ICreatorShareDto[]>(data.creator.shares);
+	let creator = $derived(data.creator);
 	let buySellModal: TransactionAction | null = $state(null);
-	let interval = $state(data.interval);
-	function setModal(modal: TransactionAction) {
-		buySellModal = modal;
-	}
+	let interval = $derived(data.interval);
 
-	voteStore.subscribe((store) => {
-		const votes = store.get(creator.id);
-		if (votes) {
-			history = votes;
-		}
+	$effect(() => {
+		setTransactions(data.creator.id, data.transactions);
+		setVotes(data.creator.id, data.creator.history);
 	});
 
-	transactionStore.subscribe((store) => {
-		const storeTxs = store.get(creator.id);
-		if (storeTxs) {
-			transactions = storeTxs.toSorted(
-				(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-			);
-		}
+	let history = $derived.by(() => $voteStore.get(creator.id) ?? data.creator.history);
+	let transactions = $derived.by(() => {
+		return ($transactionStore.get(creator.id) ?? data.transactions).toSorted(
+			(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+		);
 	});
 
-	transactionStore.subscribe((store) => {
-		const storeTxs = store
-			.get(data.creator.id)
-			?.toSorted((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-		if (!storeTxs) {
-			return;
-		}
-
+	let shares = $derived.by(() => {
+		const storeTxs = ($transactionStore.get(creator.id) ?? data.transactions)
+			.toSorted((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 		const newShares = new Map<number, ICreatorShareDto>();
+
 		storeTxs.forEach((t) => {
 			const share: ICreatorShareDto = newShares.get(t.player_id) ?? {
 				player: t.player,
@@ -65,14 +49,16 @@
 				share.quantity -= t.quantity;
 			}
 
-			newShares.set(share.player.id, share);
+			newShares.set(t.player.id, share);
 		});
 
-		shares = newShares
-			.values()
-			.filter((share) => share.quantity > 0)
-			.toArray();
+		return Array.from(newShares.values())
+			.filter((share) => share.quantity > 0);
 	});
+
+	function setModal(modal: TransactionAction) {
+		buySellModal = modal;
+	}
 
 	onDestroy(() => {
 		if (discordSdk) {
@@ -112,21 +98,6 @@
 				}
 			});
 		}
-	});
-
-	onMount(() => {
-		setTransactions(data.creator.id, data.transactions);
-		setVotes(data.creator.id, data.creator.history);
-	});
-
-	$effect(() => {
-		if (data.creator.slug === creator.slug && data.interval === interval) return;
-
-		creator = data.creator;
-		interval = data.interval;
-		shares = data.creator.shares;
-		setTransactions(data.creator.id, data.transactions);
-		setVotes(data.creator.id, data.creator.history);
 	});
 </script>
 
