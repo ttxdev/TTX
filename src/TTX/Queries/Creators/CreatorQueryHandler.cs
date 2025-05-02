@@ -24,13 +24,13 @@ namespace TTX.Queries.Creators
             string creatorIdsStr = string.Join(", ", creatorIds);
             string sql = $@"
             SELECT
-                votes.creator_id AS ""CreatorId"", 
+                votes.creator_id AS ""CreatorId"",
                 time_bucket_gapfill(
-                    '{interval}', 
+                    '{interval}',
                     votes.time,
                     '{after.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
                     now()
-                ) AS ""Bucket"", 
+                ) AS ""Bucket"",
                 locf (last (votes.value, votes.time)) AS ""Value""
             FROM votes
             WHERE votes.creator_id IN ({creatorIdsStr})
@@ -63,7 +63,7 @@ namespace TTX.Queries.Creators
                     continue;
                 }
 
-                int value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetInt32(2);
+                long value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetInt64(2);
                 Creator creator = creators.First(c => c.Id.Value == creatorId);
                 result[creatorId]
                     .Add(new Vote { Creator = creator, CreatorId = creator.Id, Time = time, Value = value });

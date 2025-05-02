@@ -24,13 +24,13 @@ namespace TTX.Queries.Players
             string playerIdsStr = string.Join(", ", playerIds);
             string sql = $@"
             SELECT
-                player_portfolios.player_id AS ""PlayerId"", 
+                player_portfolios.player_id AS ""PlayerId"",
                 time_bucket_gapfill(
-                    '{interval}', 
+                    '{interval}',
                     player_portfolios.time,
                     '{after.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
                     now()
-                ) AS ""Bucket"", 
+                ) AS ""Bucket"",
                 locf (last (player_portfolios.value, player_portfolios.time)) AS ""Value""
             FROM player_portfolios
             WHERE player_portfolios.player_id IN ({playerIdsStr})
@@ -63,7 +63,7 @@ namespace TTX.Queries.Players
                     continue;
                 }
 
-                int value = rows.IsDBNull(2) ? Player.MinPortfolio : rows.GetInt32(2);
+                long value = rows.IsDBNull(2) ? Player.MinPortfolio : rows.GetInt64(2);
                 Player player = players.First(c => c.Id.Value == playerId);
                 result[playerId]
                     .Add(new PortfolioSnapshot { Player = player, PlayerId = player.Id, Time = time, Value = value });
