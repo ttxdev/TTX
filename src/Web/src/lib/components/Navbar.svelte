@@ -100,7 +100,7 @@
 	<div class="navbar-center hidden lg:flex">
 		<ul bind:this={navContainer} class="menu menu-horizontal relative px-1">
 			<div
-				class="absolute rounded-2xl bg-purple-400/20"
+				class="absolute rounded-2xl bg-purple-400/20 duration-100 animate-all"
 				style="left: {indicatorLeft.current}px; width: {indicatorWidth.current}px; top: 0; bottom: 0; z-index: 0;"
 			></div>
 
