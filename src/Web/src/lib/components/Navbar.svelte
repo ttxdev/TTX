@@ -7,7 +7,7 @@
 
 	let { searchModal = $bindable() }: { searchModal: boolean } = $props();
 
-	const user = getContext<IPlayerDto>('user')
+	const user = getContext<IPlayerDto>('user');
 	let isMenuOpen = $state(false);
 
 	function toggleMenu() {
@@ -18,6 +18,7 @@
 	let navLinks = $state(new Map<string, HTMLElement>());
 	let homeEl: HTMLElement | null = $state(null);
 	let channelsEl: HTMLElement | null = $state(null);
+	let leaderboardEl: HTMLElement | null = $state(null);
 	let teamEl: HTMLElement | null = $state(null);
 
 	const indicatorLeft = new Spring(0, { stiffness: 0.2, damping: 0.4 });
@@ -26,6 +27,7 @@
 	$effect(() => {
 		if (homeEl) navLinks.set('/', homeEl);
 		if (channelsEl) navLinks.set('/creators', channelsEl);
+		if (leaderboardEl) navLinks.set('/leaderboard', leaderboardEl);
 		if (teamEl) navLinks.set('/team', teamEl);
 	});
 
@@ -94,6 +96,11 @@
 			<li>
 				<a bind:this={channelsEl} href="/creators" class="relative z-10 hover:bg-transparent">
 					Creators
+				</a>
+			</li>
+			<li>
+				<a bind:this={leaderboardEl} href="/leaderboard" class="relative z-10 hover:bg-transparent">
+					Leaderboard
 				</a>
 			</li>
 			<li>
@@ -185,7 +192,7 @@
 {/if}
 
 <div
-	class="fixed top-0 left-0 z-50 h-screen w-64 bg-white shadow-lg backdrop-blur backdrop-contrast-100 backdrop-saturate-200 backdrop-filter transition-all duration-500 ease-in-out lg:hidden dark:bg-black"
+	class="fixed left-0 top-0 z-50 h-screen w-64 bg-white shadow-lg backdrop-blur backdrop-contrast-100 backdrop-saturate-200 backdrop-filter transition-all duration-500 ease-in-out lg:hidden dark:bg-black"
 	class:translate-x-0={isMenuOpen}
 	class:-translate-x-full={!isMenuOpen}
 >
@@ -231,6 +238,16 @@
 						onclick={toggleMenu}
 					>
 						Creators
+					</a>
+				</li>
+				<li>
+					<a
+						href="/leaderboard"
+						class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100"
+						class:underline={page.url.pathname === '/leaderboard'}
+						onclick={toggleMenu}
+					>
+						Leaderboard
 					</a>
 				</li>
 				<li>
