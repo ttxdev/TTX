@@ -9,7 +9,7 @@ namespace TTX.Dto
 
         [JsonPropertyName("slug")] public required string Slug { get; init; }
 
-        [JsonPropertyName("twitch_id")] public required TwitchId TwitchId { get; init; }
+        [JsonPropertyName("twitch_id")] public required string TwitchId { get; init; }
 
         [JsonPropertyName("url")] public string Url => $"https://twitch.tv/{Slug}";
 
