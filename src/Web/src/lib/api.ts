@@ -19,11 +19,11 @@ export class TTXClient {
     }
 
     /**
-     * @param page (optional)
-     * @param limit (optional)
-     * @param search (optional)
-     * @param orderBy (optional)
-     * @param orderDir (optional)
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @param search (optional) 
+     * @param orderBy (optional) 
+     * @param orderDir (optional) 
      * @return OK
      */
     getCreators(page?: number | undefined, limit?: number | undefined, search?: string | undefined, orderBy?: CreatorOrderBy | undefined, orderDir?: OrderDirection | undefined): Promise<CreatorPartialDtoPaginationDto> {
@@ -81,7 +81,7 @@ export class TTXClient {
     }
 
     /**
-     * @param username (optional)
+     * @param username (optional) 
      * @return OK
      */
     createCreator(value: string, username?: string | undefined): Promise<CreatorDto> {
@@ -127,8 +127,8 @@ export class TTXClient {
     }
 
     /**
-     * @param step (optional)
-     * @param after (optional)
+     * @param step (optional) 
+     * @param after (optional) 
      * @return OK
      */
     getCreator(slug: string, step?: TimeStep | undefined, after?: Date | undefined): Promise<CreatorDto> {
@@ -177,8 +177,8 @@ export class TTXClient {
     }
 
     /**
-     * @param after (optional)
-     * @param step (optional)
+     * @param after (optional) 
+     * @param step (optional) 
      * @return OK
      */
     getLatestCreatorValue(creatorSlug: string, after?: Date | undefined, step?: TimeStep | undefined): Promise<Vote[]> {
@@ -234,7 +234,7 @@ export class TTXClient {
     }
 
     /**
-     * @param slug (optional)
+     * @param slug (optional) 
      * @return OK
      */
     getCreatorTransactions(creatorSlug: string, slug?: string | undefined): Promise<PlayerTransactionDto[]> {
@@ -286,11 +286,11 @@ export class TTXClient {
     }
 
     /**
-     * @param page (optional)
-     * @param limit (optional)
-     * @param search (optional)
-     * @param orderBy (optional)
-     * @param orderDir (optional)
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @param search (optional) 
+     * @param orderBy (optional) 
+     * @param orderDir (optional) 
      * @return OK
      */
     getPlayers(page?: number | undefined, limit?: number | undefined, search?: string | undefined, orderBy?: PlayerOrderBy | undefined, orderDir?: OrderDirection | undefined): Promise<PlayerDtoPaginationDto> {
@@ -348,8 +348,8 @@ export class TTXClient {
     }
 
     /**
-     * @param step (optional)
-     * @param after (optional)
+     * @param step (optional) 
+     * @param after (optional) 
      * @return OK
      */
     getPlayer(username: string, step?: TimeStep | undefined, after?: Date | undefined): Promise<PlayerDto> {
@@ -475,7 +475,7 @@ export class TTXClient {
     }
 
     /**
-     * @param code (optional)
+     * @param code (optional) 
      * @return OK
      */
     twitchCallback(code?: string | undefined): Promise<TokenDto> {
@@ -517,7 +517,7 @@ export class TTXClient {
     }
 
     /**
-     * @param code (optional)
+     * @param code (optional) 
      * @return OK
      */
     discordCallback(code?: string | undefined): Promise<DiscordTokenDto> {
@@ -559,7 +559,7 @@ export class TTXClient {
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     linkDiscordTwitch(body?: LinkDiscordTwitchDto | undefined): Promise<TokenDto> {
@@ -601,7 +601,7 @@ export class TTXClient {
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     placeOrder(body?: CreateTransactionDto | undefined): Promise<CreatorTransactionDto> {
@@ -806,7 +806,7 @@ export class CreatorDto implements ICreatorDto {
     updated_at!: Date;
     name!: string;
     slug!: string;
-    twitch_id!: TwitchId;
+    twitch_id!: string;
     readonly url!: string;
     avatar_url!: string;
     ticker!: string;
@@ -824,7 +824,6 @@ export class CreatorDto implements ICreatorDto {
             }
         }
         if (!data) {
-            this.twitch_id = new TwitchId();
             this.stream_status = new StreamStatusDto();
             this.history = [];
             this.transactions = [];
@@ -839,7 +838,7 @@ export class CreatorDto implements ICreatorDto {
             this.updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.slug = _data["slug"] !== undefined ? _data["slug"] : <any>null;
-            this.twitch_id = _data["twitch_id"] ? TwitchId.fromJS(_data["twitch_id"]) : new TwitchId();
+            this.twitch_id = _data["twitch_id"] !== undefined ? _data["twitch_id"] : <any>null;
             (<any>this).url = _data["url"] !== undefined ? _data["url"] : <any>null;
             this.avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
             this.ticker = _data["ticker"] !== undefined ? _data["ticker"] : <any>null;
@@ -886,7 +885,7 @@ export class CreatorDto implements ICreatorDto {
         data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["slug"] = this.slug !== undefined ? this.slug : <any>null;
-        data["twitch_id"] = this.twitch_id ? this.twitch_id.toJSON() : <any>null;
+        data["twitch_id"] = this.twitch_id !== undefined ? this.twitch_id : <any>null;
         data["url"] = this.url !== undefined ? this.url : <any>null;
         data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
         data["ticker"] = this.ticker !== undefined ? this.ticker : <any>null;
@@ -917,7 +916,7 @@ export interface ICreatorDto {
     updated_at: Date;
     name: string;
     slug: string;
-    twitch_id: TwitchId;
+    twitch_id: string;
     url: string;
     avatar_url: string;
     ticker: string;
@@ -940,7 +939,7 @@ export class CreatorPartialDto implements ICreatorPartialDto {
     updated_at!: Date;
     name!: string;
     slug!: string;
-    twitch_id!: TwitchId;
+    twitch_id!: string;
     readonly url!: string;
     avatar_url!: string;
     ticker!: string;
@@ -956,7 +955,6 @@ export class CreatorPartialDto implements ICreatorPartialDto {
             }
         }
         if (!data) {
-            this.twitch_id = new TwitchId();
             this.stream_status = new StreamStatusDto();
             this.history = [];
         }
@@ -969,7 +967,7 @@ export class CreatorPartialDto implements ICreatorPartialDto {
             this.updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.slug = _data["slug"] !== undefined ? _data["slug"] : <any>null;
-            this.twitch_id = _data["twitch_id"] ? TwitchId.fromJS(_data["twitch_id"]) : new TwitchId();
+            this.twitch_id = _data["twitch_id"] !== undefined ? _data["twitch_id"] : <any>null;
             (<any>this).url = _data["url"] !== undefined ? _data["url"] : <any>null;
             this.avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
             this.ticker = _data["ticker"] !== undefined ? _data["ticker"] : <any>null;
@@ -1000,7 +998,7 @@ export class CreatorPartialDto implements ICreatorPartialDto {
         data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["slug"] = this.slug !== undefined ? this.slug : <any>null;
-        data["twitch_id"] = this.twitch_id ? this.twitch_id.toJSON() : <any>null;
+        data["twitch_id"] = this.twitch_id !== undefined ? this.twitch_id : <any>null;
         data["url"] = this.url !== undefined ? this.url : <any>null;
         data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
         data["ticker"] = this.ticker !== undefined ? this.ticker : <any>null;
@@ -1021,7 +1019,7 @@ export interface ICreatorPartialDto {
     updated_at: Date;
     name: string;
     slug: string;
-    twitch_id: TwitchId;
+    twitch_id: string;
     url: string;
     avatar_url: string;
     ticker: string;
@@ -1784,7 +1782,7 @@ export class PlayerDto implements IPlayerDto {
     updated_at!: Date;
     name!: string;
     slug!: string;
-    twitch_id!: TwitchId;
+    twitch_id!: string;
     readonly url!: string;
     avatar_url!: string;
     credits!: number;
@@ -1804,7 +1802,6 @@ export class PlayerDto implements IPlayerDto {
             }
         }
         if (!data) {
-            this.twitch_id = new TwitchId();
             this.transactions = [];
             this.loot_boxes = [];
             this.shares = [];
@@ -1819,7 +1816,7 @@ export class PlayerDto implements IPlayerDto {
             this.updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.slug = _data["slug"] !== undefined ? _data["slug"] : <any>null;
-            this.twitch_id = _data["twitch_id"] ? TwitchId.fromJS(_data["twitch_id"]) : new TwitchId();
+            this.twitch_id = _data["twitch_id"] !== undefined ? _data["twitch_id"] : <any>null;
             (<any>this).url = _data["url"] !== undefined ? _data["url"] : <any>null;
             this.avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
             this.credits = _data["credits"] !== undefined ? _data["credits"] : <any>null;
@@ -1875,7 +1872,7 @@ export class PlayerDto implements IPlayerDto {
         data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["slug"] = this.slug !== undefined ? this.slug : <any>null;
-        data["twitch_id"] = this.twitch_id ? this.twitch_id.toJSON() : <any>null;
+        data["twitch_id"] = this.twitch_id !== undefined ? this.twitch_id : <any>null;
         data["url"] = this.url !== undefined ? this.url : <any>null;
         data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
         data["credits"] = this.credits !== undefined ? this.credits : <any>null;
@@ -1912,7 +1909,7 @@ export interface IPlayerDto {
     updated_at: Date;
     name: string;
     slug: string;
-    twitch_id: TwitchId;
+    twitch_id: string;
     url: string;
     avatar_url: string;
     credits: number;
@@ -1991,7 +1988,7 @@ export class PlayerPartialDto implements IPlayerPartialDto {
     updated_at!: Date;
     name!: string;
     slug!: string;
-    twitch_id!: TwitchId;
+    twitch_id!: string;
     readonly url!: string;
     avatar_url!: string;
     credits!: number;
@@ -2006,9 +2003,6 @@ export class PlayerPartialDto implements IPlayerPartialDto {
                     (<any>this)[property] = (<any>data)[property];
             }
         }
-        if (!data) {
-            this.twitch_id = new TwitchId();
-        }
     }
 
     init(_data?: any) {
@@ -2018,7 +2012,7 @@ export class PlayerPartialDto implements IPlayerPartialDto {
             this.updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.slug = _data["slug"] !== undefined ? _data["slug"] : <any>null;
-            this.twitch_id = _data["twitch_id"] ? TwitchId.fromJS(_data["twitch_id"]) : new TwitchId();
+            this.twitch_id = _data["twitch_id"] !== undefined ? _data["twitch_id"] : <any>null;
             (<any>this).url = _data["url"] !== undefined ? _data["url"] : <any>null;
             this.avatar_url = _data["avatar_url"] !== undefined ? _data["avatar_url"] : <any>null;
             this.credits = _data["credits"] !== undefined ? _data["credits"] : <any>null;
@@ -2042,7 +2036,7 @@ export class PlayerPartialDto implements IPlayerPartialDto {
         data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["slug"] = this.slug !== undefined ? this.slug : <any>null;
-        data["twitch_id"] = this.twitch_id ? this.twitch_id.toJSON() : <any>null;
+        data["twitch_id"] = this.twitch_id !== undefined ? this.twitch_id : <any>null;
         data["url"] = this.url !== undefined ? this.url : <any>null;
         data["avatar_url"] = this.avatar_url !== undefined ? this.avatar_url : <any>null;
         data["credits"] = this.credits !== undefined ? this.credits : <any>null;
@@ -2059,7 +2053,7 @@ export interface IPlayerPartialDto {
     updated_at: Date;
     name: string;
     slug: string;
-    twitch_id: TwitchId;
+    twitch_id: string;
     url: string;
     avatar_url: string;
     credits: number;
