@@ -7,6 +7,10 @@
 
 	const urls = [
 		{
+			url: '/',
+			label: 'Home'
+		},
+		{
 			url: '/creators',
 			label: 'Creators'
 		},
