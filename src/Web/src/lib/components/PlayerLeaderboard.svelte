@@ -13,8 +13,8 @@
 	let { players = [], total = 0, currentPage = 1 }: TableProps = $props();
 
 	// Pagination
-	let totalPages = Math.max(1, Math.ceil(total / 20));
-	let pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+	let totalPages = $derived(Math.max(1, Math.ceil(total / 20)));
+	let pageNumbers = $derived(Array.from({ length: totalPages }, (_, i) => i + 1));
 
 	function changePage(page: number) {
 		goto(`?page=${page}`, {
@@ -89,10 +89,10 @@
 	<table class="table w-full max-md:text-sm">
 		<thead class="sticky top-0 z-10 bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-50">
 			<tr class="border-b text-sm max-md:text-xs">
-				<th class="py-4 text-center max-md:px-2">Rank</th>
-				<th class="py-4 text-center max-md:px-2">Name</th>
-				<th class="py-4 text-center max-md:hidden max-md:px-2">Chart</th>
+				<th class="rounded-tl-2xl py-4 text-center max-md:px-2">Player</th>
 				<th class="py-4 text-center max-md:px-2">Portfolio Value</th>
+				<th class="py-4 text-center max-md:hidden max-md:px-2">Chart</th>
+				<th class="rounded-tr-2xl py-4 text-center max-md:hidden max-md:px-2">Action</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -102,46 +102,65 @@
 					onclick={() => goto(`/players/${player.slug}`)}
 				>
 					<td class="py-4 text-center max-md:px-2">
-						<div class="flex items-center justify-center">
-							{#if (currentPage - 1) * 20 + index === 0}
-								<span
-									class="badge dark:bg-neutral rounded-full bg-gray-100 px-3 py-1 text-yellow-400 dark:text-yellow-500"
-								>
-									1st
-								</span>
-							{:else if (currentPage - 1) * 20 + index === 1}
-								<span
-									class="badge dark:bg-neutral rounded-full bg-gray-100 px-3 py-1 text-gray-400 dark:text-gray-500"
-								>
-									2nd
-								</span>
-							{:else if (currentPage - 1) * 20 + index === 2}
-								<span
-									class="badge dark:bg-neutral rounded-full bg-gray-100 px-3 py-1 text-orange-400 dark:text-orange-500"
-								>
-									3rd
-								</span>
-							{:else}
-								{(currentPage - 1) * 20 + index + 1}
-							{/if}
+						<div class="items-left justify-left flex flex-col gap-3">
+							<div class="flex flex-row items-center gap-3">
+								<div class="flex flex-col items-center">
+									<img
+										src={player.avatar_url}
+										alt={player.name}
+										class="size-10 rounded-full max-md:h-6 max-md:w-6"
+									/>
+									{#if (currentPage - 1) * 20 + index === 0}
+										<span
+											class="badge dark:bg-neutral -mt-2 w-10 rounded-full bg-gray-100 px-3 py-1 text-xs text-yellow-400 dark:text-yellow-500"
+										>
+											1st
+										</span>
+									{:else if (currentPage - 1) * 20 + index === 1}
+										<span
+											class="badge dark:bg-neutral -mt-2 w-10 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-400 dark:text-gray-500"
+										>
+											2nd
+										</span>
+									{:else if (currentPage - 1) * 20 + index === 2}
+										<span
+											class="badge dark:bg-neutral -mt-2 w-10 rounded-full bg-gray-100 px-3 py-1 text-xs text-orange-400 dark:text-orange-500"
+										>
+											3rd
+										</span>
+									{:else}
+										<span
+											class="badge dark:bg-neutral light:text-gray-900 -mt-2 w-10 rounded-full px-3 py-1 text-xs max-md:truncate max-md:text-xs dark:text-gray-300"
+										>
+											{(() => {
+												const place = (currentPage - 1) * 20 + index + 1;
+												const suffix =
+													place % 10 === 1 && place !== 11
+														? 'st'
+														: place % 10 === 2 && place !== 12
+															? 'nd'
+															: place % 10 === 3 && place !== 13
+																? 'rd'
+																: 'th';
+												return `${place}${suffix}`;
+											})()}
+										</span>
+									{/if}
+								</div>
+
+								<span class="">{player.name}</span>
+							</div>
 						</div>
 					</td>
-					<td class="py-4 text-center max-md:px-2">
-						<div class="flex items-center gap-3">
-							<img
-								src={player.avatar_url}
-								alt={player.name}
-								class="h-8 w-8 rounded-full max-md:h-6 max-md:w-6"
-							/>
-							<span>{player.name}</span>
-						</div>
-					</td>
-					<td class="py-4 text-center max-md:hidden max-md:px-2">
+					<td class="py-4 text-center max-md:px-2">{formatValue(player.portfolio)}</td>
+					<td class="flex items-center justify-center py-4 text-center max-md:hidden max-md:px-2">
 						<div class="h-16 w-32">
 							<canvas bind:this={chartElements[player.slug]}></canvas>
 						</div>
 					</td>
-					<td class="py-4 text-center max-md:px-2">${formatValue(player.portfolio)}</td>
+					<td class="py-4 text-center max-md:w-12 max-md:px-2">
+						<button class="btn btn-ghost max-md:btn-sm rounded-lg max-md:px-2"> View </button>
+					</td>
 				</tr>
 			{/each}
 		</tbody>
