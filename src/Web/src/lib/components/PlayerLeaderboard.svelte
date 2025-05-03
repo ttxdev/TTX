@@ -91,7 +91,7 @@
 			<tr class="border-b text-sm max-md:text-xs">
 				<th class="py-4 text-center max-md:px-2">Rank</th>
 				<th class="py-4 text-center max-md:px-2">Name</th>
-				<th class="hidden py-4 text-center max-md:hidden max-md:px-2">Chart</th>
+				<th class="py-4 text-center max-md:hidden max-md:px-2">Chart</th>
 				<th class="py-4 text-center max-md:px-2">Portfolio Value</th>
 			</tr>
 		</thead>
@@ -136,7 +136,7 @@
 							<span>{player.name}</span>
 						</div>
 					</td>
-					<td class="hidden py-4 text-center max-md:hidden max-md:px-2">
+					<td class="py-4 text-center max-md:hidden max-md:px-2">
 						<div class="h-16 w-32">
 							<canvas bind:this={chartElements[player.slug]}></canvas>
 						</div>
