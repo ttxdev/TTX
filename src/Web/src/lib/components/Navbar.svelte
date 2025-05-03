@@ -27,7 +27,7 @@
 	$effect(() => {
 		if (homeEl) navLinks.set('/', homeEl);
 		if (channelsEl) navLinks.set('/creators', channelsEl);
-		if (leaderboardEl) navLinks.set('/leaderboard', leaderboardEl);
+		if (leaderboardEl) navLinks.set('/players', leaderboardEl);
 		if (teamEl) navLinks.set('/team', teamEl);
 	});
 
@@ -99,7 +99,7 @@
 				</a>
 			</li>
 			<li>
-				<a bind:this={leaderboardEl} href="/leaderboard" class="relative z-10 hover:bg-transparent">
+				<a bind:this={leaderboardEl} href="/players" class="relative z-10 hover:bg-transparent">
 					Leaderboard
 				</a>
 			</li>
@@ -244,7 +244,7 @@
 					<a
 						href="/leaderboard"
 						class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100"
-						class:underline={page.url.pathname === '/leaderboard'}
+						class:underline={page.url.pathname === '/players'}
 						onclick={toggleMenu}
 					>
 						Leaderboard

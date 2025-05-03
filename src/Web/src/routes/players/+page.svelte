@@ -8,7 +8,7 @@
 	let searchQuery = '';
 
 	afterNavigate(({ from }) => {
-		if (from?.url.pathname === '/leaderboard') {
+		if (from?.url.pathname === '/players') {
 			window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
 		}
 	});
