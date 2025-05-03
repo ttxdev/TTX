@@ -28,6 +28,7 @@
         <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
         <PackageReference Include="TTX" Version="1.7.1" />
         <PackageReference Include="TwitchLib.Api" Version="3.9.0" />
+        <PackageReference Include="TwitchLib.PubSub" Version="3.2.6" />
     </ItemGroup>
 
 </Project>
