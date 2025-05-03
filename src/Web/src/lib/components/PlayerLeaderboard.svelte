@@ -105,19 +105,19 @@
 						<div class="flex items-center justify-center">
 							{#if (currentPage - 1) * 20 + index === 0}
 								<span
-									class="badge rounded-full bg-yellow-400 px-3 py-1 text-black dark:bg-yellow-500 dark:text-gray-900"
+									class="badge dark:bg-neutral rounded-full bg-gray-100 px-3 py-1 text-yellow-400 dark:text-yellow-500"
 								>
 									1st
 								</span>
 							{:else if (currentPage - 1) * 20 + index === 1}
 								<span
-									class="badge rounded-full bg-gray-400 px-3 py-1 text-black dark:bg-gray-500 dark:text-gray-900"
+									class="badge dark:bg-neutral rounded-full bg-gray-100 px-3 py-1 text-gray-400 dark:text-gray-500"
 								>
 									2nd
 								</span>
 							{:else if (currentPage - 1) * 20 + index === 2}
 								<span
-									class="badge rounded-full bg-orange-400 px-3 py-1 text-black dark:bg-orange-500 dark:text-gray-900"
+									class="badge dark:bg-neutral rounded-full bg-gray-100 px-3 py-1 text-orange-400 dark:text-orange-500"
 								>
 									3rd
 								</span>
