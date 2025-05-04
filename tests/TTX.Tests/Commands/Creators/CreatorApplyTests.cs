@@ -38,7 +38,7 @@ public class CreatorApplyTests : ApplicationTests
         DbContext.Creators.Add(conflict);
         await DbContext.SaveChangesAsync();
 
-        Assert.ThrowsException<CreatorTickerTakenException>(async () =>
+        await Assert.ThrowsExceptionAsync<CreatorTickerTakenException>(async () =>
         {
             await Sender.Send(new CreatorApplyCommand
             {
@@ -56,7 +56,7 @@ public class CreatorApplyTests : ApplicationTests
         DbContext.Creators.Add(conflict);
         await DbContext.SaveChangesAsync();
 
-        Assert.ThrowsException<CreatorExistsException>(async () =>
+        await Assert.ThrowsExceptionAsync<CreatorExistsException>(async () =>
         {
             await Sender.Send(new CreatorApplyCommand
             {
