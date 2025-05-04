@@ -64,6 +64,6 @@ public class FindPlayerQueryTests : ApplicationTests
         Assert.IsNotNull(player);
         var portfolio = player.History.FirstOrDefault();
         Assert.IsNotNull(portfolio);
-        Assert.AreEqual(50, portfolio.Value); ;
+        Assert.AreEqual(50, portfolio.Value);
     }
 }
