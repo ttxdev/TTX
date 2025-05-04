@@ -150,7 +150,7 @@ namespace TTX.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at")
-                        .HasColumnOrder(7);
+                        .HasColumnOrder(8);
 
                     b.Property<long>("Credits")
                         .HasColumnType("bigint")
@@ -162,6 +162,11 @@ namespace TTX.Infrastructure.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name")
                         .HasColumnOrder(1);
+
+                    b.Property<long>("Portfolio")
+                        .HasColumnType("bigint")
+                        .HasColumnName("portfolio")
+                        .HasColumnOrder(6);
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -179,12 +184,12 @@ namespace TTX.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("type")
-                        .HasColumnOrder(6);
+                        .HasColumnOrder(7);
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at")
-                        .HasColumnOrder(8);
+                        .HasColumnOrder(9);
 
                     b.HasKey("Id");
 
@@ -197,6 +202,28 @@ namespace TTX.Infrastructure.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("players", "public");
+                });
+
+            modelBuilder.Entity("TTX.Models.PortfolioSnapshot", b =>
+                {
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("player_id")
+                        .HasColumnOrder(0);
+
+                    b.Property<DateTimeOffset>("Time")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("time")
+                        .HasColumnOrder(3);
+
+                    b.Property<long>("Value")
+                        .HasColumnType("bigint")
+                        .HasColumnName("value")
+                        .HasColumnOrder(2);
+
+                    b.HasIndex("PlayerId", "Time");
+
+                    b.ToTable("player_portfolios", "public");
                 });
 
             modelBuilder.Entity("TTX.Models.Transaction", b =>
@@ -325,6 +352,17 @@ namespace TTX.Infrastructure.Data.Migrations
                     b.Navigation("Player");
 
                     b.Navigation("Result");
+                });
+
+            modelBuilder.Entity("TTX.Models.PortfolioSnapshot", b =>
+                {
+                    b.HasOne("TTX.Models.Player", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("TTX.Models.Transaction", b =>

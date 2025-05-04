@@ -19,7 +19,6 @@ using TTX.Infrastructure.Discord;
 using TTX.Infrastructure.Twitch;
 using TTX.Interfaces.Discord;
 using TTX.Interfaces.Twitch;
-
 [assembly: ApiController]
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +48,7 @@ builder.Services
     .AddOpenApi()
     .AddSingleton<CreateTransactionNotificationHandler>()
     .AddSingleton<UpdateCreatorValueNotificationHandler>()
+    .AddSingleton<UpdatePlayerPortfolioNotificationHandler>()
     .AddSingleton<IConfigProvider>(config)
     .AddDbContextPool<ApplicationDbContext>(
         options =>
@@ -80,6 +80,7 @@ builder.Services
         cfg.RegisterServicesFromAssemblyContaining<AssemblyReference>();
     })
     .AddHostedService<UpdateCreatorValueNotificationHandler>()
+    .AddHostedService<UpdatePlayerPortfolioNotificationHandler>()
     .AddHostedService<CreateTransactionNotificationHandler>()
     .AddHostedService<UpdateStreamStatusNotificationHandler>()
     .AddTransient<ISessionService, SessionService>();

@@ -8,5 +8,5 @@ public class AuthenticateDiscordUserDto(AuthenticateDiscordUserResult result)
     [JsonPropertyName("access_token")] public string Token { get; } = result.User.Token;
 
     [JsonPropertyName("twitch_users")]
-    public TwitchUserDto[] TwitchUsers { get; } = [.. result.TwitchUsers.Select(c => new TwitchUserDto(c))];
+    public TwitchUserDto[] TwitchUsers { get; } = [.. result.TwitchUsers.Select(c => TwitchUserDto.Create(c))];
 }

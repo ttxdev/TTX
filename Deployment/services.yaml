@@ -9,7 +9,7 @@ spec:
   selector:
     app: ttx-api
   ports:
-    - port: 3000
+    - port: 3030
       targetPort: 8080
 
 ---
@@ -23,7 +23,7 @@ spec:
   selector:
     app: ttx-web
   ports:
-    - port: 3001
+    - port: 3031
       targetPort: 3000
 
 ---

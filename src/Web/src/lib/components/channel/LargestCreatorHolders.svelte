@@ -7,7 +7,7 @@
 	let { shares, price }: { shares: ICreatorShareDto[]; price: number } = $props();
 	const sortedHolders = $derived(shares.toSorted((a, b) => b.quantity - a.quantity));
 
-	const total = $derived(
+	const total = $derived.by(() =>
 		Object.fromEntries(
 			shares.map((holder) => [holder.player.name, formatValue(holder.quantity * price)])
 		)

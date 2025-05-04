@@ -1,5 +1,6 @@
-import type { Cookies } from "@sveltejs/kit";
+import { redirect, type Cookies } from "@sveltejs/kit";
 import { parseJwt, type JwtData } from "./jwt";
+import { getTwitchRedirect } from "./twitch";
 
 export type UserData = JwtData & {
 	userId: string;
@@ -14,9 +15,14 @@ export type SessionData = {
 	user: UserData;
 };
 
-const COOKIE_KEY = 'gg.ttx';
+const COOKIE_KEY = 'TTX.Session';
 
-export function login(cookies: Cookies, token: string) {
+export function requestLogin(cookies: Cookies, redir = '/') {
+	cookies.set('redirect', redir, { path: '/', expires: new Date(Date.now() + 1000 * 60 * 5) });
+	return redirect(307, getTwitchRedirect());
+}
+
+export function login(cookies: Cookies, token: string, sameSite = 'Lax') {
 	const jwtData = parseUserToken(token);
 	cookies.set(
 		COOKIE_KEY,
@@ -29,7 +35,7 @@ export function login(cookies: Cookies, token: string) {
 				role: jwtData.role
 			}
 		}),
-		{ path: '/', expires: new Date(jwtData.exp * 1000), sameSite: 'Lax' }
+		{ path: '/', expires: new Date(jwtData.exp * 1000), sameSite }
 	);
 }
 
@@ -44,11 +50,15 @@ export function getSession(cookies: Cookies): SessionData | null {
 	const data = cookies.get(COOKIE_KEY);
 	if (!data) return null;
 
-	const parsed = JSON.parse(data).user;
+	const parsed = JSON.parse(data);
   return {
     token: parsed.token,
     user: parsed.user
   }
+}
+
+export function getToken(cookies: Cookies): string | null {
+  return getSession(cookies)?.token ?? null;
 }
 
 function parseUserToken(token: string): UserData {

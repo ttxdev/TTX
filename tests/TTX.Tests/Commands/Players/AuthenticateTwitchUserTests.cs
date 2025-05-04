@@ -70,7 +70,7 @@ public class AuthenticateTwitchUserTests : ApplicationTests
         Assert.AreEqual(player.Slug.Value, result.Slug);
         Assert.AreEqual(player.Name.Value, result.Name);
         Assert.AreEqual(player.AvatarUrl.ToString(), result.AvatarUrl);
-        Assert.AreEqual(player.TwitchId.Value, result.TwitchId.Value);
+        Assert.AreEqual(player.TwitchId.Value, result.TwitchId);
     }
 
     [TestMethod]
@@ -109,6 +109,6 @@ public class AuthenticateTwitchUserTests : ApplicationTests
         Assert.AreEqual(player.Slug.Value, result.Slug);
         Assert.AreEqual(player.Name.Value, result.Name);
         Assert.AreEqual(player.AvatarUrl.ToString(), result.AvatarUrl);
-        Assert.AreEqual(player.TwitchId.Value, result.TwitchId.Value);
+        Assert.AreEqual(player.TwitchId.Value, result.TwitchId);
     }
 }

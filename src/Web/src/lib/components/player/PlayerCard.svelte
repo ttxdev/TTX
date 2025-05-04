@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Chart, registerables } from 'chart.js/auto';
-	import type { UserStats } from '../../../routes/+page.server';
 	import { formatValue } from '$lib/util';
+	import type { PlayerDto } from '$lib/api';
+	import type { LinkableUser } from '$lib/types';
 
 	let {
 		player,
 		place,
 		isStreamer
-	}: { player: UserStats; place: number; isStreamer: Promise<boolean> } = $props();
+	}: { player: LinkableUser<PlayerDto>; place: number; isStreamer: Promise<boolean> } = $props();
 
 	let canvas: HTMLCanvasElement | null = null;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -25,12 +26,13 @@
 				labels: player.history.map((d) => d.time),
 				datasets: [
 					{
-						label: 'Networth',
+						label: 'Price',
 						data: player.history.map((d) => d.value),
 						segment: {
 							borderColor: (ctx) => {
-								const diff = ctx.p0DataIndex > 0 ? ctx.p0.parsed.y - ctx.p1.parsed.y : 0;
-								return diff <= 0 ? '#22c55e' : '#ef4444';
+								const difference = ctx.p0DataIndex > 0 ? ctx.p0.parsed.y - ctx.p1.parsed.y : 0;
+
+								return difference <= 0 ? '#22c55e' : '#ef4444';
 							}
 						},
 						tension: 0,
@@ -57,8 +59,8 @@
 								const date = new Date(tooltipItems[0].label);
 								return date.toLocaleString();
 							},
-							label: () => {
-								return `Value: {formatValue(tooltipItem.parsed.y)}`;
+							label: (tooltipItem) => {
+								return `Value: ${formatValue(tooltipItem.parsed.y)}`;
 							},
 							labelColor: (tooltipItem) => {
 								const currentValue = tooltipItem.parsed.y;
@@ -204,10 +206,19 @@
 		</div>
 
 		<!-- Right: Net Value + Change -->
-		<div class="text-right">
-			<p class="text-base font-bold sm:text-xl">
-				{formatValue(player.value)}
-			</p>
+		<div class="flex flex-row gap-8 text-right">
+			<div class="flex flex-col text-center">
+				<h1 class="text-xl font-bold">
+					{formatValue(player.portfolio)}
+				</h1>
+				<p class="text-sm">Portfolio Value</p>
+			</div>
+			<div class="flex flex-col text-center">
+				<h1 class="text-xl font-bold">
+					{formatValue(player.credits)}
+				</h1>
+				<p class="text-sm">Credits</p>
+			</div>
 		</div>
 	</div>
 </div>

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Chart } from 'chart.js/auto';
-	import type { UserStats } from '../../routes/+page.server';
+	import type { CreatorDto } from '$lib/api';
 
-	const props: { creator: UserStats } = $props();
+	const props: { creator: CreatorDto } = $props();
 	const creator = $derived(props.creator);
 
 	let canvas: HTMLCanvasElement | null = null;

@@ -8,11 +8,15 @@ namespace TTX.Models
     {
         public const int MaxShares = 1_000;
         public const int MinCredits = 0;
+        public const int MinPortfolio = 0;
         public const int StarterCredits = 100;
         public Credits Credits { get; private set; } = StarterCredits;
+        public long Portfolio { get; private set; } = MinPortfolio;
+        public Credits Value => Credits + Portfolio;
         public PlayerType Type { get; init; } = PlayerType.User;
         public HashSet<Transaction> Transactions { get; init; } = [];
         public HashSet<LootBox> LootBoxes { get; init; } = [];
+        public HashSet<PortfolioSnapshot> History { get; set; } =[];
 
         public ImmutableArray<Share> GetShares()
         {
@@ -87,6 +91,18 @@ namespace TTX.Models
             Transactions.Add(tx);
 
             return tx;
+        }
+
+        public PortfolioSnapshot RecordPortfolio(long portfolio)
+        {
+            Portfolio = portfolio;
+            
+            return new PortfolioSnapshot
+            {
+                PlayerId = Id,
+                Player = this,
+                Value = portfolio,
+            };
         }
 
         public LootBox AddLootBox()

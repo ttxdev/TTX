@@ -50,7 +50,7 @@ public class OnboardCreatorCommandTests : ApplicationTests
         Assert.AreEqual(creator.Slug.Value, result.Slug);
         Assert.AreEqual(creator.Name.Value, result.Name);
         Assert.AreEqual(creator.AvatarUrl.ToString(), result.AvatarUrl);
-        Assert.AreEqual(creator.TwitchId.Value, result.TwitchId.Value);
+        Assert.AreEqual(creator.TwitchId.Value, result.TwitchId);
         Assert.AreEqual(creator.Ticker.Value, result.Ticker);
     }
 }

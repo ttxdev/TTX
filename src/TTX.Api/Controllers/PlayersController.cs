@@ -40,7 +40,12 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
                 {
                     By = orderBy.Value,
                     Dir = orderDir ?? OrderDirection.Ascending
-                }
+                },
+            HistoryParams = new HistoryParams
+            {
+                Step = TimeStep.ThirtyMinute,
+                After = DateTime.UtcNow.AddDays(-1)
+            }
         });
 
         return Ok(new PaginationDto<PlayerDto>
@@ -52,11 +57,16 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
 
     [HttpGet("{username}")]
     [EndpointName("GetPlayer")]
-    public async Task<ActionResult<PlayerDto>> Show(string username)
+    public async Task<ActionResult<PlayerDto>> Show(string username, [FromQuery] TimeStep step = TimeStep.FiveMinute, [FromQuery] DateTimeOffset? after = null)
     {
         var player = await sender.Send(new FindPlayerQuery
         {
-            Slug = username
+            Slug = username,
+            HistoryParams = new HistoryParams
+            {
+                Step = step,
+                After = after ?? DateTimeOffset.UtcNow.AddDays(-1)
+            }
         });
         if (player is null)
             return NotFound();
@@ -74,7 +84,12 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
 
         var player = await sender.Send(new FindPlayerQuery
         {
-            Slug = username
+            Slug = username,
+            HistoryParams = new HistoryParams
+            {
+                Step = TimeStep.Minute,
+                After = DateTime.UtcNow
+            }
         });
 
         if (player is null)
@@ -99,21 +114,5 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
         });
 
         return Ok(LootBoxResultDto.Create(result));
-    }
-
-    [HttpGet("{username}/transactions")]
-    [EndpointName("GetPlayerTransactions")]
-    public async Task<ActionResult<PlayerTransactionDto[]>> IndexPlayerTransactions(string username)
-    {
-        var player = await sender.Send(new FindPlayerQuery
-        {
-            Slug = username
-        });
-
-        if (player is null)
-            return NotFound();
-
-
-        return Ok(player.Transactions.Select(PlayerTransactionDto.Create).ToArray());
     }
 }

@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using TTX.Commands.Creators.RecordNetChange;
 using TTX.Queries;
 using TTX.Queries.Creators;
 using TTX.Queries.Creators.IndexCreators;
@@ -126,5 +128,39 @@ public class IndexCreatorsQueryTests : ApplicationTests
         var target = page.Data.FirstOrDefault();
         Assert.IsNotNull(target);
         Assert.AreEqual(creator.Name, target.Name);
+    }
+    
+    
+    [TestMethod]
+    public async Task IndexCreators_ShouldReturnValueHistory()
+    {
+        int total = 20;
+        foreach (var _ in Enumerable.Range(0, total)) DbContext.Creators.Add(CreatorFactory.Create());
+        await DbContext.SaveChangesAsync();
+        foreach (var c in await DbContext.Creators.ToArrayAsync())
+        {
+            await Sender.Send(new RecordNetChangeCommand
+            {
+                CreatorSlug = c.Slug,
+                NetChange = Seed.Next(0, 50)
+            });
+        }
+
+        var page = await Sender.Send(new IndexCreatorsQuery
+        {
+            Limit = total,
+            HistoryParams = new HistoryParams
+            {
+                Step = TimeStep.Minute,
+                After = DateTime.UtcNow.AddMinutes(-1)
+            },
+        });
+
+        foreach (var c in page.Data)
+        {
+            var vote = c.History.FirstOrDefault();
+            Assert.IsNotNull(vote);
+            Assert.AreEqual(c.Value, vote.Value);
+        }
     }
 }

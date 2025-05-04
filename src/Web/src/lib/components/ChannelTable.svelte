@@ -3,10 +3,10 @@
 	import Chart from 'chart.js/auto';
 	import { goto } from '$app/navigation';
 	import { formatTicker, formatValue } from '$lib/util';
-	import { OrderDirection, type ICreatorDto } from '$lib/api';
+	import { OrderDirection, type ICreatorDto, type ICreatorPartialDto } from '$lib/api';
 
 	type TableProps = {
-		creators: ICreatorDto[];
+		creators: ICreatorPartialDto[];
 		total: number;
 		currentPage: number;
 		sortField: string;

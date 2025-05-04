@@ -1,12 +1,33 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { user } from '$lib/stores/data';
+	import { getContext, onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { Spring } from 'svelte/motion';
 	import { discordSdk } from '$lib/discord';
+	import type { IPlayerDto } from '$lib/api';
+
+	const urls = [
+		{
+			url: '/',
+			label: 'Home'
+		},
+		{
+			url: '/creators',
+			label: 'Creators'
+		},
+		{
+			url: '/players',
+			label: 'Leaderboard'
+		},
+		{
+			url: '/team',
+			label: 'About Us'
+		}
+	] as const;
+
 
 	let { searchModal = $bindable() }: { searchModal: boolean } = $props();
 
+	const user = getContext<IPlayerDto>('user');
 	let isMenuOpen = $state(false);
 
 	function toggleMenu() {
@@ -15,23 +36,23 @@
 
 	let navContainer: HTMLElement | null = $state(null);
 	let navLinks = $state(new Map<string, HTMLElement>());
-	let homeEl: HTMLElement | null = $state(null);
-	let channelsEl: HTMLElement | null = $state(null);
-	let teamEl: HTMLElement | null = $state(null);
 
 	const indicatorLeft = new Spring(0, { stiffness: 0.2, damping: 0.4 });
 	const indicatorWidth = new Spring(0, { stiffness: 0.2, damping: 0.4 });
 
-	$effect(() => {
-		if (homeEl) navLinks.set('/', homeEl);
-		if (channelsEl) navLinks.set('/creators', channelsEl);
-		if (teamEl) navLinks.set('/team', teamEl);
-	});
-
 	function updateIndicator() {
 		const currentPath = page.url.pathname;
 		if (navContainer) {
-			const activeEl = navLinks.get(currentPath);
+			const activeEl = navContainer.querySelector(`a[href="${currentPath}"]`) as HTMLElement;
+			if (activeEl && navLinks.has(currentPath)) {
+				navLinks.forEach((el, path) => {
+					if (path === currentPath) {
+						el.classList.add('active');
+					} else {
+						el.classList.remove('active');
+					}
+				});
+			}
 			if (activeEl) {
 				const { left, width } = activeEl.getBoundingClientRect();
 				const containerLeft = navContainer.getBoundingClientRect().left;
@@ -83,21 +104,23 @@
 	<div class="navbar-center hidden lg:flex">
 		<ul bind:this={navContainer} class="menu menu-horizontal relative px-1">
 			<div
-				class="absolute rounded-2xl bg-purple-400/20 transition-all duration-300"
+				class="absolute rounded-2xl bg-purple-400/20 duration-100 animate-all"
 				style="left: {indicatorLeft.current}px; width: {indicatorWidth.current}px; top: 0; bottom: 0; z-index: 0;"
 			></div>
 
-			<li>
-				<a bind:this={homeEl} href="/" class="relative z-10 hover:bg-transparent"> Home </a>
-			</li>
-			<li>
-				<a bind:this={channelsEl} href="/creators" class="relative z-10 hover:bg-transparent">
-					Creators
-				</a>
-			</li>
-			<li>
-				<a bind:this={teamEl} href="/team" class="relative z-10 hover:bg-transparent"> About Us </a>
-			</li>
+			{#each urls as {url, label}}
+				<li
+					class:active={page.url.pathname === url}
+				>
+					<a
+						href={url}
+						class="relative z-10 hover:bg-transparent"
+					>
+						{label}
+					</a>
+				</li>
+			{/each}
+
 			<li>
 				<button onclick={() => (searchModal = true)} class="relative z-10 rounded-2xl">
 					Search
@@ -122,16 +145,16 @@
 
 	<div class="navbar-end">
 		<div class="flex gap-2">
-			{#if $user}
+			{#if user}
 				<div class="join">
 					<div class=""></div>
-					<a href={'/players/' + $user.name}>
+					<a href={'/players/' + user.name}>
 						<div
 							class="btn rounded-lg bg-black px-3 py-2 text-white shadow md:rounded-l-lg md:rounded-r-none"
 						>
 							<div class="flex flex-row items-center justify-between gap-2">
-								<img src={$user.avatarUrl} alt="" class="size-6 rounded-full" />
-								{$user.name}
+								<img src={user.avatar_url} alt="" class="size-6 rounded-full" />
+								{user.name}
 							</div>
 						</div>
 					</a>
@@ -184,7 +207,7 @@
 {/if}
 
 <div
-	class="fixed top-0 left-0 z-50 h-screen w-64 bg-white shadow-lg backdrop-blur backdrop-contrast-100 backdrop-saturate-200 backdrop-filter transition-all duration-500 ease-in-out lg:hidden dark:bg-black"
+	class="fixed left-0 top-0 z-50 h-screen w-64 bg-white shadow-lg backdrop-blur backdrop-contrast-100 backdrop-saturate-200 backdrop-filter transition-all duration-500 ease-in-out lg:hidden dark:bg-black"
 	class:translate-x-0={isMenuOpen}
 	class:-translate-x-full={!isMenuOpen}
 >
@@ -212,36 +235,18 @@
 		</div>
 		<nav class="flex-1 overflow-y-auto p-4">
 			<ul class="space-y-4">
-				<li>
-					<a
-						href="/"
-						class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100"
-						class:underline={page.url.pathname === '/'}
-						onclick={toggleMenu}
-					>
-						Home
-					</a>
-				</li>
-				<li>
-					<a
-						href="/creators"
-						class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100"
-						class:underline={page.url.pathname === '/creators'}
-						onclick={toggleMenu}
-					>
-						Creators
-					</a>
-				</li>
-				<li>
-					<a
-						href="/team"
-						class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100"
-						class:underline={page.url.pathname === '/team'}
-						onclick={toggleMenu}
-					>
-						About Us
-					</a>
-				</li>
+				{#each urls as {url, label}}
+					<li>
+						<a
+							href={url}
+							class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100"
+							class:underline={page.url.pathname === url}
+							onclick={toggleMenu}
+						>
+							{label}
+						</a>
+					</li>
+				{/each}
 				<li>
 					<button
 						class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100"
@@ -271,12 +276,12 @@
 		</nav>
 		<div class="mb-2 border-t p-4">
 			<div class="flex flex-col gap-2">
-				{#if $user}
-					<a href={'/players/' + $user.name}>
+				{#if user}
+					<a href={'/players/' + user.name}>
 						<div class="btn w-full rounded-md bg-black px-3 py-2 text-white shadow">
 							<div class="flex flex-row items-center justify-between gap-2">
-								<img src={$user.avatarUrl} alt="" class="size-6 rounded-full" />
-								{$user.name}
+								<img src={user.avatar_url} alt="" class="size-6 rounded-full" />
+								{user.name}
 							</div>
 						</div>
 					</a>

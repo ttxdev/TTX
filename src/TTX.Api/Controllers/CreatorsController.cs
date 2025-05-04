@@ -81,7 +81,7 @@ public class CreatorsController(ISender sender) : ControllerBase
     [HttpPost]
     [Authorize(Roles = "Admin")]
     [EndpointName("CreateCreator")]
-    public async Task<ActionResult<CreatorDto>> Create([FromQuery] string username, [FromQuery] Ticker ticker)
+    public async Task<ActionResult<CreatorDto>> Create([FromQuery] string username, [FromQuery] string ticker)
     {
         var creator = await sender.Send(new OnboardTwitchCreatorCommand
         {

@@ -1,12 +1,13 @@
 <script lang="ts">
+	import type { CreatorPartialDto, PlayerPartialDto } from '$lib/api';
+	import type { LinkableUser } from '$lib/types';
 	import { formatValue } from '$lib/util';
-	import type { UserStats } from '../../routes/proxy+page.server';
 
 	let {
 		data,
 		type
 	}: {
-		data: UserStats[];
+		data: LinkableUser<CreatorPartialDto | PlayerPartialDto>[];
 		type: keyof typeof headers;
 	} = $props();
 
@@ -31,7 +32,7 @@
 	</div>
 
 	<div
-		class="{type === 'portfolio' ? '' : 'mt-8'} 
+		class="{type === 'portfolio' ? '' : 'mt-8'}
 		mx-auto flex h-full max-w-3xl items-end justify-center gap-8 max-md:gap-4"
 	>
 		<!-- Second Place -->

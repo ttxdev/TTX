@@ -5,18 +5,18 @@ using TTX.Commands.Creators.UpdateStreamStatus;
 using TTX.Models;
 using TTX.ValueObjects;
 using TwitchLib.Api;
-using TwitchLib.Api.Services;
-using TwitchLib.Api.Services.Events.LiveStreamMonitor;
+using TwitchLib.PubSub;
+using TwitchLib.PubSub.Events;
 
 namespace TTX.StreamMonitor.Services;
 
 public class TwitchStreamService
 {
-    private readonly Dictionary<Slug, Creator> Creators = [];
+    private readonly Dictionary<TwitchId, Creator> Creators = [];
     private readonly ILogger Logger;
     private readonly IServiceProvider Services;
-    private readonly LiveStreamMonitorService StreamMonitor;
     private readonly TwitchAPI TwitchApi;
+    private readonly TwitchPubSub Client;
 
     public TwitchStreamService(IServiceProvider services, ILogger logger, string clientId, string clientSecret)
     {
@@ -27,26 +27,30 @@ public class TwitchStreamService
         TwitchApi.Settings.ClientId = clientId;
         TwitchApi.Settings.Secret = clientSecret;
 
-        StreamMonitor = new LiveStreamMonitorService(TwitchApi);
-        StreamMonitor.OnServiceStarted += async (_, e) => await OnReady();
-        StreamMonitor.OnStreamOnline += async (_, e) => await OnStreamOnline(e);
-        StreamMonitor.OnStreamOffline += async (_, e) => await OnStreamOffline(e);
+        Client = new TwitchPubSub();
+        Client.OnPubSubServiceConnected += (_, e) => OnReady();
+        Client.OnStreamUp += (_, e) => OnStreamOnline(e);
+        Client.OnStreamDown += (_, e) => OnStreamOffline(e);
     }
 
     public void AddCreator(Creator creator)
     {
-        Creators[creator.Slug] = creator;
+        Creators[creator.TwitchId] = creator;
     }
 
     public void RemoveCreator(Creator creator)
     {
-        Creators.Remove(creator.Slug);
+        Creators.Remove(creator.TwitchId);
     }
 
     public Task Start(CancellationToken cancellationToken)
     {
-        StreamMonitor.SetChannelsByName(Creators.Values.Select(c => c.Slug.Value).ToList());
-        StreamMonitor.Start();
+        foreach (Creator creator in Creators.Values)
+        {
+            Client.ListenToVideoPlayback(creator.Slug.Value);
+        }
+
+        Client.Connect();
         return Task.Run(() =>
         {
             while (!cancellationToken.IsCancellationRequested)
@@ -55,7 +59,7 @@ public class TwitchStreamService
         }, cancellationToken);
     }
 
-    private async Task OnReady()
+    private async void OnReady()
     {
         Logger.LogInformation("Ready");
         var creatorSlugs = Creators.Values.Select(c => c.Slug.Value).ToList();
@@ -87,25 +91,22 @@ public class TwitchStreamService
         Logger.LogInformation("Listening...");
     }
 
-    private async Task OnStreamOnline(OnStreamOnlineArgs e)
+    private async void OnStreamOnline(OnStreamUpArgs e)
     {
-        var creator = Creators.Values.FirstOrDefault(c =>
-            string.Equals(c.Slug, e.Stream.UserLogin, StringComparison.OrdinalIgnoreCase));
+        var creator = Creators[e.ChannelId];
         if (creator is null) return;
 
         await UpdateStatus(new UpdateStreamStatusCommand
         {
             CreatorSlug = creator.Slug,
             IsLive = true,
-            At = e.Stream.StartedAt
+            At = DateTime.UtcNow
         });
     }
 
-    private async Task OnStreamOffline(OnStreamOfflineArgs e)
+    private async void OnStreamOffline(OnStreamDownArgs e)
     {
-        var creator = Creators.Values.FirstOrDefault(c =>
-            string.Equals(c.Slug, e.Channel, StringComparison.OrdinalIgnoreCase));
-
+        var creator = Creators[e.ChannelId];
         if (creator is null) return;
 
         await UpdateStatus(new UpdateStreamStatusCommand

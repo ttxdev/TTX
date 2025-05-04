@@ -1,12 +1,11 @@
 <script lang="ts">
 	import Chart from 'chart.js/auto';
-	import type { UserStats } from '../../routes/proxy+page.server';
-	import type { Vote } from '$lib/api';
+	import type { CreatorDto, VoteDto } from '$lib/api';
 
-	const props: { creators: UserStats[] } = $props();
+	const props: { creators: CreatorDto[] } = $props();
 	const creators = $derived(props.creators);
 
-	function createMiniChart(element: HTMLCanvasElement, history: Vote[]) {
+	function createMiniChart(element: HTMLCanvasElement, history: VoteDto[]) {
 		const values = history.map((d) => d.value);
 		const isUpward = values[values.length - 1] > values[0];
 		const lineColor = isUpward ? '#22c55e' : '#ef4444'; // green-500 or red-500

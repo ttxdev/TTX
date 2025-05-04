@@ -1,20 +1,17 @@
 <script lang="ts">
-	import { goto, invalidateAll } from "$app/navigation";
+	import { goto } from "$app/navigation";
 	import { discordSdk } from "$lib/discord";
 	import { onMount, setContext } from "svelte";
-	import type { LayoutProps } from "../../../$types";
-	import { writable } from "svelte/store";
-	import { token, user } from "$lib/stores/data";
 
-    let { data }: LayoutProps = $props();
-    
-	user.set(data.user);
-	token.set(data.token);
+	let { data } = $props();
 
-    onMount(async () => { 
+	setContext('token', data.token)
+	setContext('user', data.user)
+
+    onMount(async () => {
         if (discordSdk) {
             await discordSdk.commands.setActivity({
-                activity: { 
+                activity: {
                     type: 0,
                     state: 'TTX',
                     assets: {

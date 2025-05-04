@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { fly, fade } from 'svelte/transition';
+	import { getContext, onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { errorToast } from '$lib/toast';
 	import { formatTicker, formatValue } from '$lib/util';
 	import { getApiClient } from '$lib';
 	import { invalidateAll } from '$app/navigation';
 	import { CreateTransactionDto, TransactionAction, type TTXClient } from '$lib/api';
 	import { Tween } from 'svelte/motion';
-	import { token, user } from '$lib/stores/data';
 
 	type ModalProps = {
 		type: TransactionAction | null;
@@ -141,10 +140,11 @@
 	}
 
 	async function initModal(): Promise<void> {
-		if ($user && $token) {
+     	const token = getContext('token');
+		if (token) {
 			isLoading = true;
 			try {
-				client = getApiClient($token);
+				client = getApiClient(getContext('token'));
 				const user = await client.getSelf();
 				userBalance = user.credits;
 				userOwns = user.shares.find((share) => share.creator.slug === slug)?.quantity || 0;
@@ -182,7 +182,7 @@
 		{#if visible}
 			<div
 				class="modal-box relative z-10 w-full max-w-md rounded-2xl p-6 shadow-lg"
-				in:fly={{ y: 1000, duration: 800 }}
+				in:fade
 				out:fade
 			>
 				{#if !isLoading}
