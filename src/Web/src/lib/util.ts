@@ -1,3 +1,5 @@
+import { TransactionAction } from "./api";
+
 export function formatValue(value: number) {
 	if (Math.abs(value) >= 1_000_000_000_000) {
 		return `${(value / 1_000_000_000_000).toFixed(2)} T`;
@@ -40,4 +42,17 @@ export function formatCreatorString(creator: string) {
 		return `${creator.slice(0, 10)}...`;
 	}
 	return creator;
+}
+
+export function formatTxAction(action: TransactionAction): string {
+  switch (action) {
+    case TransactionAction.Buy:
+      return 'Bought';
+    case TransactionAction.Sell:
+      return 'Sold';
+    case TransactionAction.Open:
+      return 'Opened';
+    default:
+      return action
+  }
 }
