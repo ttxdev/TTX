@@ -5,13 +5,16 @@ import { CreatorOrderBy, OrderDirection } from '$lib/api';
 export const load: PageServerLoad = async ({ url }) => {
 	const client = getApiClient('');
 	const page = Number(url.searchParams.get('page')) || 1;
-	const orderBy = url.searchParams.get('orderBy') || 'Name';
+	const orderBy = url.searchParams.get('orderBy') || 'IsLive';
 	const orderDir =
-		url.searchParams.get('order') == 'desc' ? OrderDirection.Descending : OrderDirection.Ascending;
+		url.searchParams.get('order') == 'asc' ? OrderDirection.Ascending : OrderDirection.Descending;
 	const search = url.searchParams.get('search') || '';
 
 	let safeOrderBy: CreatorOrderBy;
 	switch (orderBy) {
+  	case 'Name':
+  		safeOrderBy = CreatorOrderBy.Name;
+  		break;
 		case 'Value':
 			safeOrderBy = CreatorOrderBy.Value;
 			break;
@@ -19,7 +22,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			safeOrderBy = CreatorOrderBy.IsLive;
 			break;
 		default:
-			safeOrderBy = CreatorOrderBy.Name;
+			safeOrderBy = CreatorOrderBy.IsLive;
 			break;
 	}
 
