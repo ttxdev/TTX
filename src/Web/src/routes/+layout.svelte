@@ -12,9 +12,10 @@
 	import { patchUrlMappings } from '@discord/embedded-app-sdk';
 	import { discordSdk } from '$lib/discord';
 	import { startConnection } from '$lib/signalr';
-	import type { CreatorTransactionDto, VoteDto } from '$lib/api';
+	import type { CreatorTransactionDto, PortfolioDto, VoteDto } from '$lib/api';
 	import { addVote } from '$lib/stores/votes';
 	import { addTransaction } from '$lib/stores/transactions';
+	import { addPortfolio } from '$lib/stores/portfolios';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -60,6 +61,7 @@
 
 		const conn = await startConnection('events');
 		conn.on('UpdateCreatorValue', (message: VoteDto) => addVote(message));
+		conn.on('UpdatePlayerPortfolio', (message: PortfolioDto) => addPortfolio(message));
 		conn.on('CreateTransaction', (message: CreatorTransactionDto) => addTransaction(message));
 	});
 </script>
