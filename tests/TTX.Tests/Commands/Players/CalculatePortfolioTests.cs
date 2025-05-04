@@ -25,7 +25,7 @@ public class CalculatePortfolioTests : ApplicationTests
         });
 
         Assert.AreEqual(player.Portfolio, result.Value);
-        Assert.IsTrue(result.Time > DateTime.MinValue);
+        Assert.IsTrue(result.Time > DateTimeOffset.MinValue);
     }
 
     [TestMethod]
@@ -57,7 +57,7 @@ public class CalculatePortfolioTests : ApplicationTests
         {
             PlayerId = player.Id
         });
-        
+
         var expectedPortfolio = (value * quantity) + increase;
         Assert.AreEqual(expectedPortfolio, player.Portfolio);
         Assert.AreEqual(expectedPortfolio, result.Value);
@@ -82,18 +82,18 @@ public class CalculatePortfolioTests : ApplicationTests
             Creator = creator.Slug,
             Actor = player.Id
         });
-        
+
         await Sender.Send(new RecordNetChangeCommand
         {
             CreatorSlug = creator.Slug,
             NetChange = decrease
         });
-        
+
         var result = await Sender.Send(new CalculatePortfolioCommand
         {
             PlayerId = player.Id
         });
-        
+
         var expectedPortfolio = (value * quantity) + decrease;
         Assert.AreEqual(expectedPortfolio, player.Portfolio);
         Assert.AreEqual(expectedPortfolio, result.Value);

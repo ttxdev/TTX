@@ -18,7 +18,7 @@ public class PlayerFactory
 
         return player
             .RuleFor(p => p.Name, name)
-            .RuleFor(p => p.Slug, name)
+            .RuleFor(p => p.Slug, (Slug)name)
             .RuleFor(p => p.AvatarUrl, new Uri(faker.Internet.Avatar()))
             .RuleFor(p => p.TwitchId, TwitchIdFactory.Create())
             .RuleFor(p => p.Credits, credits ?? faker.Random.Int(Player.StarterCredits, 1000));
