@@ -59,6 +59,6 @@ public class FindCreatorQueryTests : ApplicationTests
         Assert.IsNotNull(creator);
         var vote = creator.History.FirstOrDefault();
         Assert.IsNotNull(vote);
-        Assert.AreEqual(275, vote.Value); ;
+        Assert.AreEqual(275, vote.Value);
     }
 }
