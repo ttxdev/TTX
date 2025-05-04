@@ -129,8 +129,8 @@ public class IndexCreatorsQueryTests : ApplicationTests
         Assert.IsNotNull(target);
         Assert.AreEqual(creator.Name, target.Name);
     }
-    
-    
+
+
     [TestMethod]
     public async Task IndexCreators_ShouldReturnValueHistory()
     {
