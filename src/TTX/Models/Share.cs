@@ -10,7 +10,7 @@ namespace TTX.Models
 
         public void Count(Transaction tx)
         {
-            if (tx.IsBuy())
+            if (tx.IsGain())
             {
                 Quantity += tx.Quantity;
             }

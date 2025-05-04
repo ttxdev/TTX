@@ -35,7 +35,7 @@ namespace TTX.Models
 
         public Transaction Give(Creator creator)
         {
-            Transaction tx = Transaction.CreateBuy(this, creator, 1);
+            Transaction tx = Transaction.CreateOpen(this, creator, 1);
             creator.RecordTransaction(tx);
             Transactions.Add(tx);
 
@@ -96,7 +96,7 @@ namespace TTX.Models
         public PortfolioSnapshot RecordPortfolio(long portfolio)
         {
             Portfolio = portfolio;
-            
+
             return new PortfolioSnapshot
             {
                 PlayerId = Id,
