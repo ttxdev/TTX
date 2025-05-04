@@ -199,7 +199,7 @@ namespace TTX.Infrastructure.Data
                 entity.Property(p => p.Time)
                     .HasColumnOrder(3)
                     .HasColumnName("time");;
-                
+
                 entity.HasOne(p => p.Player)
                     .WithMany()
                     .HasForeignKey(p => p.PlayerId)
@@ -296,6 +296,40 @@ namespace TTX.Infrastructure.Data
                     .IsRequired();
             });
 
+            modelBuilder.Entity<CreatorApplication>(entity =>
+            {
+                entity.ToTable("applications");
+
+                entity.HasKey(a => a.Id);
+                entity.Property(a => a.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasConversion(new ModelIdConverter())
+                    .UseIdentityColumn()
+                    .HasColumnOrder(0)
+                    .HasColumnName("id");
+                entity.Property(a => a.Slug)
+                    .HasConversion(new SlugConverter())
+                    .HasColumnOrder(1)
+                    .HasColumnName("creator_slug");
+                entity.Property(a => a.Ticker)
+                    .HasConversion(new TickerConverter())
+                    .HasColumnOrder(2)
+                    .HasColumnName("ticker");
+                entity.Property(a => a.Status)
+                    .HasColumnOrder(3)
+                    .HasConversion(
+                        s => s.ToString(),
+                        s => Enum.Parse<ApplicationStatus>(s)
+                    )
+                    .HasColumnName("status");
+                entity.Property(a => a.CreatedAt)
+                    .HasColumnOrder(4)
+                    .HasColumnName("created_at");
+                entity.Property(a => a.UpdatedAt)
+                    .HasColumnOrder(5)
+                    .HasColumnName("updated_at");
+            });
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -336,6 +370,7 @@ namespace TTX.Infrastructure.Data
         public DbSet<PortfolioSnapshot> Portfolios => Set<PortfolioSnapshot>();
         public DbSet<LootBox> LootBoxes => Set<LootBox>();
         public DbSet<Vote> Votes => Set<Vote>();
+        public DbSet<CreatorApplication> Applications => Set<CreatorApplication>();
 
         #endregion
     }

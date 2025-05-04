@@ -7,6 +7,7 @@ using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
 using TTX.Tests.Infrastructure.Twitch;
 using TTX.Tests.Notifications;
+using dotenv.net;
 
 namespace TTX.Tests;
 
@@ -20,6 +21,10 @@ public abstract class ApplicationTests
     [TestInitialize]
     public void Setup()
     {
+        DotEnv.Load();
+
+        Console.WriteLine(Environment.GetEnvironmentVariable("TTX_CONNECTION_STRING"));
+
         var seedI = new Random().Next(1, 1000);
         Seed = new Random(seedI);
         Randomizer.Seed = Seed;
