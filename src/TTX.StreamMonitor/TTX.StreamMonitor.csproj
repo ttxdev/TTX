@@ -26,7 +26,7 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.4" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
         <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
-        <PackageReference Include="TTX" Version="1.7.1" />
+        <PackageReference Include="TTX" Version="1.7.5" />
         <PackageReference Include="TwitchLib.Api" Version="3.9.0" />
         <PackageReference Include="TwitchLib.PubSub" Version="3.2.6" />
     </ItemGroup>
