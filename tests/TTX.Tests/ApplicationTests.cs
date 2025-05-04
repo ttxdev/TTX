@@ -23,8 +23,6 @@ public abstract class ApplicationTests
     {
         DotEnv.Load();
 
-        Console.WriteLine(Environment.GetEnvironmentVariable("TTX_CONNECTION_STRING"));
-
         var seedI = new Random().Next(1, 1000);
         Seed = new Random(seedI);
         Randomizer.Seed = Seed;

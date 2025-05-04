@@ -298,7 +298,7 @@ namespace TTX.Infrastructure.Data
 
             modelBuilder.Entity<CreatorApplication>(entity =>
             {
-                entity.ToTable("applications");
+                entity.ToTable("creator_applications");
 
                 entity.HasKey(a => a.Id);
                 entity.Property(a => a.Id)
@@ -307,10 +307,10 @@ namespace TTX.Infrastructure.Data
                     .UseIdentityColumn()
                     .HasColumnOrder(0)
                     .HasColumnName("id");
-                entity.Property(a => a.Slug)
-                    .HasConversion(new SlugConverter())
+                entity.Property(a => a.TwitchId)
+                    .HasConversion(new TwitchIdConverter())
                     .HasColumnOrder(1)
-                    .HasColumnName("creator_slug");
+                    .HasColumnName("twitch_id");
                 entity.Property(a => a.Ticker)
                     .HasConversion(new TickerConverter())
                     .HasColumnOrder(2)
@@ -319,7 +319,7 @@ namespace TTX.Infrastructure.Data
                     .HasColumnOrder(3)
                     .HasConversion(
                         s => s.ToString(),
-                        s => Enum.Parse<ApplicationStatus>(s)
+                        s => Enum.Parse<CreatorApplicationStatus>(s)
                     )
                     .HasColumnName("status");
                 entity.Property(a => a.CreatedAt)

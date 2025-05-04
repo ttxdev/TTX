@@ -22,11 +22,15 @@ namespace TTX.Commands.Creators.CreatorApply
                 throw new CreatorTickerTakenException();
             }
 
-            TwitchUser _ = await twitch.Find(request.Username) ?? throw new TwitchUserNotFoundException();
+            if (await CreatorExists(request.Username, ct))
+            {
+                throw new CreatorExistsException();
+            }
 
+            TwitchUser tUser = await twitch.Find(request.Username) ?? throw new TwitchUserNotFoundException();
             CreatorApplication creatorApplication = CreatorApplication.Create(
-                request.Username,
-                request.Ticker
+                request.Ticker,
+                tUser.Id
             );
 
             context.Applications.Add(creatorApplication);
@@ -41,6 +45,14 @@ namespace TTX.Commands.Creators.CreatorApply
         {
             bool exists = await context.Creators
                 .AnyAsync(c => c.Ticker == ticker, ct);
+
+            return exists;
+        }
+
+        private async Task<bool> CreatorExists(Slug username, CancellationToken ct)
+        {
+            bool exists = await context.Creators
+                .AnyAsync(c => c.Slug == username, ct);
 
             return exists;
         }

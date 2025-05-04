@@ -12,7 +12,7 @@ using TTX.Infrastructure.Data;
 namespace TTX.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250504110550_CreatorApplications")]
+    [Migration("20250504123836_CreatorApplications")]
     partial class CreatorApplications
     {
         /// <inheritdoc />
@@ -110,12 +110,6 @@ namespace TTX.Infrastructure.Data.Migrations
                         .HasColumnName("created_at")
                         .HasColumnOrder(4);
 
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("creator_slug")
-                        .HasColumnOrder(1);
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text")
@@ -128,6 +122,12 @@ namespace TTX.Infrastructure.Data.Migrations
                         .HasColumnName("ticker")
                         .HasColumnOrder(2);
 
+                    b.Property<string>("TwitchId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("twitch_id")
+                        .HasColumnOrder(1);
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at")
@@ -135,7 +135,7 @@ namespace TTX.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("applications", "public");
+                    b.ToTable("creator_applications", "public");
                 });
 
             modelBuilder.Entity("TTX.Models.LootBox", b =>

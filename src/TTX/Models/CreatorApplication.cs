@@ -7,25 +7,25 @@ namespace TTX.Models
     public class CreatorApplication : Model
     {
 
-        public required Slug Slug { get; init; }
+        public required TwitchId TwitchId { get; init; }
         public required Ticker Ticker { get; init; }
-        public required ApplicationStatus Status { get; init; }
+        public required CreatorApplicationStatus Status { get; init; }
 
         public static CreatorApplication Create(
-            Slug slug,
-            Ticker ticker
+            Ticker ticker,
+            TwitchId twitchId
         )
         {
             return new CreatorApplication
             {
-                Slug = slug,
+                TwitchId = twitchId,
                 Ticker = ticker,
-                Status = ApplicationStatus.Pending,
+                Status = CreatorApplicationStatus.Pending,
             };
         }
     }
 
-    public enum ApplicationStatus
+    public enum CreatorApplicationStatus
     {
         Pending,
         Approved,

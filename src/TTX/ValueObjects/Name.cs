@@ -37,5 +37,10 @@ namespace TTX.ValueObjects
         {
             return Create(value);
         }
+
+        public static implicit operator Name(Slug value)
+        {
+            return Create(value.ToString());
+        }
     }
 }
