@@ -4,6 +4,7 @@ using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
@@ -144,7 +145,10 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseMiddleware<TtxExceptionMiddleware>();
 app.MapControllers();
-app.MapHub<EventHub>("hubs/events");
+app.MapHub<EventHub>("hubs/events", options =>
+{
+    options.Transports = HttpTransportType.WebSockets;
+});
 
 using var scope = app.Services.CreateScope();
 {
