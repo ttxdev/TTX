@@ -8,17 +8,20 @@ namespace TTX.Models
     public class CreatorApplication : Model
     {
 
+        public required ModelId SubmitterId { get; init; }
         public required TwitchId TwitchId { get; init; }
         public required Ticker Ticker { get; init; }
         public CreatorApplicationStatus Status { get; private set; } = CreatorApplicationStatus.Pending;
 
         public static CreatorApplication Create(
             Ticker ticker,
-            TwitchId twitchId
+            TwitchId twitchId,
+            ModelId submitterId
         )
         {
             return new CreatorApplication
             {
+                SubmitterId = submitterId,
                 TwitchId = twitchId,
                 Ticker = ticker,
                 Status = CreatorApplicationStatus.Pending,

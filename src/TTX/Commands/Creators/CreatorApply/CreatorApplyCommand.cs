@@ -6,6 +6,7 @@ namespace TTX.Commands.Creators.CreatorApply
 {
     public readonly struct CreatorApplyCommand : IRequest<CreatorApplication>
     {
+        public required ModelId SubmitterId { get; init; }
         public required Slug Username { get; init; }
         public required Ticker Ticker { get; init; }
     }

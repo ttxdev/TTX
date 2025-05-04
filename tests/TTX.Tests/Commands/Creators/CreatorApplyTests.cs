@@ -16,12 +16,16 @@ public class CreatorApplyTests : ApplicationTests
     [TestMethod]
     public async Task FreshApplication_ShouldPass()
     {
+        var player = PlayerFactory.Create();
+        DbContext.Players.Add(player);
         var creator = CreatorFactory.Create();
         var tAuth = (TwitchAuthService)ServiceProvider.GetRequiredService<ITwitchAuthService>();
         tAuth.Inject(creator);
+        await DbContext.SaveChangesAsync();
 
         var result = await Sender.Send(new CreatorApplyCommand
         {
+            SubmitterId = player.Id,
             Username = creator.Slug,
             Ticker = creator.Ticker
         });
@@ -33,6 +37,8 @@ public class CreatorApplyTests : ApplicationTests
     [TestMethod]
     public async Task DupeTicker_ShouldFail()
     {
+        var player = PlayerFactory.Create();
+        DbContext.Players.Add(player);
         var creator = CreatorFactory.Create(ticker: "TEST");
         var conflict = CreatorFactory.Create(ticker: "TEST");
         DbContext.Creators.Add(conflict);
@@ -42,6 +48,7 @@ public class CreatorApplyTests : ApplicationTests
         {
             await Sender.Send(new CreatorApplyCommand
             {
+                SubmitterId = player.Id,
                 Username = creator.Slug,
                 Ticker = creator.Ticker
             });
@@ -51,6 +58,8 @@ public class CreatorApplyTests : ApplicationTests
     [TestMethod]
     public async Task DupeSlug_ShouldFail()
     {
+        var player = PlayerFactory.Create();
+        DbContext.Players.Add(player);
         var creator = CreatorFactory.Create(username: "test");
         var conflict = CreatorFactory.Create(username: "test");
         DbContext.Creators.Add(conflict);
@@ -60,6 +69,7 @@ public class CreatorApplyTests : ApplicationTests
         {
             await Sender.Send(new CreatorApplyCommand
             {
+                SubmitterId = player.Id,
                 Username = creator.Slug,
                 Ticker = creator.Ticker
             });

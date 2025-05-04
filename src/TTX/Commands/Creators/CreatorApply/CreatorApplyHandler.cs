@@ -29,8 +29,9 @@ namespace TTX.Commands.Creators.CreatorApply
 
             TwitchUser tUser = await twitch.Find(request.Username) ?? throw new TwitchUserNotFoundException();
             CreatorApplication creatorApplication = CreatorApplication.Create(
-                request.Ticker,
-                tUser.Id
+                submitterId: request.SubmitterId,
+                ticker: request.Ticker,
+                twitchId: tUser.Id
             );
 
             context.Applications.Add(creatorApplication);

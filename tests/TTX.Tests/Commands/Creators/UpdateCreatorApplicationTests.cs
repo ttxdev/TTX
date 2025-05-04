@@ -15,7 +15,12 @@ public class UpdateCreatorApplicationTests : ApplicationTests
     [TestMethod]
     public async Task ApproveApplication_ShouldPass()
     {
+        var player = PlayerFactory.Create();
+        DbContext.Players.Add(player);
+        await DbContext.SaveChangesAsync();
+
         var application = CreatorApplication.Create(
+            submitterId: player.Id,
             twitchId: "6969",
             ticker: "ELIANISCOOL"
         );
@@ -47,7 +52,12 @@ public class UpdateCreatorApplicationTests : ApplicationTests
     [TestMethod]
     public async Task ApprovedApplication_ShouldFail()
     {
+        var player = PlayerFactory.Create();
+        DbContext.Players.Add(player);
+        await DbContext.SaveChangesAsync();
+
         var application = CreatorApplication.Create(
+            submitterId: player.Id,
             twitchId: "6969",
             ticker: "ELIANISCOOL"
         );

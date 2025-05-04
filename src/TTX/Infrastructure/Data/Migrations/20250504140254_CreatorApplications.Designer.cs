@@ -12,7 +12,7 @@ using TTX.Infrastructure.Data;
 namespace TTX.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250504123836_CreatorApplications")]
+    [Migration("20250504140254_CreatorApplications")]
     partial class CreatorApplications
     {
         /// <inheritdoc />
@@ -108,32 +108,39 @@ namespace TTX.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at")
-                        .HasColumnOrder(4);
+                        .HasColumnOrder(5);
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("status")
-                        .HasColumnOrder(3);
+                        .HasColumnOrder(4);
+
+                    b.Property<int>("SubmitterId")
+                        .HasColumnType("integer")
+                        .HasColumnName("submitter_id")
+                        .HasColumnOrder(1);
 
                     b.Property<string>("Ticker")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("ticker")
-                        .HasColumnOrder(2);
+                        .HasColumnOrder(3);
 
                     b.Property<string>("TwitchId")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("twitch_id")
-                        .HasColumnOrder(1);
+                        .HasColumnOrder(2);
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at")
-                        .HasColumnOrder(5);
+                        .HasColumnOrder(6);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SubmitterId");
 
                     b.ToTable("creator_applications", "public");
                 });
@@ -380,6 +387,15 @@ namespace TTX.Infrastructure.Data.Migrations
                         });
 
                     b.Navigation("StreamStatus")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TTX.Models.CreatorApplication", b =>
+                {
+                    b.HasOne("TTX.Models.Player", null)
+                        .WithMany()
+                        .HasForeignKey("SubmitterId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
