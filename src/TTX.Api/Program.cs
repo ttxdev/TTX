@@ -145,10 +145,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseMiddleware<TtxExceptionMiddleware>();
 app.MapControllers();
-app.MapHub<EventHub>("hubs/events", options =>
-{
-    options.Transports = HttpTransportType.WebSockets;
-});
+app.MapHub<EventHub>("hubs/events");
 
 using var scope = app.Services.CreateScope();
 {
