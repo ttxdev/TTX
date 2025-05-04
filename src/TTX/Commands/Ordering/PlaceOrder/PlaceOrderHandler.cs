@@ -21,9 +21,12 @@ namespace TTX.Commands.Ordering.PlaceOrder
             Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.Creator, ct)
                               ?? throw new CreatorNotFoundException();
 
-            Transaction tx = request.IsBuy
-                ? player.Buy(creator, request.Amount)
-                : player.Sell(creator, request.Amount);
+            Transaction tx = request.Action switch
+            {
+                TransactionAction.Buy => player.Buy(creator, request.Amount),
+                TransactionAction.Sell => player.Sell(creator, request.Amount),
+                _ => throw new InvalidActionException("Invalid transaction action")
+            };
 
             context.Transactions.Add(tx);
             context.Players.Update(player);

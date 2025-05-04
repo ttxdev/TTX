@@ -18,9 +18,9 @@
 	<meta property="og:image" content={data.player.avatar_url} />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[1000px]">
+<div class="relative mx-auto w-full max-w-[1000px]">
 	<div class="mx-2 my-5">
-		<PlayerCard {player} {place} />
+		<PlayerCard {player} {place} isStreamer={data.isStreamer} />
 	</div>
 
 	<div class="m-2 flex flex-col gap-4 md:flex-row">

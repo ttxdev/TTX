@@ -19,11 +19,11 @@ export class TTXClient {
     }
 
     /**
-     * @param page (optional) 
-     * @param limit (optional) 
-     * @param search (optional) 
-     * @param orderBy (optional) 
-     * @param orderDir (optional) 
+     * @param page (optional)
+     * @param limit (optional)
+     * @param search (optional)
+     * @param orderBy (optional)
+     * @param orderDir (optional)
      * @return OK
      */
     getCreators(page?: number | undefined, limit?: number | undefined, search?: string | undefined, orderBy?: CreatorOrderBy | undefined, orderDir?: OrderDirection | undefined): Promise<CreatorPartialDtoPaginationDto> {
@@ -81,19 +81,20 @@ export class TTXClient {
     }
 
     /**
-     * @param username (optional) 
+     * @param username (optional)
+     * @param ticker (optional)
      * @return OK
      */
-    createCreator(value: string, username?: string | undefined): Promise<CreatorDto> {
+    createCreator(username?: string | undefined, ticker?: string | undefined): Promise<CreatorDto> {
         let url_ = this.baseUrl + "/creators?";
-        if (value === undefined || value === null)
-            throw new Error("The parameter 'value' must be defined and cannot be null.");
-        else
-            url_ += "Value=" + encodeURIComponent("" + value) + "&";
         if (username === null)
             throw new Error("The parameter 'username' cannot be null.");
         else if (username !== undefined)
             url_ += "username=" + encodeURIComponent("" + username) + "&";
+        if (ticker === null)
+            throw new Error("The parameter 'ticker' cannot be null.");
+        else if (ticker !== undefined)
+            url_ += "ticker=" + encodeURIComponent("" + ticker) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -127,8 +128,8 @@ export class TTXClient {
     }
 
     /**
-     * @param step (optional) 
-     * @param after (optional) 
+     * @param step (optional)
+     * @param after (optional)
      * @return OK
      */
     getCreator(slug: string, step?: TimeStep | undefined, after?: Date | undefined): Promise<CreatorDto> {
@@ -177,8 +178,8 @@ export class TTXClient {
     }
 
     /**
-     * @param after (optional) 
-     * @param step (optional) 
+     * @param after (optional)
+     * @param step (optional)
      * @return OK
      */
     getLatestCreatorValue(creatorSlug: string, after?: Date | undefined, step?: TimeStep | undefined): Promise<Vote[]> {
@@ -234,7 +235,7 @@ export class TTXClient {
     }
 
     /**
-     * @param slug (optional) 
+     * @param slug (optional)
      * @return OK
      */
     getCreatorTransactions(creatorSlug: string, slug?: string | undefined): Promise<PlayerTransactionDto[]> {
@@ -286,11 +287,11 @@ export class TTXClient {
     }
 
     /**
-     * @param page (optional) 
-     * @param limit (optional) 
-     * @param search (optional) 
-     * @param orderBy (optional) 
-     * @param orderDir (optional) 
+     * @param page (optional)
+     * @param limit (optional)
+     * @param search (optional)
+     * @param orderBy (optional)
+     * @param orderDir (optional)
      * @return OK
      */
     getPlayers(page?: number | undefined, limit?: number | undefined, search?: string | undefined, orderBy?: PlayerOrderBy | undefined, orderDir?: OrderDirection | undefined): Promise<PlayerDtoPaginationDto> {
@@ -348,8 +349,8 @@ export class TTXClient {
     }
 
     /**
-     * @param step (optional) 
-     * @param after (optional) 
+     * @param step (optional)
+     * @param after (optional)
      * @return OK
      */
     getPlayer(username: string, step?: TimeStep | undefined, after?: Date | undefined): Promise<PlayerDto> {
@@ -475,7 +476,7 @@ export class TTXClient {
     }
 
     /**
-     * @param code (optional) 
+     * @param code (optional)
      * @return OK
      */
     twitchCallback(code?: string | undefined): Promise<TokenDto> {
@@ -517,7 +518,7 @@ export class TTXClient {
     }
 
     /**
-     * @param code (optional) 
+     * @param code (optional)
      * @return OK
      */
     discordCallback(code?: string | undefined): Promise<DiscordTokenDto> {
@@ -559,7 +560,7 @@ export class TTXClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     linkDiscordTwitch(body?: LinkDiscordTwitchDto | undefined): Promise<TokenDto> {
@@ -601,7 +602,7 @@ export class TTXClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     placeOrder(body?: CreateTransactionDto | undefined): Promise<CreatorTransactionDto> {
@@ -2615,6 +2616,7 @@ export interface ITransaction {
 export enum TransactionAction {
     Buy = "Buy",
     Sell = "Sell",
+    Open = "Open",
 }
 
 export class TwitchId implements ITwitchId {

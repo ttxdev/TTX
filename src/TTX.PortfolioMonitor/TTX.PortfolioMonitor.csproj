@@ -2,7 +2,6 @@
 
     <ItemGroup>
         <PackageReference Include="dotenv.net" Version="3.2.1" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
         <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
         <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.4" />

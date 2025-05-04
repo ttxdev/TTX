@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { TransactionAction, type PlayerTransactionDto } from '$lib/api';
+	import { type PlayerTransactionDto } from '$lib/api';
 	import TimeStamp from '$lib/components/shared/TimeStamp.svelte';
-	import { formatCreatorString, formatShareAmount, formatValue } from '$lib/util';
+	import { formatCreatorString, formatShareAmount, formatTxAction, formatValue } from '$lib/util';
 	import Card from '../shared/Card.svelte';
 
 	let { transactions }: { transactions: PlayerTransactionDto[] } = $props();
@@ -26,7 +26,7 @@
 								/>
 							</a>
 							<div class="flex flex-col">
-								<span class="text-xl font-semibold">{tx.action == TransactionAction.Buy ? 'Bought' : 'Sold'}</span>
+								<span class="text-xl font-semibold">{formatTxAction(tx.action)}</span>
 								<a
 									href="/creators/{tx.creator.slug}"
 									class="text-sm text-violet-500 hover:underline"

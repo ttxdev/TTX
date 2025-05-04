@@ -3,6 +3,7 @@
     public enum TransactionAction
     {
         Buy,
-        Sell
+        Sell,
+        Open
     }
 }

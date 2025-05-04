@@ -9,6 +9,5 @@ namespace TTX.Commands.Ordering.PlaceOrder
         public required Slug Creator { get; init; }
         public required Quantity Amount { get; init; }
         public required TransactionAction Action { get; init; }
-        public bool IsBuy => Action == TransactionAction.Buy;
     }
 }
