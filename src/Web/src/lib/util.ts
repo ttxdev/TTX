@@ -6,7 +6,7 @@ export function formatValue(value: number) {
 	} else if (Math.abs(value) >= 1_000_000_000) {
 		return `${(value / 1_000_000_000).toFixed(2)} B`;
 	} else {
-		return `$${Math.abs(value).toLocaleString('en-US', {
+		return `${Math.abs(value).toLocaleString('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0
 		})}`;

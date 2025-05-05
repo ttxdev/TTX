@@ -46,9 +46,10 @@
 					<ExternalLink
 						href={creator.url}
 						target="_blank"
-						className="text-lg font-semibold text-purple-500 hover:underline">{creator.name}</ExternalLink
+						className="text-lg font-semibold text-purple-500 hover:underline"
+						>{creator.name}</ExternalLink
 					>
-					<span class="text-opacity-60 font-mono text-sm">{formatTicker(creator.ticker)}</span>
+					<span class="font-mono text-sm text-opacity-60">{formatTicker(creator.ticker)}</span>
 				</div>
 			</div>
 			<div class="relative flex flex-col text-center">

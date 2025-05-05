@@ -3,9 +3,10 @@
 	import type { PageProps } from './$types';
 	import { afterNavigate } from '$app/navigation';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 
 	let { data }: PageProps = $props();
-	let searchQuery = '';
+	let searchQuery = $state('');
 
 	afterNavigate(({ from }) => {
 		if (from?.url.pathname === '/players') {
@@ -80,7 +81,12 @@
 	</div>
 
 	{#if data.players && data.players.length > 0}
-		<PlayerLeaderboard players={data.players} total={data.total} currentPage={data.currentPage} />
+		<PlayerLeaderboard
+			players={data.players}
+			total={data.total}
+			currentPage={data.currentPage}
+			showPlace={!page.url.searchParams.get('search')}
+		/>
 	{:else}
 		<p>No players available</p>
 	{/if}
