@@ -177,7 +177,7 @@
 						</div>
 					</td>
 					<td class="py-6 text-center max-md:px-4 max-md:text-base max-md:font-semibold"
-						>${formatValue(player.portfolio)}</td
+						>{formatValue(player.portfolio)}</td
 					>
 					<td class="flex items-center justify-center py-6 text-center max-md:hidden max-md:px-4">
 						<div class="h-16 w-32">

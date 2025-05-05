@@ -234,7 +234,7 @@
 					</td>
 					<td class="py-4 text-center max-md:px-2 max-md:text-sm max-md:font-semibold">
 						<a href="/creators/{channel.slug}" rel="noopener noreferrer" class="block">
-							${formatValue(channel.value)}
+							{formatValue(channel.value)}
 						</a>
 					</td>
 					<td class="flex items-center justify-center py-4 max-md:hidden">
