@@ -12,8 +12,8 @@ using TTX.Infrastructure.Data;
 namespace TTX.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250505231044_CreatorAppRecordName")]
-    partial class CreatorAppRecordName
+    [Migration("20250505234830_CreatorApplications")]
+    partial class CreatorApplications
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
