@@ -1,10 +1,10 @@
+using System.Text.Json.Serialization;
 using TTX.Models;
-using TTX.ValueObjects;
 
 namespace TTX.Commands.Players.CalculatePortfolio
 {
     public readonly struct CalculatePortfolioCommand : ICommand<PortfolioSnapshot>
     {
-        public required ModelId PlayerId { get; init; }
+        [JsonPropertyName("player_id")] public required int PlayerId { get; init; }
     }
 }

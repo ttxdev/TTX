@@ -52,7 +52,7 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
                 throw new InvalidOperationException("Invalid request, Twitch identifier not provided");
             }
 
-            return tUser ?? throw new TwitchUserNotFoundException();
+            return tUser ?? throw new NotFoundException<TwitchUser>();
         }
 
         private async Task<Player> Sync(TwitchUser tUser, Player player)

@@ -44,12 +44,12 @@ public class CalculatePortfolioTests : ApplicationTests
         {
             Action = TransactionAction.Buy,
             Amount = quantity,
-            Actor = player.Id,
+            ActorId = player.Id,
             Creator = creator.Slug
         });
         await Sender.Send(new RecordNetChangeCommand
         {
-            CreatorSlug = creator.Slug,
+            Username = creator.Slug,
             NetChange = increase
         });
 
@@ -80,12 +80,12 @@ public class CalculatePortfolioTests : ApplicationTests
             Action = TransactionAction.Buy,
             Amount = quantity,
             Creator = creator.Slug,
-            Actor = player.Id
+            ActorId = player.Id
         });
 
         await Sender.Send(new RecordNetChangeCommand
         {
-            CreatorSlug = creator.Slug,
+            Username = creator.Slug,
             NetChange = decrease
         });
 

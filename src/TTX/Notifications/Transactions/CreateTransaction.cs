@@ -1,25 +1,16 @@
-using TTX.Dto.Players;
+using System.Text.Json.Serialization;
 using TTX.Dto.Transactions;
 using TTX.Models;
 
 namespace TTX.Notifications.Transactions
 {
-    public class CreateTransaction : CreatorTransactionDto, INotification
+    public class CreateTransaction : INotification
     {
-        public static new CreateTransaction Create(Transaction tx)
+        [JsonPropertyName("transaction")] public required CreatorTransactionDto Transaction { get; init; }
+
+        public static CreateTransaction Create(Transaction tx)
         {
-            return new CreateTransaction
-            {
-                Id = tx.Id,
-                Action = tx.Action,
-                Value = tx.Value,
-                Quantity = tx.Quantity,
-                CreatorId = tx.CreatorId,
-                PlayerId = tx.PlayerId,
-                Player = PlayerPartialDto.Create(tx.Player),
-                CreatedAt = tx.CreatedAt,
-                UpdatedAt = tx.UpdatedAt
-            };
+            return new CreateTransaction { Transaction = CreatorTransactionDto.Create(tx) };
         }
     }
 }

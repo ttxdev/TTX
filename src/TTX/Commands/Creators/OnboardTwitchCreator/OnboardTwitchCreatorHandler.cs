@@ -19,7 +19,7 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
         {
             if (await IsTickerTaken(request.Ticker, ct))
             {
-                throw new CreatorTickerTakenException();
+                throw new InvalidActionException("Ticker is already taken");
             }
 
             TwitchUser tUser = await FindTwitchUser(request);
@@ -65,15 +65,17 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
             if (request.Username is not null)
             {
                 tUser = await twitch.Find(request.Username);
-            } else if (request.TwitchId is not null)
+            }
+            else if (request.TwitchId is not null)
             {
                 tUser = await twitch.FindById(request.TwitchId);
-            } else
+            }
+            else
             {
                 throw new InvalidOperationException("Username or TwitchId must be provided");
             }
 
-            return tUser ?? throw new TwitchUserNotFoundException();
+            return tUser ?? throw new NotFoundException<TwitchUser>();
         }
 
         private Task<Creator?> CreatorExists(TwitchId twitchId, CancellationToken ct)

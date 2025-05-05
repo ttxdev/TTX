@@ -18,10 +18,10 @@ namespace TTX.Commands.Players.CalculatePortfolio
                 .FirstOrDefaultAsync(ct);
 
             Player player = await context.Players
-                                .Include(p  => p.Transactions.OrderBy(t => t.CreatedAt))
+                                .Include(p => p.Transactions.OrderBy(t => t.CreatedAt))
                                 .ThenInclude(t => t.Creator)
                                 .SingleOrDefaultAsync(p => p.Id == request.PlayerId, ct) ??
-                            throw new PlayerNotFoundException();
+                            throw new NotFoundException<Player>();
 
             PortfolioSnapshot snapshot = CalculatePortfolio(player);
 

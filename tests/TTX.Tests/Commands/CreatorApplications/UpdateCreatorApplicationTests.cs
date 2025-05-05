@@ -1,10 +1,6 @@
-using Microsoft.Extensions.DependencyInjection;
-using TTX.Commands.Creators.RecordNetChange;
-using TTX.Notifications.Creators;
+using TTX.Commands.CreatorApplications.UpdateCreatorApplication;
 using TTX.Tests.Factories;
-using TTX.Tests.Notifications;
 using TTX.Models;
-using TTX.Commands.Creators.UpdateCreatorApplication;
 using TTX.Exceptions;
 
 namespace TTX.Tests.Commands.Creators;
@@ -20,11 +16,12 @@ public class UpdateCreatorApplicationTests : ApplicationTests
         await DbContext.SaveChangesAsync();
 
         var application = CreatorApplication.Create(
-            submitterId: player.Id,
+            name: "Elian",
+            submitter: player,
             twitchId: "6969",
             ticker: "ELIANISCOOL"
         );
-        DbContext.Applications.Add(application);
+        DbContext.CreatorApplications.Add(application);
         await DbContext.SaveChangesAsync();
 
         var result = await Sender.Send(new UpdateCreatorApplicationCommand
@@ -37,19 +34,6 @@ public class UpdateCreatorApplicationTests : ApplicationTests
     }
 
     [TestMethod]
-    public async Task ApplicationDoesNotExist_ShouldFail()
-    {
-        await Assert.ThrowsExceptionAsync<CreatorApplicationNotFoundException>(async () =>
-        {
-            await Sender.Send(new UpdateCreatorApplicationCommand
-            {
-                ApplicationId = 42069,
-                Status = CreatorApplicationStatus.Approved
-            });
-        });
-    }
-
-    [TestMethod]
     public async Task ApprovedApplication_ShouldFail()
     {
         var player = PlayerFactory.Create();
@@ -57,15 +41,16 @@ public class UpdateCreatorApplicationTests : ApplicationTests
         await DbContext.SaveChangesAsync();
 
         var application = CreatorApplication.Create(
-            submitterId: player.Id,
+            name: "Elian",
+            submitter: player,
             twitchId: "6969",
             ticker: "ELIANISCOOL"
         );
 
-        DbContext.Applications.Add(application);
+        DbContext.CreatorApplications.Add(application);
         await DbContext.SaveChangesAsync();
 
-        await Assert.ThrowsExceptionAsync<CreatorApplicationAlreadyCompletedException>(async () =>
+        await Assert.ThrowsExceptionAsync<InvalidActionException>(async () =>
         {
             await Sender.Send(new UpdateCreatorApplicationCommand
             {

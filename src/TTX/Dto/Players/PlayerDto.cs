@@ -13,7 +13,7 @@ namespace TTX.Dto.Players
         [JsonPropertyName("loot_boxes")] public required LootBoxDto[] LootBoxes { get; init; }
 
         [JsonPropertyName("shares")] public required PlayerShareDto[] Shares { get; init; }
-        
+
         [JsonPropertyName("history")] public required PortfolioDto[] History { get; init; }
 
         public static new PlayerDto Create(Player player)

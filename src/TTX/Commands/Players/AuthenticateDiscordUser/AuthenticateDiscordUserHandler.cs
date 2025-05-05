@@ -12,7 +12,7 @@ namespace TTX.Commands.Players.AuthenticateDiscordUser
             CancellationToken ct = default)
         {
             DiscordUser user = await discord.GetByOAuth(request.OAuthCode)
-                               ?? throw new DiscordUserNotFoundException();
+                               ?? throw new NotFoundException<DiscordUser>();
 
             TwitchUser[] tUsers = await twitch.FindByIds([
                 ..user.Connections

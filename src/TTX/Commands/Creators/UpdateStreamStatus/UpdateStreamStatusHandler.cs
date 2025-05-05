@@ -11,8 +11,8 @@ namespace TTX.Commands.Creators.UpdateStreamStatus
     {
         public async Task<StreamStatus> Handle(UpdateStreamStatusCommand request, CancellationToken ct = default)
         {
-            Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.CreatorSlug, ct)
-                              ?? throw new CreatorNotFoundException();
+            Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.Username, ct)
+                              ?? throw new NotFoundException<Creator>();
 
             if (request.IsLive)
             {

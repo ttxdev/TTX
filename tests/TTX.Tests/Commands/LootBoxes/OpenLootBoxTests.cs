@@ -46,7 +46,7 @@ public class OpenLootBoxTests : ApplicationTests
             LootBoxId = lb.Id
         });
 
-        var result = lHandler.FindNotification<OpenLootBox>(r => r.LootBoxId == lb.Id);
+        var result = lHandler.FindNotification<OpenLootBox>(r => r.Result.LootBoxId == lb.Id);
         Assert.IsNotNull(result);
     }
 
@@ -67,7 +67,7 @@ public class OpenLootBoxTests : ApplicationTests
             LootBoxId = lb.Id
         });
 
-        var result = lHandler.FindNotification<CreateTransaction>(t => t.PlayerId == player.Id);
+        var result = lHandler.FindNotification<CreateTransaction>(t => t.Transaction.PlayerId == player.Id);
         Assert.IsNotNull(result);
     }
 }

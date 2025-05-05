@@ -1,17 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
-using TTX.Commands.Creators.RecordNetChange;
-using TTX.Tests.Infrastructure.Twitch;
-using TTX.Interfaces.Twitch;
-using TTX.Notifications.Creators;
-using TTX.Tests.Factories;
-using TTX.Tests.Notifications;
-using TTX.Commands.Creators.CreatorApply;
+using TTX.Commands.CreatorApplications.CreateCreatorApplication;
 using TTX.Exceptions;
+using TTX.Interfaces.Twitch;
+using TTX.Tests.Factories;
+using TTX.Tests.Infrastructure.Twitch;
 
-namespace TTX.Tests.Commands.Creators;
+namespace TTX.Tests.Commands.CreatorApplications;
 
 [TestClass]
-public class CreatorApplyTests : ApplicationTests
+public class CreateCreatorApplicationTests : ApplicationTests
 {
     [TestMethod]
     public async Task FreshApplication_ShouldPass()
@@ -23,7 +20,7 @@ public class CreatorApplyTests : ApplicationTests
         tAuth.Inject(creator);
         await DbContext.SaveChangesAsync();
 
-        var result = await Sender.Send(new CreatorApplyCommand
+        var result = await Sender.Send(new CreateCreatorApplicationCommand
         {
             SubmitterId = player.Id,
             Username = creator.Slug,
@@ -44,9 +41,9 @@ public class CreatorApplyTests : ApplicationTests
         DbContext.Creators.Add(conflict);
         await DbContext.SaveChangesAsync();
 
-        await Assert.ThrowsExceptionAsync<CreatorTickerTakenException>(async () =>
+        await Assert.ThrowsExceptionAsync<InvalidActionException>(async () =>
         {
-            await Sender.Send(new CreatorApplyCommand
+            await Sender.Send(new CreateCreatorApplicationCommand
             {
                 SubmitterId = player.Id,
                 Username = creator.Slug,
@@ -65,9 +62,9 @@ public class CreatorApplyTests : ApplicationTests
         DbContext.Creators.Add(conflict);
         await DbContext.SaveChangesAsync();
 
-        await Assert.ThrowsExceptionAsync<CreatorExistsException>(async () =>
+        await Assert.ThrowsExceptionAsync<InvalidActionException>(async () =>
         {
-            await Sender.Send(new CreatorApplyCommand
+            await Sender.Send(new CreateCreatorApplicationCommand
             {
                 SubmitterId = player.Id,
                 Username = creator.Slug,

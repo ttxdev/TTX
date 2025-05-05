@@ -1,13 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto;
+using TTX.Dto.Creators;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 
 namespace TTX.Queries.Creators.IndexCreators
 {
     public class IndexCreatorsHandler(ApplicationDbContext context)
-        : CreatorQueryHandler(context), IQueryHandler<IndexCreatorsQuery, Pagination<Creator>>
+        : CreatorQueryHandler(context), IQueryHandler<IndexCreatorsQuery, PaginationDto<CreatorDto>>
     {
-        public async Task<Pagination<Creator>> Handle(IndexCreatorsQuery request, CancellationToken ct = default)
+        public async Task<PaginationDto<CreatorDto>> Handle(IndexCreatorsQuery request, CancellationToken ct = default)
         {
             IQueryable<Creator> query = Context.Creators.AsQueryable();
             ApplySearch(ref query, request.Search);
@@ -19,7 +21,7 @@ namespace TTX.Queries.Creators.IndexCreators
             Dictionary<int, Vote[]> history = await GetHistoryFor([.. creators], request.HistoryParams.Step,
                 request.HistoryParams.After, ct);
 
-            return new Pagination<Creator>
+            return new PaginationDto<CreatorDto>
             {
                 Total = total,
                 Data =
@@ -31,7 +33,7 @@ namespace TTX.Queries.Creators.IndexCreators
                             c.History = [.. value];
                         }
 
-                        return c;
+                        return CreatorDto.Create(c);
                     })
                 ]
             };

@@ -11,12 +11,7 @@ namespace TTX.Dto.Portfolios
 
         public static PortfolioDto Create(PortfolioSnapshot p)
         {
-            return new PortfolioDto
-            {
-                PlayerId= p.PlayerId, 
-                Value = p.Value, 
-                Time = p.Time
-            };
+            return new PortfolioDto { PlayerId = p.PlayerId, Value = p.Value, Time = p.Time };
         }
     }
 }

@@ -4,18 +4,16 @@ using TTX.Models;
 
 namespace TTX.Notifications.Creators
 {
-    public class UpdateStreamStatus : StreamStatusDto, INotification
+    public class UpdateStreamStatus : INotification
     {
         [JsonPropertyName("creator_id")] public required int CreatorId { get; init; }
+        [JsonPropertyName("stream_status")] public required StreamStatusDto StreamStatus { get; init; }
 
         public static UpdateStreamStatus Create(Creator creator)
         {
             return new UpdateStreamStatus
             {
-                CreatorId = creator.Id,
-                IsLive = creator.StreamStatus.IsLive,
-                StartedAt = creator.StreamStatus.StartedAt,
-                EndedAt = creator.StreamStatus.EndedAt
+                CreatorId = creator.Id, StreamStatus = StreamStatusDto.Create(creator.StreamStatus)
             };
         }
     }

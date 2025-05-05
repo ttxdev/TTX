@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
+using TTX.Notifications.Transactions;
 using TTX.ValueObjects;
 
 namespace TTX.Commands.LootBoxes.OpenLootBox
@@ -21,9 +22,9 @@ namespace TTX.Commands.LootBoxes.OpenLootBox
             Player player = await context.Players
                                 .Include(p => p.LootBoxes)
                                 .SingleOrDefaultAsync(p => p.Id == request.ActorId, ct)
-                            ?? throw new PlayerNotFoundException();
+                            ?? throw new NotFoundException<Player>();
             LootBox lootBox = player.LootBoxes.SingleOrDefault(l => l.Id == request.LootBoxId) ??
-                              throw new LootBoxNotFoundException();
+                              throw new NotFoundException<LootBox>();
             OpenLootBoxResult result = lootBox.Open(
                 await context.Creators.Where(c => c.Value >= MinValue).ToArrayAsync(ct),
                 Random);
@@ -31,7 +32,7 @@ namespace TTX.Commands.LootBoxes.OpenLootBox
 
             context.Transactions.Add(tx);
             await context.SaveChangesAsync(ct);
-            await mediator.Publish(Notifications.Transactions.CreateTransaction.Create(tx), ct);
+            await mediator.Publish(CreateTransaction.Create(tx), ct);
             await mediator.Publish(Notifications.LootBoxes.OpenLootBox.Create(result), ct);
 
             return result;

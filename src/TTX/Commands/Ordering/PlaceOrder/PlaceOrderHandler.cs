@@ -15,11 +15,11 @@ namespace TTX.Commands.Ordering.PlaceOrder
             Player player = await context.Players
                                 .Include(p => p.Transactions.OrderBy(t => t.CreatedAt))
                                 .ThenInclude(t => t.Creator)
-                                .SingleOrDefaultAsync(p => p.Id == request.Actor, ct)
-                            ?? throw new PlayerNotFoundException();
+                                .SingleOrDefaultAsync(p => p.Id == request.ActorId, ct)
+                            ?? throw new NotFoundException<Player>();
 
             Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.Creator, ct)
-                              ?? throw new CreatorNotFoundException();
+                              ?? throw new NotFoundException<Creator>();
 
             Transaction tx = request.Action switch
             {

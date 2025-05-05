@@ -65,12 +65,12 @@ public class AuthenticateTwitchUserTests : ApplicationTests
             OAuthCode = oauthCode
         });
 
-        var result = cHandler.FindNotification<CreatePlayer>(c => c.Slug == player.Slug);
+        var result = cHandler.FindNotification<CreatePlayer>(c => c.Player.Slug == player.Slug);
         Assert.IsNotNull(result);
-        Assert.AreEqual(player.Slug.Value, result.Slug);
-        Assert.AreEqual(player.Name.Value, result.Name);
-        Assert.AreEqual(player.AvatarUrl.ToString(), result.AvatarUrl);
-        Assert.AreEqual(player.TwitchId.Value, result.TwitchId);
+        Assert.AreEqual(player.Slug.Value, result.Player.Slug);
+        Assert.AreEqual(player.Name.Value, result.Player.Name);
+        Assert.AreEqual(player.AvatarUrl.ToString(), result.Player.AvatarUrl);
+        Assert.AreEqual(player.TwitchId.Value, result.Player.TwitchId);
     }
 
     [TestMethod]
@@ -104,11 +104,11 @@ public class AuthenticateTwitchUserTests : ApplicationTests
             UserId = player.TwitchId
         });
 
-        var result = cHandler.FindNotification<CreatePlayer>(c => c.Slug == player.Slug);
+        var result = cHandler.FindNotification<CreatePlayer>(c => c.Player.Slug == player.Slug);
         Assert.IsNotNull(result);
-        Assert.AreEqual(player.Slug.Value, result.Slug);
-        Assert.AreEqual(player.Name.Value, result.Name);
-        Assert.AreEqual(player.AvatarUrl.ToString(), result.AvatarUrl);
-        Assert.AreEqual(player.TwitchId.Value, result.TwitchId);
+        Assert.AreEqual(player.Slug.Value, result.Player.Slug);
+        Assert.AreEqual(player.Name.Value, result.Player.Name);
+        Assert.AreEqual(player.AvatarUrl.ToString(), result.Player.AvatarUrl);
+        Assert.AreEqual(player.TwitchId.Value, result.Player.TwitchId);
     }
 }

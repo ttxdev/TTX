@@ -198,7 +198,8 @@ namespace TTX.Infrastructure.Data
                     .HasColumnName("value");
                 entity.Property(p => p.Time)
                     .HasColumnOrder(3)
-                    .HasColumnName("time");;
+                    .HasColumnName("time");
+                ;
 
                 entity.HasOne(p => p.Player)
                     .WithMany()
@@ -311,6 +312,10 @@ namespace TTX.Infrastructure.Data
                     .HasConversion(new ModelIdConverter())
                     .HasColumnOrder(1)
                     .HasColumnName("submitter_id");
+                entity.Property(a => a.Name)
+                    .HasConversion(new NameConverter())
+                    .HasColumnOrder(1)
+                    .HasColumnName("name");
                 entity.Property(a => a.TwitchId)
                     .HasConversion(new TwitchIdConverter())
                     .HasColumnOrder(2)
@@ -337,7 +342,6 @@ namespace TTX.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(t => t.SubmitterId)
                     .IsRequired();
-
             });
 
             base.OnModelCreating(modelBuilder);
@@ -380,7 +384,7 @@ namespace TTX.Infrastructure.Data
         public DbSet<PortfolioSnapshot> Portfolios => Set<PortfolioSnapshot>();
         public DbSet<LootBox> LootBoxes => Set<LootBox>();
         public DbSet<Vote> Votes => Set<Vote>();
-        public DbSet<CreatorApplication> Applications => Set<CreatorApplication>();
+        public DbSet<CreatorApplication> CreatorApplications => Set<CreatorApplication>();
 
         #endregion
     }

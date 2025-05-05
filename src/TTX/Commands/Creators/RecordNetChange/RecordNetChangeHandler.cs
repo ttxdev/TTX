@@ -12,8 +12,8 @@ namespace TTX.Commands.Creators.RecordNetChange
     {
         public async Task<Vote> Handle(RecordNetChangeCommand request, CancellationToken ct = default)
         {
-            Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.CreatorSlug, ct)
-                              ?? throw new CreatorNotFoundException();
+            Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.Username, ct)
+                              ?? throw new NotFoundException<Creator>();
             Vote vote = creator.ApplyNetChange(request.NetChange);
 
             await context.Database.ExecuteSqlInterpolatedAsync(

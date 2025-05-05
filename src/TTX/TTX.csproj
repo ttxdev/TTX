@@ -4,7 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>1.7.7</Version>
+        <Version>1.8.0</Version>
         <Title>TTX</Title>
         <Company>TTX</Company>
         <Product>TTX</Product>
@@ -26,6 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Commands\CreatorApplications\"/>
         <Folder Include="Infrastructure\Data\Migrations\"/>
     </ItemGroup>
 

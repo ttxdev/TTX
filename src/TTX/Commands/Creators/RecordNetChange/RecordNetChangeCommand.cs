@@ -1,11 +1,11 @@
-﻿using TTX.Models;
-using TTX.ValueObjects;
+﻿using System.Text.Json.Serialization;
+using TTX.Models;
 
 namespace TTX.Commands.Creators.RecordNetChange
 {
     public readonly struct RecordNetChangeCommand : ICommand<Vote>
     {
-        public required Slug CreatorSlug { get; init; }
-        public required int NetChange { get; init; }
+        [JsonPropertyName("username")] public required string Username { get; init; }
+        [JsonPropertyName("net_change")] public required int NetChange { get; init; }
     }
 }

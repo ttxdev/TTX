@@ -20,7 +20,7 @@ public class RecordNetChangeTests : ApplicationTests
 
         var result = await Sender.Send(new RecordNetChangeCommand
         {
-            CreatorSlug = creator.Slug,
+            Username = creator.Slug,
             NetChange = netChange
         });
 
@@ -40,12 +40,12 @@ public class RecordNetChangeTests : ApplicationTests
 
         await Sender.Send(new RecordNetChangeCommand
         {
-            CreatorSlug = creator.Slug,
+            Username = creator.Slug,
             NetChange = netChange
         });
-        var result = vHandler.FindNotification<UpdateCreatorValue>(v => v.CreatorId == creator.Id);
+        var result = vHandler.FindNotification<UpdateCreatorValue>(v => v.Vote.CreatorId == creator.Id);
 
         Assert.IsNotNull(result);
-        Assert.AreEqual(value + netChange, result.Value);
+        Assert.AreEqual(value + netChange, result.Vote.Value);
     }
 }
