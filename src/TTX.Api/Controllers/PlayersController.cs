@@ -2,13 +2,11 @@ using System.Net.Mime;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TTX.Api.Dto;
 using TTX.Api.Interfaces;
 using TTX.Commands.LootBoxes.OpenLootBox;
 using TTX.Dto;
 using TTX.Dto.LootBoxes;
 using TTX.Dto.Players;
-using TTX.Dto.Transactions;
 using TTX.Queries;
 using TTX.Queries.Players.FindPlayer;
 using TTX.Queries.Players.IndexPlayers;
@@ -54,7 +52,8 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
 
     [HttpGet("{username}")]
     [EndpointName("GetPlayer")]
-    public async Task<ActionResult<PlayerDto>> Show(string username, [FromQuery] TimeStep step = TimeStep.FiveMinute, [FromQuery] DateTimeOffset? after = null)
+    public async Task<ActionResult<PlayerDto>> Show(string username, [FromQuery] TimeStep step = TimeStep.FiveMinute,
+        [FromQuery] DateTimeOffset? after = null)
     {
         var player = await sender.Send(new FindPlayerQuery
         {

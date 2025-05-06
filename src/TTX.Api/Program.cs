@@ -4,7 +4,6 @@ using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
@@ -20,6 +19,8 @@ using TTX.Infrastructure.Discord;
 using TTX.Infrastructure.Twitch;
 using TTX.Interfaces.Discord;
 using TTX.Interfaces.Twitch;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
+
 [assembly: ApiController]
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,10 +31,7 @@ IConfigProvider config = new ConfigProvider(builder.Configuration);
 
 // Add services to the container.
 builder.Services
-    .Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
-    {
-        o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    })
+    .Configure<JsonOptions>(o => { o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); })
     .AddLogging(options =>
     {
         options.AddConsole();
@@ -50,7 +48,7 @@ builder.Services
     .AddSingleton<CreateTransactionNotificationHandler>()
     .AddSingleton<UpdateCreatorValueNotificationHandler>()
     .AddSingleton<UpdatePlayerPortfolioNotificationHandler>()
-    .AddSingleton<IConfigProvider>(config)
+    .AddSingleton(config)
     .AddDbContextPool<ApplicationDbContext>(
         options =>
         {
