@@ -18,6 +18,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		);
 
 		const isPlayer = client.getPlayer(channelSlug).then(() => true).catch(() => false)
+		const currentUserIsCreator = client.getSelf().then(user => user.slug === channelSlug).catch(() => false)
 
 		return {
 			creator: creator.toJSON() as CreatorDto,
@@ -26,7 +27,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
   			.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
 		  	.map((d) => d.toJSON() as CreatorTransactionDto),
 			interval,
-			isPlayer
+			isPlayer,
+			currentUserIsCreator
 		};
 	} catch (err) {
 		console.error(err);
