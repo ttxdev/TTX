@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto.LootBoxes;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
@@ -12,12 +13,12 @@ namespace TTX.Commands.LootBoxes.OpenLootBox
         ApplicationDbContext context,
         IMediator mediator,
         Random? random = null
-    ) : ICommandHandler<OpenLootBoxCommand, OpenLootBoxResult>
+    ) : ICommandHandler<OpenLootBoxCommand, LootBoxResultDto>
     {
         public const int MinValue = 100;
-        public readonly Random Random = random ?? new Random();
+        private readonly Random Random = random ?? new Random();
 
-        public async Task<OpenLootBoxResult> Handle(OpenLootBoxCommand request, CancellationToken ct = default)
+        public async Task<LootBoxResultDto> Handle(OpenLootBoxCommand request, CancellationToken ct = default)
         {
             Player player = await context.Players
                                 .Include(p => p.LootBoxes)
@@ -35,7 +36,7 @@ namespace TTX.Commands.LootBoxes.OpenLootBox
             await mediator.Publish(CreateTransaction.Create(tx), ct);
             await mediator.Publish(Notifications.LootBoxes.OpenLootBox.Create(result), ct);
 
-            return result;
+            return LootBoxResultDto.Create(result);
         }
     }
 }

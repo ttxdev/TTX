@@ -27,8 +27,8 @@ public class CreateCreatorApplicationTests : ApplicationTests
             Ticker = creator.Ticker
         });
 
-        Assert.AreEqual(creator.TwitchId, result.TwitchId);
-        Assert.AreEqual(creator.Ticker, result.Ticker);
+        Assert.AreEqual(creator.TwitchId.Value, result.TwitchId);
+        Assert.AreEqual(creator.Ticker.Value, result.Ticker);
     }
 
     [TestMethod]

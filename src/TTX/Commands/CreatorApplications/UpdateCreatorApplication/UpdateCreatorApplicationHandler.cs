@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto.CreatorApplications;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
@@ -9,9 +10,9 @@ namespace TTX.Commands.CreatorApplications.UpdateCreatorApplication
     public class UpdateCreatorApplicationHandler(
         IMediator mediatr,
         ApplicationDbContext context
-    ) : ICommandHandler<UpdateCreatorApplicationCommand, CreatorApplication>
+    ) : ICommandHandler<UpdateCreatorApplicationCommand, CreatorApplicationDto>
     {
-        public async Task<CreatorApplication> Handle(UpdateCreatorApplicationCommand request,
+        public async Task<CreatorApplicationDto> Handle(UpdateCreatorApplicationCommand request,
             CancellationToken ct = default)
         {
             CreatorApplication application = await context.CreatorApplications
@@ -27,7 +28,7 @@ namespace TTX.Commands.CreatorApplications.UpdateCreatorApplication
                 ct
             );
 
-            return application;
+            return CreatorApplicationDto.Create(application);
         }
     }
 }

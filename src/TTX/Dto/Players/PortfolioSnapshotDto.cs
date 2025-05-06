@@ -1,17 +1,17 @@
 using System.Text.Json.Serialization;
 using TTX.Models;
 
-namespace TTX.Dto.Portfolios
+namespace TTX.Dto.Players
 {
-    public class PortfolioDto
+    public class PortfolioSnapshotDto
     {
         [JsonPropertyName("player_id")] public required int PlayerId { get; init; }
         [JsonPropertyName("value")] public required long Value { get; init; }
         [JsonPropertyName("time")] public required DateTimeOffset Time { get; init; }
 
-        public static PortfolioDto Create(PortfolioSnapshot p)
+        public static PortfolioSnapshotDto Create(PortfolioSnapshot p)
         {
-            return new PortfolioDto { PlayerId = p.PlayerId, Value = p.Value, Time = p.Time };
+            return new PortfolioSnapshotDto { PlayerId = p.PlayerId, Value = p.Value, Time = p.Time };
         }
     }
 }

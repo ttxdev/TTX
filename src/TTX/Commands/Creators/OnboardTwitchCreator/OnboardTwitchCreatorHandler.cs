@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto.Creators;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
@@ -13,9 +14,9 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
         IMediator mediatr,
         ApplicationDbContext context,
         ITwitchAuthService twitch
-    ) : ICommandHandler<OnboardTwitchCreatorCommand, Creator>
+    ) : ICommandHandler<OnboardTwitchCreatorCommand, CreatorDto>
     {
-        public async Task<Creator> Handle(OnboardTwitchCreatorCommand request, CancellationToken ct = default)
+        public async Task<CreatorDto> Handle(OnboardTwitchCreatorCommand request, CancellationToken ct = default)
         {
             if (await IsTickerTaken(request.Ticker, ct))
             {
@@ -32,7 +33,7 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
                     await context.SaveChangesAsync(ct);
                 }
 
-                return creator;
+                return CreatorDto.Create(creator);
             }
 
             creator = Creator.Create(
@@ -45,10 +46,9 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
 
             context.Creators.Add(creator);
             await context.SaveChangesAsync(ct);
-
             await mediatr.Publish(CreateCreator.Create(creator), ct);
 
-            return creator;
+            return CreatorDto.Create(creator);
         }
 
         private async Task<bool> IsTickerTaken(Ticker ticker, CancellationToken ct)

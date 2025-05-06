@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto.CreatorApplications;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
@@ -12,9 +13,9 @@ namespace TTX.Commands.CreatorApplications.CreateCreatorApplication
         IMediator mediatr,
         ApplicationDbContext context,
         ITwitchAuthService twitch
-    ) : ICommandHandler<CreateCreatorApplicationCommand, CreatorApplication>
+    ) : ICommandHandler<CreateCreatorApplicationCommand, CreatorApplicationDto>
     {
-        public async Task<CreatorApplication> Handle(CreateCreatorApplicationCommand request,
+        public async Task<CreatorApplicationDto> Handle(CreateCreatorApplicationCommand request,
             CancellationToken ct = default)
         {
             if (await IsTickerTaken(request.Ticker, ct))
@@ -45,7 +46,7 @@ namespace TTX.Commands.CreatorApplications.CreateCreatorApplication
                 ct
             );
 
-            return app;
+            return CreatorApplicationDto.Create(app);
         }
 
         private async Task<bool> IsTickerTaken(Ticker ticker, CancellationToken ct)

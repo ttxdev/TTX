@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto.Creators;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
@@ -8,9 +9,9 @@ using TTX.Notifications.Creators;
 namespace TTX.Commands.Creators.RecordNetChange
 {
     public class RecordNetChangeHandler(ApplicationDbContext context, IMediator mediator)
-        : ICommandHandler<RecordNetChangeCommand, Vote>
+        : ICommandHandler<RecordNetChangeCommand, VoteDto>
     {
-        public async Task<Vote> Handle(RecordNetChangeCommand request, CancellationToken ct = default)
+        public async Task<VoteDto> Handle(RecordNetChangeCommand request, CancellationToken ct = default)
         {
             Creator creator = await context.Creators.SingleOrDefaultAsync(c => c.Slug == request.Username, ct)
                               ?? throw new NotFoundException<Creator>();
@@ -23,7 +24,7 @@ namespace TTX.Commands.Creators.RecordNetChange
             await context.SaveChangesAsync(ct);
             await mediator.Publish(UpdateCreatorValue.Create(vote), ct);
 
-            return vote;
+            return VoteDto.Create(vote);
         }
     }
 }

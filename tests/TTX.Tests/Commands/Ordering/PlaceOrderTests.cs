@@ -28,11 +28,11 @@ public class PlaceOrderTests : ApplicationTests
             Amount = quantity
         });
 
-        Assert.AreEqual(quantity, tx.Quantity.Value);
+        Assert.AreEqual(quantity, tx.Quantity);
         Assert.AreEqual(creatorValue, tx.Value);
         Assert.AreEqual(tx.Player, tx.Player);
-        Assert.AreEqual(creator.Id, tx.Creator.Id);
-        Assert.AreEqual(credits - (creatorValue * 2), tx.Player.Credits.Value);
+        Assert.AreEqual(creator.Id.Value, tx.CreatorId);
+        Assert.AreEqual(credits - (creatorValue * 2), tx.Player.Credits);
         Assert.AreEqual(TransactionAction.Buy, tx.Action);
     }
 
@@ -57,11 +57,11 @@ public class PlaceOrderTests : ApplicationTests
             Amount = quantity
         });
 
-        Assert.AreEqual(quantity, tx.Quantity.Value);
+        Assert.AreEqual(quantity, tx.Quantity);
         Assert.AreEqual(creatorValue, tx.Value);
         Assert.AreEqual(tx.Player, tx.Player);
-        Assert.AreEqual(creator.Id, tx.Creator.Id);
-        Assert.AreEqual(credits, tx.Player.Credits.Value);
+        Assert.AreEqual(creator.Id.Value, tx.CreatorId);
+        Assert.AreEqual(credits, tx.Player.Credits);
         Assert.AreEqual(TransactionAction.Sell, tx.Action);
     }
 }

@@ -24,7 +24,6 @@ public class RecordNetChangeTests : ApplicationTests
             NetChange = netChange
         });
 
-        Assert.AreEqual(value + netChange, result.Creator.Value);
         Assert.AreEqual(value + netChange, result.Value);
     }
 
