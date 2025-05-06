@@ -102,7 +102,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowCredentials", cors =>
     {
-        cors.WithOrigins("https://*.ttx.gg")
+        cors.WithOrigins("https://ttx.gg")
+            .WithOrigins("http://localhost:5173")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -166,7 +167,9 @@ var webSocketOptions = new WebSocketOptions
     KeepAliveInterval = TimeSpan.FromMinutes(2),
 };
 
-webSocketOptions.AllowedOrigins.Add("https://*.ttx.gg");
+webSocketOptions.AllowedOrigins.Add("https://api.ttx.gg");
+webSocketOptions.AllowedOrigins.Add("https://ttx.gg");
+webSocketOptions.AllowedOrigins.Add("http://localhost:5173");
 
 app.UseWebSockets(webSocketOptions);
 
