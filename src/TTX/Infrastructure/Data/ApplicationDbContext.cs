@@ -338,9 +338,9 @@ namespace TTX.Infrastructure.Data
                     .HasColumnOrder(7)
                     .HasColumnName("updated_at");
 
-                entity.HasOne<Player>()
+                entity.HasOne(a => a.Submitter)
                     .WithMany()
-                    .HasForeignKey(t => t.SubmitterId)
+                    .HasForeignKey(a => a.SubmitterId)
                     .IsRequired();
             });
 

@@ -25,19 +25,11 @@ namespace TTX.Infrastructure.Data.Migrations
                     ticker = table.Column<string>(type: "text", nullable: false),
                     status = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SubmitterId1 = table.Column<int>(type: "integer", nullable: false)
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_creator_applications", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_creator_applications_players_SubmitterId1",
-                        column: x => x.SubmitterId1,
-                        principalSchema: "public",
-                        principalTable: "players",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_creator_applications_players_submitter_id",
                         column: x => x.submitter_id,
@@ -52,12 +44,6 @@ namespace TTX.Infrastructure.Data.Migrations
                 schema: "public",
                 table: "creator_applications",
                 column: "submitter_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_creator_applications_SubmitterId1",
-                schema: "public",
-                table: "creator_applications",
-                column: "SubmitterId1");
         }
 
         /// <inheritdoc />
