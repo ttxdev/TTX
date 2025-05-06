@@ -4,14 +4,15 @@ kind: Service
 metadata:
   name: ttx-api
   namespace: ttx
-spec:
-  type: ClusterIP
-  selector:
-    app: ttx-api
+  annotations:
     traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
     traefik.ingress.kubernetes.io/service.sticky.cookie.name: TTX.Session.Sticky
     traefik.ingress.kubernetes.io/service.sticky.cookie.sameSite: lax
     traefik.ingress.kubernetes.io/service.sticky.cookie.secure: "true"
+spec:
+  type: ClusterIP
+  selector:
+    app: ttx-api
   ports:
     - port: 3030
       targetPort: 8080
