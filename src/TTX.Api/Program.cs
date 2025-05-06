@@ -100,9 +100,9 @@ builder.Services.AddSignalR(options =>
     .AddStackExchangeRedis(config.GetRedisConnectionString());
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins", cors =>
+    options.AddPolicy("AllowCredentials", cors =>
     {
-        cors.AllowAnyOrigin()
+        cors.WithOrigins("https://*.ttx.gg")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -155,7 +155,7 @@ app.UseSwagger();
 app.MapSwagger();
 app.UseSwaggerUI();
 app.MapHealthChecks("/health");
-app.UseCors("AllowAllOrigins");
+app.UseCors("AllowCredentials");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseMiddleware<TtxExceptionMiddleware>();
