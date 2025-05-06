@@ -30,6 +30,6 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		};
 	} catch (err) {
 		console.error(err);
-		error(404, 'Channel not found');
+		throw error(404, 'Channel not found');
 	}
 };
