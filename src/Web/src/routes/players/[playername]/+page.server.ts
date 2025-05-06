@@ -9,7 +9,7 @@ export const load = (async ({ params }) => {
 	const transactions = player.transactions.sort((b, a) => a.created_at.getTime() - b.created_at.getTime())
 		.map((t) => t.toJSON()) as PlayerTransactionDto[];
 
-	const isStreamer = client.getCreator(player.name).then(res => res !== null)
+  const isStreamer = client.getCreator(player.name).then(() => true).catch(() => false);
 
 	return {
 		player: {
