@@ -161,6 +161,14 @@ app.UseAuthorization();
 app.UseMiddleware<TtxExceptionMiddleware>();
 app.MapControllers();
 app.MapHub<EventHub>("hubs/events");
+var webSocketOptions = new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromMinutes(2),
+};
+
+webSocketOptions.AllowedOrigins.Add("https://*.ttx.gg");
+
+app.UseWebSockets(webSocketOptions);
 
 using var scope = app.Services.CreateScope();
 {
