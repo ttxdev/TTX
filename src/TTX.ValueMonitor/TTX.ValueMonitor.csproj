@@ -19,14 +19,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="dotenv.net" Version="3.2.1"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.4"/>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.4"/>
-        <PackageReference Include="StackExchange.Redis" Version="2.8.31"/>
-        <PackageReference Include="TTX" Version="1.8.0"/>
-        <PackageReference Include="TwitchLib.Client" Version="3.3.1"/>
+        <PackageReference Include="dotenv.net" Version="3.2.1" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.4" />
+        <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
+        <PackageReference Include="TTX" Version="1.9.0" />
+        <PackageReference Include="TwitchLib.Client" Version="3.3.1" />
     </ItemGroup>
 
 </Project>

@@ -23,12 +23,12 @@ public class TransactionsController(ISender sender, ISessionService sessions) : 
 
         var tx = await sender.Send(new PlaceOrderCommand
         {
-            Actor = actorId,
+            ActorId = actorId,
             Creator = order.CreatorSlug,
             Action = order.Action,
             Amount = order.Amount
         });
 
-        return Ok(CreatorTransactionDto.Create(tx));
+        return Ok(tx);
     }
 }

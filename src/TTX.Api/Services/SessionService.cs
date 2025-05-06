@@ -7,6 +7,7 @@ using TTX.Api.Dto;
 using TTX.Api.Interfaces;
 using TTX.Api.Provider;
 using TTX.Commands.Players.AuthenticateDiscordUser;
+using TTX.Dto.Players;
 using TTX.Models;
 using TTX.ValueObjects;
 
@@ -40,7 +41,7 @@ public class SessionService(
             $"https://id.twitch.tv/oauth2/authorize?client_id={clientId}&redirect_uri={redirectUri}&response_type=code&scope={scope}&state={state}";
     }
 
-    public string CreateSession(Player player)
+    public string CreateSession(PlayerPartialDto player)
     {
         var claims = new[]
         {
