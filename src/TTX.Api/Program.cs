@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using TTX;
@@ -84,8 +85,17 @@ builder.Services
     .AddHostedService<UpdateStreamStatusNotificationHandler>()
     .AddTransient<ISessionService, SessionService>();
 
-builder.Services.AddSignalR()
-    .AddJsonProtocol(o =>
+builder.Services.AddSignalR(options =>
+{
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+
+    // Enable detailed error messages in development
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableDetailedErrors = true;
+    }
+}).AddJsonProtocol(o =>
         o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
     .AddStackExchangeRedis(config.GetRedisConnectionString());
 builder.Services.AddCors(options =>
@@ -102,6 +112,11 @@ if (builder.Environment.IsProduction())
     builder.Services.AddDataProtection()
         .PersistKeysToFileSystem(new DirectoryInfo("/var/ttx/keys"))
         .SetApplicationName("TTX");
+
+
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy())
+    .AddDbContextCheck<ApplicationDbContext>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -138,6 +153,7 @@ app.MapOpenApi();
 app.UseSwagger();
 app.MapSwagger();
 app.UseSwaggerUI();
+app.MapHealthChecks("/health");
 app.UseCors("AllowAllOrigins");
 app.UseHttpsRedirection();
 app.UseAuthorization();

@@ -8,7 +8,7 @@ spec:
   selector:
     matchLabels:
       app: ttx-api
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
