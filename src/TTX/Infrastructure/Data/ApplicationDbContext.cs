@@ -314,28 +314,28 @@ namespace TTX.Infrastructure.Data
                     .HasColumnName("submitter_id");
                 entity.Property(a => a.Name)
                     .HasConversion(new NameConverter())
-                    .HasColumnOrder(1)
+                    .HasColumnOrder(2)
                     .HasColumnName("name");
                 entity.Property(a => a.TwitchId)
                     .HasConversion(new TwitchIdConverter())
-                    .HasColumnOrder(2)
+                    .HasColumnOrder(3)
                     .HasColumnName("twitch_id");
                 entity.Property(a => a.Ticker)
                     .HasConversion(new TickerConverter())
-                    .HasColumnOrder(3)
+                    .HasColumnOrder(4)
                     .HasColumnName("ticker");
                 entity.Property(a => a.Status)
-                    .HasColumnOrder(4)
+                    .HasColumnOrder(5)
                     .HasConversion(
                         s => s.ToString(),
                         s => Enum.Parse<CreatorApplicationStatus>(s)
                     )
                     .HasColumnName("status");
                 entity.Property(a => a.CreatedAt)
-                    .HasColumnOrder(5)
+                    .HasColumnOrder(6)
                     .HasColumnName("created_at");
                 entity.Property(a => a.UpdatedAt)
-                    .HasColumnOrder(6)
+                    .HasColumnOrder(7)
                     .HasColumnName("updated_at");
 
                 entity.HasOne<Player>()
