@@ -19,11 +19,11 @@ export class TTXClient {
     }
 
     /**
-     * @param page (optional)
-     * @param limit (optional)
-     * @param search (optional)
-     * @param orderBy (optional)
-     * @param orderDir (optional)
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @param search (optional) 
+     * @param orderBy (optional) 
+     * @param orderDir (optional) 
      * @return OK
      */
     getCreators(page?: number | undefined, limit?: number | undefined, search?: string | undefined, orderBy?: CreatorOrderBy | undefined, orderDir?: OrderDirection | undefined): Promise<CreatorPartialDtoPaginationDto> {
@@ -81,8 +81,8 @@ export class TTXClient {
     }
 
     /**
-     * @param username (optional)
-     * @param ticker (optional)
+     * @param username (optional) 
+     * @param ticker (optional) 
      * @return OK
      */
     createCreator(username?: string | undefined, ticker?: string | undefined): Promise<CreatorDto> {
@@ -128,8 +128,8 @@ export class TTXClient {
     }
 
     /**
-     * @param step (optional)
-     * @param after (optional)
+     * @param step (optional) 
+     * @param after (optional) 
      * @return OK
      */
     getCreator(slug: string, step?: TimeStep | undefined, after?: Date | undefined): Promise<CreatorDto> {
@@ -178,7 +178,7 @@ export class TTXClient {
     }
 
     /**
-     * @param slug (optional)
+     * @param slug (optional) 
      * @return OK
      */
     getCreatorTransactions(creatorSlug: string, slug?: string | undefined): Promise<PlayerTransactionDto[]> {
@@ -230,11 +230,51 @@ export class TTXClient {
     }
 
     /**
-     * @param page (optional)
-     * @param limit (optional)
-     * @param search (optional)
-     * @param orderBy (optional)
-     * @param orderDir (optional)
+     * @return OK
+     */
+    creatorOptOut(creatorSlug: string): Promise<CreatorOptOutDto> {
+        let url_ = this.baseUrl + "/creators/{creatorSlug}";
+        if (creatorSlug === undefined || creatorSlug === null)
+            throw new Error("The parameter 'creatorSlug' must be defined.");
+        url_ = url_.replace("{creatorSlug}", encodeURIComponent("" + creatorSlug));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreatorOptOut(_response);
+        });
+    }
+
+    protected processCreatorOptOut(response: Response): Promise<CreatorOptOutDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreatorOptOutDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CreatorOptOutDto>(null as any);
+    }
+
+    /**
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @param search (optional) 
+     * @param orderBy (optional) 
+     * @param orderDir (optional) 
      * @return OK
      */
     getPlayers(page?: number | undefined, limit?: number | undefined, search?: string | undefined, orderBy?: PlayerOrderBy | undefined, orderDir?: OrderDirection | undefined): Promise<PlayerDtoPaginationDto> {
@@ -292,8 +332,8 @@ export class TTXClient {
     }
 
     /**
-     * @param step (optional)
-     * @param after (optional)
+     * @param step (optional) 
+     * @param after (optional) 
      * @return OK
      */
     getPlayer(username: string, step?: TimeStep | undefined, after?: Date | undefined): Promise<PlayerDto> {
@@ -419,7 +459,7 @@ export class TTXClient {
     }
 
     /**
-     * @param code (optional)
+     * @param code (optional) 
      * @return OK
      */
     twitchCallback(code?: string | undefined): Promise<TokenDto> {
@@ -461,7 +501,7 @@ export class TTXClient {
     }
 
     /**
-     * @param code (optional)
+     * @param code (optional) 
      * @return OK
      */
     discordCallback(code?: string | undefined): Promise<DiscordTokenDto> {
@@ -503,7 +543,7 @@ export class TTXClient {
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     linkDiscordTwitch(body?: LinkDiscordTwitchDto | undefined): Promise<TokenDto> {
@@ -545,7 +585,7 @@ export class TTXClient {
     }
 
     /**
-     * @param body (optional)
+     * @param body (optional) 
      * @return OK
      */
     placeOrder(body?: CreateTransactionDto | undefined): Promise<CreatorTransactionDto> {
@@ -756,6 +796,54 @@ export interface ICreatorDto {
     history: VoteDto[];
     transactions: CreatorTransactionDto[];
     shares: CreatorShareDto[];
+}
+
+export class CreatorOptOutDto implements ICreatorOptOutDto {
+    id!: number;
+    created_at!: Date;
+    updated_at!: Date;
+    twitch_id!: string;
+
+    constructor(data?: ICreatorOptOutDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.created_at = _data["created_at"] ? new Date(_data["created_at"].toString()) : <any>null;
+            this.updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
+            this.twitch_id = _data["twitch_id"] !== undefined ? _data["twitch_id"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CreatorOptOutDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatorOptOutDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["created_at"] = this.created_at ? this.created_at.toISOString() : <any>null;
+        data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
+        data["twitch_id"] = this.twitch_id !== undefined ? this.twitch_id : <any>null;
+        return data;
+    }
+}
+
+export interface ICreatorOptOutDto {
+    id: number;
+    created_at: Date;
+    updated_at: Date;
+    twitch_id: string;
 }
 
 export enum CreatorOrderBy {
