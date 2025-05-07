@@ -143,8 +143,14 @@
 				</div>
 			{/if}
 		{/await}
+		<div class="flex justify-end">
+			<IntervalSelector {interval} />
+		</div>
+	</div>
+	<CreatorCard {creator} {history} />
+	<div class="flex justify-end">
 		{#await data.currentUserIsCreator then currentUserIsCreator}
-			{#if true}
+			{#if currentUserIsCreator}
 				<button
 					onclick={() => (showOptOutModal = true)}
 					class="inline-flex items-center gap-1 rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600 sm:text-sm"
@@ -184,12 +190,7 @@
 				</div>
 			{/if}
 		{/await}
-		<div class="flex justify-end">
-			<IntervalSelector {interval} />
-		</div>
 	</div>
-	<CreatorCard {creator} {history} />
-
 	<div class="flex flex-col gap-4 md:flex-row">
 		<div class="divider divider-vertical md:hidden"></div>
 		<div class="join flex w-full flex-col items-center justify-center md:flex-row">
