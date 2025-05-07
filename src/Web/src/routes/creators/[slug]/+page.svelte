@@ -153,7 +153,7 @@
 			{#if currentUserIsCreator}
 				<button
 					onclick={() => (showOptOutModal = true)}
-					class="inline-flex items-center gap-1 rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600 sm:text-sm"
+					class="inline-flex cursor-pointer items-center gap-1 rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600 sm:text-sm"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
