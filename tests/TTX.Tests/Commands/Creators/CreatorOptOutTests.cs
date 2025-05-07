@@ -4,10 +4,10 @@ using TTX.Commands.Creators.CreatorOptOuts;
 namespace TTX.Tests.Commands.Creators;
 
 [TestClass]
-public class CreatorOptOutTest : ApplicationTests
+public class CreatorOptOutTests : ApplicationTests
 {
     [TestMethod]
-    public async Task ApproveApplication_ShouldPass()
+    public async Task CreatorOptOutTesting()
     {
         var creator = CreatorFactory.Create();
         DbContext.Creators.Add(creator);
