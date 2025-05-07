@@ -3,14 +3,15 @@ using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 using TTX.ValueObjects;
+using TTX.Dto.Creators;
 
 namespace TTX.Commands.Creators.CreatorOptOuts
 {
     public class CreatorOptOutHandler(
         ApplicationDbContext context
-    ) : ICommandHandler<CreatorOptOutCommand, CreatorOptOut>
+    ) : ICommandHandler<CreatorOptOutCommand, CreatorOptOutDto>
     {
-        public async Task<CreatorOptOut> Handle(CreatorOptOutCommand request, CancellationToken ct = default)
+        public async Task<CreatorOptOutDto> Handle(CreatorOptOutCommand request, CancellationToken ct = default)
         {
             Creator creator = await FindCreator(request.Username, ct) ??
                 throw new NotFoundException<Creator>();
@@ -20,7 +21,7 @@ namespace TTX.Commands.Creators.CreatorOptOuts
             context.Creators.Remove(creator);
             await context.SaveChangesAsync(ct);
 
-            return opt;
+            return CreatorOptOutDto.Create(opt);
         }
 
         private Task<Creator?> FindCreator(Slug username, CancellationToken ct)
