@@ -56,7 +56,7 @@
 								return date.toLocaleString();
 							},
 							label: (tooltipItem) => {
-								return `Value: ${formatValue(tooltipItem.parsed.y)}`;
+								return `Value: $${tooltipItem.parsed.y.toLocaleString()}`;
 							},
 							labelColor: (tooltipItem) => {
 								const currentValue = tooltipItem.parsed.y;
@@ -117,7 +117,10 @@
 							display: false
 						},
 						ticks: {
-							display: true
+							display: true,
+							callback: function (value: number) {
+								return formatValue(value);
+							}
 						}
 					}
 				}
@@ -152,7 +155,7 @@
 >
 	<!-- Chart Section -->
 	<div class="m-3 flex">
-		<div class="bg-base-300 top-4 left-4 rounded-lg px-3 py-1 text-xl font-medium">
+		<div class="bg-base-300 left-4 top-4 rounded-lg px-3 py-1 text-xl font-medium">
 			Portfolio Value
 		</div>
 	</div>
@@ -180,19 +183,19 @@
 		</div>
 
 		<!-- Right: Net Value + Change -->
-		<div class="text-right flex flex-row gap-8">
-    		<div class="flex flex-col text-center">
-          		<h1 class="text-xl font-bold">
-         			{formatValue(player.portfolio)}
-          		</h1>
-                <p class="text-sm">Portfolio Value</p>
-    		</div>
-            <div class="flex flex-col text-center">
-          		<h1 class="text-xl font-bold">
-         			{formatValue(player.credits)}
-          		</h1>
-                <p class="text-sm">Credits</p>
-    		</div>
+		<div class="flex flex-row gap-8 text-right">
+			<div class="flex flex-col text-center">
+				<h1 class="text-xl font-bold">
+					{formatValue(player.portfolio)}
+				</h1>
+				<p class="text-sm">Portfolio Value</p>
+			</div>
+			<div class="flex flex-col text-center">
+				<h1 class="text-xl font-bold">
+					{formatValue(player.credits)}
+				</h1>
+				<p class="text-sm">Credits</p>
+			</div>
 		</div>
 	</div>
 </div>
