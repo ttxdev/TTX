@@ -1,11 +1,16 @@
 using System.Net.Mime;
+using System.Runtime.InteropServices;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TTX.Api.Interfaces;
+using TTX.Api.Services;
+using TTX.Commands.Creators.CreatorOptOuts;
 using TTX.Commands.Creators.OnboardTwitchCreator;
 using TTX.Dto;
 using TTX.Dto.Creators;
 using TTX.Dto.Transactions;
+using TTX.Models;
 using TTX.Queries;
 using TTX.Queries.Creators.FindCreator;
 using TTX.Queries.Creators.IndexCreators;
@@ -15,7 +20,7 @@ namespace TTX.Api.Controllers;
 [ApiController]
 [Route("creators")]
 [Produces(MediaTypeNames.Application.Json)]
-public class CreatorsController(ISender sender) : ControllerBase
+public class CreatorsController(ISender sender, ISessionService sessions) : ControllerBase
 {
     [HttpGet]
     [EndpointName("GetCreators")]
@@ -102,5 +107,26 @@ public class CreatorsController(ISender sender) : ControllerBase
             return NotFound();
 
         return Ok(creator);
+    }
+
+    [HttpPost("{username}/opt-out")]
+    [EndpointName("CreatorOptOut")]
+    public async Task<ActionResult<CreatorOptOut>> CreatorOptOut(
+        string username
+    )
+    {
+        var curUser = sessions.GetCurrentUserSlug();
+
+        if (curUser is null || curUser.Value != username) 
+        {
+            return Unauthorized("Current user is not the creator");
+        }
+
+        var res = await sender.Send(new CreatorOptOutCommand
+        {
+            Username = username
+        });
+
+        return Ok(res);
     }
 }
