@@ -60,7 +60,7 @@
 								return date.toLocaleString();
 							},
 							label: (tooltipItem) => {
-								return `Value: ${formatValue(tooltipItem.parsed.y)}`;
+								return `Value: $${tooltipItem.parsed.y.toLocaleString()}`;
 							},
 							labelColor: (tooltipItem) => {
 								const currentValue = tooltipItem.parsed.y;
@@ -121,7 +121,10 @@
 							display: false
 						},
 						ticks: {
-							display: true
+							display: true,
+							callback: function (value: number) {
+								return formatValue(value);
+							}
 						}
 					}
 				}
