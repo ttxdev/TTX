@@ -1,11 +1,12 @@
+using System.Text.Json.Serialization;
 using MediatR;
 using TTX.Models;
-using TTX.ValueObjects;
 
 namespace TTX.Commands.Creators.CreatorOptOuts
 {
     public class CreatorOptOutCommand : IRequest<CreatorOptOut>
     {
-        public required Slug Username { get; init; }
+        [JsonPropertyName("username")]
+        public required string Username { get; init; }
     }
 }
