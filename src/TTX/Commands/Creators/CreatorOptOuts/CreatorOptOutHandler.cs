@@ -13,7 +13,7 @@ namespace TTX.Commands.Creators.CreatorOptOuts
         public async Task<CreatorOptOut> Handle(CreatorOptOutCommand request, CancellationToken ct = default)
         {
             Creator creator = await FindCreator(request.Username, ct) ??
-                throw new NotFoundException("Creator not found.");
+                throw new NotFoundException<Creator>();
 
             CreatorOptOut opt = CreatorOptOut.Create(creator);
             context.CreatorOptOuts.Add(opt);

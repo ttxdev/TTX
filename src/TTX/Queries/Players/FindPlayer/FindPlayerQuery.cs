@@ -1,11 +1,10 @@
-﻿using TTX.Models;
-using TTX.ValueObjects;
+﻿using TTX.Dto.Players;
 
 namespace TTX.Queries.Players.FindPlayer
 {
-    public readonly struct FindPlayerQuery : IQuery<Player?>
+    public readonly struct FindPlayerQuery : IQuery<PlayerDto?>
     {
-        public required Slug Slug { get; init; }
+        public required string Slug { get; init; }
         public required HistoryParams HistoryParams { get; init; }
     }
 }

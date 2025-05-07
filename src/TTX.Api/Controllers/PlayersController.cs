@@ -2,12 +2,11 @@ using System.Net.Mime;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TTX.Api.Dto;
 using TTX.Api.Interfaces;
 using TTX.Commands.LootBoxes.OpenLootBox;
+using TTX.Dto;
 using TTX.Dto.LootBoxes;
 using TTX.Dto.Players;
-using TTX.Dto.Transactions;
 using TTX.Queries;
 using TTX.Queries.Players.FindPlayer;
 using TTX.Queries.Players.IndexPlayers;
@@ -48,16 +47,13 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
             }
         });
 
-        return Ok(new PaginationDto<PlayerDto>
-        {
-            Data = [.. page.Data.Select(PlayerDto.Create)],
-            Total = page.Total
-        });
+        return Ok(page);
     }
 
     [HttpGet("{username}")]
     [EndpointName("GetPlayer")]
-    public async Task<ActionResult<PlayerDto>> Show(string username, [FromQuery] TimeStep step = TimeStep.FiveMinute, [FromQuery] DateTimeOffset? after = null)
+    public async Task<ActionResult<PlayerDto>> Show(string username, [FromQuery] TimeStep step = TimeStep.FiveMinute,
+        [FromQuery] DateTimeOffset? after = null)
     {
         var player = await sender.Send(new FindPlayerQuery
         {
@@ -71,7 +67,7 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
         if (player is null)
             return NotFound();
 
-        return Ok(PlayerDto.Create(player));
+        return Ok(player);
     }
 
     [HttpGet("me")]
@@ -95,7 +91,7 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
         if (player is null)
             return NotFound();
 
-        return Ok(PlayerDto.Create(player));
+        return Ok(player);
     }
 
     [Authorize]
@@ -113,6 +109,6 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
             LootBoxId = lootBoxId
         });
 
-        return Ok(LootBoxResultDto.Create(result));
+        return Ok(result);
     }
 }

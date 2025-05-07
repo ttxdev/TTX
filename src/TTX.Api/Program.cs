@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using TTX;
@@ -19,6 +20,8 @@ using TTX.Infrastructure.Discord;
 using TTX.Infrastructure.Twitch;
 using TTX.Interfaces.Discord;
 using TTX.Interfaces.Twitch;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
+
 [assembly: ApiController]
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,10 +32,7 @@ IConfigProvider config = new ConfigProvider(builder.Configuration);
 
 // Add services to the container.
 builder.Services
-    .Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
-    {
-        o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    })
+    .Configure<JsonOptions>(o => { o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); })
     .AddLogging(options =>
     {
         options.AddConsole();
@@ -49,7 +49,7 @@ builder.Services
     .AddSingleton<CreateTransactionNotificationHandler>()
     .AddSingleton<UpdateCreatorValueNotificationHandler>()
     .AddSingleton<UpdatePlayerPortfolioNotificationHandler>()
-    .AddSingleton<IConfigProvider>(config)
+    .AddSingleton(config)
     .AddDbContextPool<ApplicationDbContext>(
         options =>
         {
@@ -85,17 +85,28 @@ builder.Services
     .AddHostedService<UpdateStreamStatusNotificationHandler>()
     .AddTransient<ISessionService, SessionService>();
 
-builder.Services.AddSignalR()
-    .AddJsonProtocol(o =>
+builder.Services.AddSignalR(options =>
+{
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+
+    // Enable detailed error messages in development
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableDetailedErrors = true;
+    }
+}).AddJsonProtocol(o =>
         o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
     .AddStackExchangeRedis(config.GetRedisConnectionString());
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins", cors =>
+    options.AddPolicy("AllowCredentials", cors =>
     {
-        cors.AllowAnyOrigin()
+        cors.WithOrigins("https://ttx.gg")
+            .WithOrigins("http://localhost:5173")
             .AllowAnyMethod()
-            .AllowAnyHeader();
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 
@@ -103,6 +114,11 @@ if (builder.Environment.IsProduction())
     builder.Services.AddDataProtection()
         .PersistKeysToFileSystem(new DirectoryInfo("/var/ttx/keys"))
         .SetApplicationName("TTX");
+
+
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy())
+    .AddDbContextCheck<ApplicationDbContext>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -139,12 +155,23 @@ app.MapOpenApi();
 app.UseSwagger();
 app.MapSwagger();
 app.UseSwaggerUI();
-app.UseCors("AllowAllOrigins");
+app.MapHealthChecks("/health");
+app.UseCors("AllowCredentials");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseMiddleware<TtxExceptionMiddleware>();
 app.MapControllers();
 app.MapHub<EventHub>("hubs/events");
+var webSocketOptions = new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromMinutes(2),
+};
+
+webSocketOptions.AllowedOrigins.Add("https://api.ttx.gg");
+webSocketOptions.AllowedOrigins.Add("https://ttx.gg");
+webSocketOptions.AllowedOrigins.Add("http://localhost:5173");
+
+app.UseWebSockets(webSocketOptions);
 
 using var scope = app.Services.CreateScope();
 {

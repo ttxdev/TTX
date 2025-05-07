@@ -1,7 +1,9 @@
-﻿namespace TTX.Commands.Players.AuthenticateDiscordUser
+﻿using System.Text.Json.Serialization;
+
+namespace TTX.Commands.Players.AuthenticateDiscordUser
 {
     public readonly struct AuthenticateDiscordUserCommand : ICommand<AuthenticateDiscordUserResult>
     {
-        public required string OAuthCode { get; init; }
+        [JsonPropertyName("code")] public required string OAuthCode { get; init; }
     }
 }

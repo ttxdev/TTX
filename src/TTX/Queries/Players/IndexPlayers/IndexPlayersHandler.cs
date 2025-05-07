@@ -1,13 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto;
+using TTX.Dto.Players;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 
 namespace TTX.Queries.Players.IndexPlayers
 {
     public class IndexPlayersHandler(ApplicationDbContext c)
-        : PlayerQueryHandler(c), IQueryHandler<IndexPlayersQuery, Pagination<Player>>
+        : PlayerQueryHandler(c), IQueryHandler<IndexPlayersQuery, PaginationDto<PlayerDto>>
     {
-        public async Task<Pagination<Player>> Handle(IndexPlayersQuery request, CancellationToken ct = default)
+        public async Task<PaginationDto<PlayerDto>> Handle(IndexPlayersQuery request, CancellationToken ct = default)
         {
             IQueryable<Player> query = Context.Players.AsQueryable();
             ApplySearch(ref query, request.Search);
@@ -16,9 +18,10 @@ namespace TTX.Queries.Players.IndexPlayers
             int total = await query.CountAsync(ct);
             IQueryable<Player> data = query.Skip((request.Page - 1) * request.Limit).Take(request.Limit);
             Player[] players = await data.ToArrayAsync(ct);
-            Dictionary<int, PortfolioSnapshot[]> history = await GetHistoryFor([..players], request.HistoryParams.Step, request.HistoryParams.After, ct);
+            Dictionary<int, PortfolioSnapshot[]> history = await GetHistoryFor([..players], request.HistoryParams.Step,
+                request.HistoryParams.After, ct);
 
-            return new Pagination<Player>
+            return new PaginationDto<PlayerDto>
             {
                 Total = total,
                 Data =
@@ -30,8 +33,8 @@ namespace TTX.Queries.Players.IndexPlayers
                             p.History = [.. snap];
                         }
 
-                        return p;
-                    }),
+                        return PlayerDto.Create(p);
+                    })
                 ]
             };
         }

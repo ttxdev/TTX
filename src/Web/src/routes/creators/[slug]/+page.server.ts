@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			new Date(Date.now() - hours * 60 * 60 * 1000)
 		);
 
-		const isPlayer = client.getPlayer(channelSlug).then(res => res !== null)
+		const isPlayer = client.getPlayer(channelSlug).then(() => true).catch(() => false)
 
 		return {
 			creator: creator.toJSON() as CreatorDto,
@@ -30,6 +30,6 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		};
 	} catch (err) {
 		console.error(err);
-		error(404, 'Channel not found');
+		throw error(404, 'Channel not found');
 	}
 };

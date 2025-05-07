@@ -154,10 +154,10 @@
 	});
 </script>
 
-<div class="">
+<div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm dark:border-gray-800">
 	<table class="table w-full max-md:text-sm">
 		<thead class="sticky top-0 z-10 bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-50">
-			<tr class="border-b text-sm max-md:text-xs">
+			<tr class="border-b text-sm max-md:text-sm">
 				<th
 					class="cursor-pointer rounded-tl-2xl py-4 text-center max-md:px-2"
 					onclick={() => sortChannels('Name')}
@@ -176,89 +176,94 @@
 						<span class="ml-1">{sortDirection === OrderDirection.Ascending ? '↑' : '↓'}</span>
 					{/if}
 				</th>
+				<th class="py-4 text-center max-md:hidden">Chart</th>
 				<th
-					class="cursor-pointer py-4 text-center max-md:px-2"
+					class="cursor-pointer rounded-tr-2xl py-4 text-center max-md:px-2"
 					onclick={() => sortChannels('IsLive')}
 				>
-					Live
+					Status
 					{#if sortField === 'IsLive'}
 						<span class="ml-1">{sortDirection === OrderDirection.Ascending ? '↑' : '↓'}</span>
 					{/if}
 				</th>
-				<th class="py-4 text-center max-md:hidden">Chart</th>
-				<th class="py-4 text-center max-md:hidden">Change</th>
-				<th class="rounded-tr-2xl py-4 text-center max-md:px-2">Action</th>
 			</tr>
 		</thead>
 		<tbody>
 			{#each sortedChannels as channel (channel.id)}
-				<tr class="hover:bg-gray-50/30 dark:hover:bg-gray-800/30">
-					<td class="py-4 max-md:w-32 max-md:px-2">
-						<a href="/creators/{channel.slug}" rel="noopener noreferrer">
-							<div class="items-left justify-left flex gap-3 max-md:gap-2">
-								<div class="h-8 w-8 max-md:h-6 max-md:w-6">
+				<tr
+					class="group cursor-pointer border-b border-gray-100 transition-colors hover:bg-gray-50/50 dark:border-gray-800 dark:hover:bg-gray-800/50"
+				>
+					<td class="py-4 max-md:px-2">
+						<a href="/creators/{channel.slug}" rel="noopener noreferrer" class="block">
+							<div class="flex items-center gap-2">
+								<div class="relative flex-shrink-0">
 									<img
 										src={channel.avatar_url}
 										alt={channel.name}
-										class="h-full w-full rounded-full"
+										class="size-12 rounded-full object-cover ring-2 ring-gray-200 transition-all group-hover:ring-purple-400 max-md:size-8 dark:ring-gray-700"
 									/>
+									{#if channel.stream_status.is_live}
+										<span
+											class="absolute -top-1 -right-1 rounded-full bg-red-400 px-2 py-0.5 text-[10px] font-bold text-white dark:bg-red-500"
+										>
+											LIVE
+										</span>
+									{/if}
 								</div>
-								<div class="max-md:truncate">
-									<div class="font-medium max-md:truncate max-md:text-xs">{channel.name}</div>
-									<div class="text-sm text-gray-500 max-md:truncate max-md:text-xs">
-										{formatTicker(channel.ticker)}
+								<div class="flex min-w-0 flex-col">
+									<div class="truncate font-semibold max-md:text-sm">{channel.name}</div>
+									<div class="flex items-center gap-1">
+										<span class="text-xs text-gray-500">
+											{formatTicker(channel.ticker)}
+										</span>
+										<span
+											class="{calculatePercentChange(channel.history) > 0
+												? 'text-green-500'
+												: calculatePercentChange(channel.history) < 0
+													? 'text-red-500'
+													: 'text-gray-500'} text-xs font-semibold text-nowrap"
+										>
+											{#if calculatePercentChange(channel.history) > 0}↗{/if}
+											{#if calculatePercentChange(channel.history) < 0}↘{/if}
+											{calculatePercentChange(channel.history).toFixed(2)}%
+										</span>
 									</div>
 								</div>
 							</div>
 						</a>
 					</td>
-					<td class="py-4 text-center max-md:w-12 max-md:px-2 max-md:text-xs">
-						<a href="/creators/{channel.slug}" rel="noopener noreferrer">
+					<td class="py-4 text-center max-md:px-2 max-md:text-sm max-md:font-semibold">
+						<a href="/creators/{channel.slug}" rel="noopener noreferrer" class="block">
 							{formatValue(channel.value)}
 						</a>
 					</td>
-					<td class="py-4 text-center max-md:w-12 max-md:px-2 max-md:text-xs">
-						<a href="/creators/{channel.slug}" rel="noopener noreferrer" aria-label="Channel Chart">
-							{#if channel.stream_status.is_live}
-								<span
-									class="-mt-2.5 h-fit w-fit rounded-full bg-red-400 px-2 text-xs font-bold text-white"
-								>
-									LIVE
-								</span>
-							{:else}
-								<span
-									class="-mt-2.5 h-fit w-fit rounded-full bg-gray-600 px-2 text-xs font-bold text-white"
-								>
-									OFFLINE
-								</span>
-							{/if}
-						</a>
-					</td>
 					<td class="flex items-center justify-center py-4 max-md:hidden">
-						<a href="/creators/{channel.slug}" rel="noopener noreferrer" aria-label="Channel Chart">
+						<a
+							href="/creators/{channel.slug}"
+							rel="noopener noreferrer"
+							class="block"
+							aria-label="View Chart"
+						>
 							<div class="h-16 w-32">
 								<canvas class="w-full" bind:this={chartElements[channel.name]}></canvas>
 							</div>
 						</a>
 					</td>
-					<td class="py-4 text-center max-md:hidden">
-						<a href="/creators/{channel.slug}" rel="noopener noreferrer">
-							<span
-								class="{calculatePercentChange(channel.history) > 0
-									? 'text-green-500'
-									: calculatePercentChange(channel.history) < 0
-										? 'text-red-500'
-										: 'text-gray-500'} text-nowrap"
-							>
-								{#if calculatePercentChange(channel.history) > 0}↗{/if}
-								{#if calculatePercentChange(channel.history) < 0}↘{/if}
-								{calculatePercentChange(channel.history).toFixed(2)}%
-							</span>
-						</a>
-					</td>
-					<td class="py-4 text-center max-md:w-12 max-md:px-2">
-						<a href="/creators/{channel.slug}">
-							<button class="btn btn-ghost max-md:btn-sm rounded-lg max-md:px-2"> Trade </button>
+					<td class="py-4 text-center max-md:px-2">
+						<a href="/creators/{channel.slug}" rel="noopener noreferrer" class="block">
+							{#if channel.stream_status.is_live}
+								<span
+									class="inline-flex items-center rounded-full bg-red-400 px-2 py-0.5 text-[10px] font-bold text-white dark:bg-red-500"
+								>
+									LIVE
+								</span>
+							{:else}
+								<span
+									class="inline-flex items-center rounded-full bg-gray-400 px-2 py-0.5 text-[10px] font-bold text-white dark:bg-gray-500"
+								>
+									OFFLINE
+								</span>
+							{/if}
 						</a>
 					</td>
 				</tr>
@@ -268,13 +273,13 @@
 </div>
 
 {#if totalPages > 1}
-	<div class="mt-4 flex flex-col items-center gap-4 max-md:gap-2">
-		<div class="text-sm max-md:text-xs">
+	<div class="mt-8 flex flex-col items-center gap-4 max-md:gap-3">
+		<div class="text-sm text-gray-500 max-md:text-center max-md:text-sm dark:text-gray-400">
 			Showing {(currentPage - 1) * 20 + 1} to {Math.min(currentPage * 20, total)} of {total} creators
 		</div>
-		<div class="join max-md:scale-90">
+		<div class="join max-md:scale-90 max-md:flex-wrap max-md:justify-center">
 			<button
-				class="join-item btn rounded-l-2xl"
+				class="join-item btn rounded-l-2xl border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700"
 				disabled={currentPage === 1}
 				onclick={() => changePage(currentPage - 1)}
 				aria-label="Previous page"
@@ -283,16 +288,17 @@
 			</button>
 			{#each pageNumbers as page (page)}
 				<button
-					class="join-item btn {currentPage === page
+					class="join-item btn border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700 {currentPage ===
+					page
 						? 'border-purple-400 bg-purple-400/80 text-white hover:bg-[#8f44fb]'
-						: ''}"
+						: 'hover:bg-gray-100 dark:hover:bg-gray-800'}"
 					onclick={() => changePage(page)}
 				>
 					{page}
 				</button>
 			{/each}
 			<button
-				class="join-item btn rounded-r-2xl"
+				class="join-item btn rounded-r-2xl border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700"
 				disabled={currentPage === totalPages}
 				onclick={() => changePage(currentPage + 1)}
 			>

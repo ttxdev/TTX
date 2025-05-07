@@ -1,30 +1,32 @@
-using System.Collections.Immutable;
 using TTX.Exceptions;
-using TTX.Models;
 using TTX.ValueObjects;
 
 namespace TTX.Models
 {
     public class CreatorApplication : Model
     {
-
         public required ModelId SubmitterId { get; init; }
         public required TwitchId TwitchId { get; init; }
         public required Ticker Ticker { get; init; }
+        public required Name Name { get; init; }
         public CreatorApplicationStatus Status { get; private set; } = CreatorApplicationStatus.Pending;
+        public Player Submitter { get; init; } = null!;
 
         public static CreatorApplication Create(
+            Name name,
             Ticker ticker,
             TwitchId twitchId,
-            ModelId submitterId
+            Player submitter
         )
         {
             return new CreatorApplication
             {
-                SubmitterId = submitterId,
+                Name = name,
                 TwitchId = twitchId,
                 Ticker = ticker,
                 Status = CreatorApplicationStatus.Pending,
+                Submitter = submitter,
+                SubmitterId = submitter.Id
             };
         }
 
@@ -32,7 +34,7 @@ namespace TTX.Models
         {
             if (Status is CreatorApplicationStatus.Approved or CreatorApplicationStatus.Rejected)
             {
-                throw new CreatorApplicationAlreadyCompletedException();
+                throw new InvalidActionException("Creator Application was already reviewed.");
             }
 
             Status = status;

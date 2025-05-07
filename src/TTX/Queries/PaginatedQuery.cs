@@ -1,6 +1,8 @@
+using TTX.Dto;
+
 namespace TTX.Queries
 {
-    public class PaginatedQuery<TOrder, TResponse> : IQuery<Pagination<TResponse>>
+    public class PaginatedQuery<TOrder, TResponse> : IQuery<PaginationDto<TResponse>>
     {
         public int Page { get; init; } = 1;
         public int Limit { get; init; } = 10;

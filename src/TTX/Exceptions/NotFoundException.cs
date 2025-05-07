@@ -1,4 +1,4 @@
 ﻿namespace TTX.Exceptions
 {
-    public class NotFoundException(string message) : DomainException(message);
+    public class NotFoundException<T>() : DomainException($"{nameof(T)} not found");
 }

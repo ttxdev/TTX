@@ -37,12 +37,12 @@ public class FindCreatorQueryTests : ApplicationTests
         await DbContext.SaveChangesAsync();
         await Sender.Send(new RecordNetChangeCommand
         {
-            CreatorSlug = target.Slug,
+            Username = target.Slug,
             NetChange = 50
         });
         await Sender.Send(new RecordNetChangeCommand
         {
-            CreatorSlug = target.Slug,
+            Username = target.Slug,
             NetChange = 25
         });
 

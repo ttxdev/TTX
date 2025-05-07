@@ -1,18 +1,16 @@
-using TTX.Dto.Portfolios;
+using System.Text.Json.Serialization;
+using TTX.Dto.Players;
 using TTX.Models;
 
 namespace TTX.Notifications.Players
 {
-    public class UpdatePlayerPortfolio : PortfolioDto, INotification
+    public class UpdatePlayerPortfolio : INotification
     {
-        public static new UpdatePlayerPortfolio Create(PortfolioSnapshot p)
+        [JsonPropertyName("player")] public required PlayerPartialDto Player { get; init; }
+
+        public static UpdatePlayerPortfolio Create(PortfolioSnapshot p)
         {
-            return new UpdatePlayerPortfolio
-            {
-                PlayerId= p.PlayerId, 
-                Value = p.Value, 
-                Time = p.Time
-            };
+            return new UpdatePlayerPortfolio { Player = PlayerPartialDto.Create(p.Player) };
         }
     }
 }

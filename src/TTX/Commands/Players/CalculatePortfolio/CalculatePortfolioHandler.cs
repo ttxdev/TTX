@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto.Players;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Models;
@@ -9,19 +10,15 @@ using TTX.Notifications.Players;
 namespace TTX.Commands.Players.CalculatePortfolio
 {
     public class CalculatePortfolioHandler(ApplicationDbContext context, IMediator mediator)
-        : ICommandHandler<CalculatePortfolioCommand, PortfolioSnapshot>
+        : ICommandHandler<CalculatePortfolioCommand, PortfolioSnapshotDto>
     {
-        public async Task<PortfolioSnapshot> Handle(CalculatePortfolioCommand request, CancellationToken ct)
+        public async Task<PortfolioSnapshotDto> Handle(CalculatePortfolioCommand request, CancellationToken ct)
         {
-            PortfolioSnapshot? last = await context.Portfolios.Where(p => p.PlayerId == request.PlayerId)
-                .OrderByDescending(p => p.Time)
-                .FirstOrDefaultAsync(ct);
-
             Player player = await context.Players
-                                .Include(p  => p.Transactions.OrderBy(t => t.CreatedAt))
+                                .Include(p => p.Transactions.OrderBy(t => t.CreatedAt))
                                 .ThenInclude(t => t.Creator)
                                 .SingleOrDefaultAsync(p => p.Id == request.PlayerId, ct) ??
-                            throw new PlayerNotFoundException();
+                            throw new NotFoundException<Player>();
 
             PortfolioSnapshot snapshot = CalculatePortfolio(player);
 
@@ -32,7 +29,7 @@ namespace TTX.Commands.Players.CalculatePortfolio
             await context.SaveChangesAsync(ct);
             await mediator.Publish(UpdatePlayerPortfolio.Create(snapshot), ct);
 
-            return snapshot;
+            return PortfolioSnapshotDto.Create(snapshot);
         }
 
         private static PortfolioSnapshot CalculatePortfolio(Player player)

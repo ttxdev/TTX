@@ -58,9 +58,13 @@
 			);
 		}
 
-		const conn = await startConnection('events');
-		conn.on('UpdateCreatorValue', (message: VoteDto) => addVote(message));
-		conn.on('CreateTransaction', (message: CreatorTransactionDto) => addTransaction(message));
+		try {
+    		const conn = await startConnection('events');
+    		conn.on('UpdateCreatorValue', ({ vote }) => addVote(vote));
+    		conn.on('CreateTransaction', ({ transaction }) => addTransaction(transaction));
+		} catch (err) {
+			console.error(err);
+		}
 	});
 </script>
 

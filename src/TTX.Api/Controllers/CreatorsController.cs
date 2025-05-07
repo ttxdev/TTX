@@ -2,17 +2,13 @@ using System.Net.Mime;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TTX.Api.Dto;
 using TTX.Commands.Creators.OnboardTwitchCreator;
+using TTX.Dto;
 using TTX.Dto.Creators;
 using TTX.Dto.Transactions;
-using TTX.Models;
 using TTX.Queries;
-using TTX.Queries.Creators;
 using TTX.Queries.Creators.FindCreator;
 using TTX.Queries.Creators.IndexCreators;
-using TTX.Queries.Creators.PullLatestHistory;
-using TTX.ValueObjects;
 
 namespace TTX.Api.Controllers;
 
@@ -50,11 +46,7 @@ public class CreatorsController(ISender sender) : ControllerBase
             }
         });
 
-        return Ok(new PaginationDto<CreatorPartialDto>
-        {
-            Data = [.. page.Data.Select(CreatorPartialDto.Create)],
-            Total = page.Total
-        });
+        return Ok(page);
     }
 
     [HttpGet("{slug}")]
@@ -75,7 +67,7 @@ public class CreatorsController(ISender sender) : ControllerBase
         if (creator is null)
             return NotFound();
 
-        return Ok(CreatorDto.Create(creator));
+        return Ok(creator);
     }
 
     [HttpPost]
@@ -89,25 +81,7 @@ public class CreatorsController(ISender sender) : ControllerBase
             Username = username
         });
 
-        return Ok(CreatorDto.Create(creator));
-    }
-
-    [HttpGet("{creatorSlug}/value/latest")]
-    [EndpointName("GetLatestCreatorValue")]
-    public async Task<ActionResult<Vote[]>> GetLatestValues(
-        [FromRoute] string creatorSlug,
-        [FromQuery] DateTime after,
-        [FromQuery] TimeStep step = TimeStep.Minute
-    )
-    {
-        var votes = await sender.Send(new PullLatestHistoryQuery
-        {
-            CreatorSlug = creatorSlug,
-            Step = step,
-            After = after
-        });
-
-        return Ok(votes);
+        return Ok(creator);
     }
 
     [HttpGet("{creatorSlug}/transactions")]
@@ -127,6 +101,6 @@ public class CreatorsController(ISender sender) : ControllerBase
         if (creator is null)
             return NotFound();
 
-        return Ok(creator.Transactions.Select(CreatorTransactionDto.Create).ToArray());
+        return Ok(creator);
     }
 }

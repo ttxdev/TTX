@@ -148,7 +148,7 @@
 			{#if user}
 				<div class="join">
 					<div class=""></div>
-					<a href={'/players/' + user.name}>
+					<a href={'/players/' + user.slug}>
 						<div
 							class="btn rounded-lg bg-black px-3 py-2 text-white shadow md:rounded-l-lg md:rounded-r-none"
 						>

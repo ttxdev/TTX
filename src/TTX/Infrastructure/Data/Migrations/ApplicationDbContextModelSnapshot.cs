@@ -105,13 +105,19 @@ namespace TTX.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at")
-                        .HasColumnOrder(5);
+                        .HasColumnOrder(6);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name")
+                        .HasColumnOrder(2);
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("status")
-                        .HasColumnOrder(4);
+                        .HasColumnOrder(5);
 
                     b.Property<int>("SubmitterId")
                         .HasColumnType("integer")
@@ -122,18 +128,18 @@ namespace TTX.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("ticker")
-                        .HasColumnOrder(3);
+                        .HasColumnOrder(4);
 
                     b.Property<string>("TwitchId")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("twitch_id")
-                        .HasColumnOrder(2);
+                        .HasColumnOrder(3);
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at")
-                        .HasColumnOrder(6);
+                        .HasColumnOrder(7);
 
                     b.HasKey("Id");
 
@@ -423,11 +429,13 @@ namespace TTX.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("TTX.Models.CreatorApplication", b =>
                 {
-                    b.HasOne("TTX.Models.Player", null)
+                    b.HasOne("TTX.Models.Player", "Submitter")
                         .WithMany()
                         .HasForeignKey("SubmitterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Submitter");
                 });
 
             modelBuilder.Entity("TTX.Models.LootBox", b =>

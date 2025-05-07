@@ -127,7 +127,7 @@ public class IndexCreatorsQueryTests : ApplicationTests
 
         var target = page.Data.FirstOrDefault();
         Assert.IsNotNull(target);
-        Assert.AreEqual(creator.Name, target.Name);
+        Assert.AreEqual(creator.Name.Value, target.Name);
     }
 
 
@@ -141,7 +141,7 @@ public class IndexCreatorsQueryTests : ApplicationTests
         {
             await Sender.Send(new RecordNetChangeCommand
             {
-                CreatorSlug = c.Slug,
+                Username = c.Slug,
                 NetChange = Seed.Next(0, 50)
             });
         }

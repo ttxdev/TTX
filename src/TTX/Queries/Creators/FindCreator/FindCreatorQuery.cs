@@ -1,11 +1,10 @@
-﻿using TTX.Models;
-using TTX.ValueObjects;
+﻿using TTX.Dto.Creators;
 
 namespace TTX.Queries.Creators.FindCreator
 {
-    public class FindCreatorQuery : IQuery<Creator?>
+    public class FindCreatorQuery : IQuery<CreatorDto?>
     {
-        public required Slug Slug { get; init; }
+        public required string Slug { get; init; }
         public required HistoryParams HistoryParams { get; init; }
     }
 }

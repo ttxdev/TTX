@@ -12,7 +12,7 @@ public class TtxExceptionMiddleware(RequestDelegate next)
         {
             await _next(context);
         }
-        catch (NotFoundException ex)
+        catch (NotFoundException<object> ex)
         {
             context.Response.StatusCode = StatusCodes.Status404NotFound;
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });

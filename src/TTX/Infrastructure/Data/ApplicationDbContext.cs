@@ -198,7 +198,8 @@ namespace TTX.Infrastructure.Data
                     .HasColumnName("value");
                 entity.Property(p => p.Time)
                     .HasColumnOrder(3)
-                    .HasColumnName("time");;
+                    .HasColumnName("time");
+                ;
 
                 entity.HasOne(p => p.Player)
                     .WithMany()
@@ -311,31 +312,35 @@ namespace TTX.Infrastructure.Data
                     .HasConversion(new ModelIdConverter())
                     .HasColumnOrder(1)
                     .HasColumnName("submitter_id");
+                entity.Property(a => a.Name)
+                    .HasConversion(new NameConverter())
+                    .HasColumnOrder(2)
+                    .HasColumnName("name");
                 entity.Property(a => a.TwitchId)
                     .HasConversion(new TwitchIdConverter())
-                    .HasColumnOrder(2)
+                    .HasColumnOrder(3)
                     .HasColumnName("twitch_id");
                 entity.Property(a => a.Ticker)
                     .HasConversion(new TickerConverter())
-                    .HasColumnOrder(3)
+                    .HasColumnOrder(4)
                     .HasColumnName("ticker");
                 entity.Property(a => a.Status)
-                    .HasColumnOrder(4)
+                    .HasColumnOrder(5)
                     .HasConversion(
                         s => s.ToString(),
                         s => Enum.Parse<CreatorApplicationStatus>(s)
                     )
                     .HasColumnName("status");
                 entity.Property(a => a.CreatedAt)
-                    .HasColumnOrder(5)
+                    .HasColumnOrder(6)
                     .HasColumnName("created_at");
                 entity.Property(a => a.UpdatedAt)
-                    .HasColumnOrder(6)
+                    .HasColumnOrder(7)
                     .HasColumnName("updated_at");
 
-                entity.HasOne<Player>()
+                entity.HasOne(a => a.Submitter)
                     .WithMany()
-                    .HasForeignKey(t => t.SubmitterId)
+                    .HasForeignKey(a => a.SubmitterId)
                     .IsRequired();
             });
 
@@ -405,7 +410,7 @@ namespace TTX.Infrastructure.Data
         public DbSet<PortfolioSnapshot> Portfolios => Set<PortfolioSnapshot>();
         public DbSet<LootBox> LootBoxes => Set<LootBox>();
         public DbSet<Vote> Votes => Set<Vote>();
-        public DbSet<CreatorApplication> Applications => Set<CreatorApplication>();
+        public DbSet<CreatorApplication> CreatorApplications => Set<CreatorApplication>();
 
         #endregion
     }

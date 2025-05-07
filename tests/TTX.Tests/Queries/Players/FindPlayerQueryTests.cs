@@ -43,7 +43,7 @@ public class FindPlayerQueryTests : ApplicationTests
         {
             Action = TransactionAction.Buy,
             Amount = 1,
-            Actor = target.Id,
+            ActorId = target.Id,
             Creator = creator.Slug
         });
         await Sender.Send(new CalculatePortfolioCommand

@@ -178,63 +178,6 @@ export class TTXClient {
     }
 
     /**
-     * @param after (optional)
-     * @param step (optional)
-     * @return OK
-     */
-    getLatestCreatorValue(creatorSlug: string, after?: Date | undefined, step?: TimeStep | undefined): Promise<Vote[]> {
-        let url_ = this.baseUrl + "/creators/{creatorSlug}/value/latest?";
-        if (creatorSlug === undefined || creatorSlug === null)
-            throw new Error("The parameter 'creatorSlug' must be defined.");
-        url_ = url_.replace("{creatorSlug}", encodeURIComponent("" + creatorSlug));
-        if (after === null)
-            throw new Error("The parameter 'after' cannot be null.");
-        else if (after !== undefined)
-            url_ += "after=" + encodeURIComponent(after ? "" + after.toISOString() : "") + "&";
-        if (step === null)
-            throw new Error("The parameter 'step' cannot be null.");
-        else if (step !== undefined)
-            url_ += "step=" + encodeURIComponent("" + step) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetLatestCreatorValue(_response);
-        });
-    }
-
-    protected processGetLatestCreatorValue(response: Response): Promise<Vote[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(Vote.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Vote[]>(null as any);
-    }
-
-    /**
      * @param slug (optional)
      * @return OK
      */
@@ -688,119 +631,6 @@ export interface ICreateTransactionDto {
     amount: number;
 }
 
-export class Creator implements ICreator {
-    id!: ModelId;
-    createdAt!: Date;
-    readonly updatedAt!: Date;
-    name!: Name;
-    slug!: Slug;
-    twitchId!: TwitchId;
-    avatarUrl!: string;
-    ticker!: Ticker;
-    value!: Credits;
-    streamStatus!: StreamStatus;
-    transactions!: Transaction[];
-    history!: Vote[];
-
-    constructor(data?: ICreator) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.id = new ModelId();
-            this.name = new Name();
-            this.slug = new Slug();
-            this.twitchId = new TwitchId();
-            this.ticker = new Ticker();
-            this.value = new Credits();
-            this.streamStatus = new StreamStatus();
-            this.transactions = [];
-            this.history = [];
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] ? ModelId.fromJS(_data["id"]) : new ModelId();
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>null;
-            (<any>this).updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>null;
-            this.name = _data["name"] ? Name.fromJS(_data["name"]) : new Name();
-            this.slug = _data["slug"] ? Slug.fromJS(_data["slug"]) : new Slug();
-            this.twitchId = _data["twitchId"] ? TwitchId.fromJS(_data["twitchId"]) : new TwitchId();
-            this.avatarUrl = _data["avatarUrl"] !== undefined ? _data["avatarUrl"] : <any>null;
-            this.ticker = _data["ticker"] ? Ticker.fromJS(_data["ticker"]) : new Ticker();
-            this.value = _data["value"] ? Credits.fromJS(_data["value"]) : new Credits();
-            this.streamStatus = _data["streamStatus"] ? StreamStatus.fromJS(_data["streamStatus"]) : new StreamStatus();
-            if (Array.isArray(_data["transactions"])) {
-                this.transactions = [] as any;
-                for (let item of _data["transactions"])
-                    this.transactions!.push(Transaction.fromJS(item));
-            }
-            else {
-                this.transactions = <any>null;
-            }
-            if (Array.isArray(_data["history"])) {
-                this.history = [] as any;
-                for (let item of _data["history"])
-                    this.history!.push(Vote.fromJS(item));
-            }
-            else {
-                this.history = <any>null;
-            }
-        }
-    }
-
-    static fromJS(data: any): Creator {
-        data = typeof data === 'object' ? data : {};
-        let result = new Creator();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id ? this.id.toJSON() : <any>null;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>null;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
-        data["name"] = this.name ? this.name.toJSON() : <any>null;
-        data["slug"] = this.slug ? this.slug.toJSON() : <any>null;
-        data["twitchId"] = this.twitchId ? this.twitchId.toJSON() : <any>null;
-        data["avatarUrl"] = this.avatarUrl !== undefined ? this.avatarUrl : <any>null;
-        data["ticker"] = this.ticker ? this.ticker.toJSON() : <any>null;
-        data["value"] = this.value ? this.value.toJSON() : <any>null;
-        data["streamStatus"] = this.streamStatus ? this.streamStatus.toJSON() : <any>null;
-        if (Array.isArray(this.transactions)) {
-            data["transactions"] = [];
-            for (let item of this.transactions)
-                data["transactions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.history)) {
-            data["history"] = [];
-            for (let item of this.history)
-                data["history"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ICreator {
-    id: ModelId;
-    createdAt: Date;
-    updatedAt: Date;
-    name: Name;
-    slug: Slug;
-    twitchId: TwitchId;
-    avatarUrl: string;
-    ticker: Ticker;
-    value: Credits;
-    streamStatus: StreamStatus;
-    transactions: Transaction[];
-    history: Vote[];
-}
-
 export class CreatorDto implements ICreatorDto {
     id!: number;
     created_at!: Date;
@@ -1240,42 +1070,6 @@ export interface ICreatorTransactionDto {
     player: PlayerPartialDto;
 }
 
-export class Credits implements ICredits {
-    value!: number;
-
-    constructor(data?: ICredits) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): Credits {
-        data = typeof data === 'object' ? data : {};
-        let result = new Credits();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
-}
-
-export interface ICredits {
-    value: number;
-}
-
 export class DiscordTokenDto implements IDiscordTokenDto {
     access_token!: string;
     link_token!: string;
@@ -1372,75 +1166,6 @@ export class LinkDiscordTwitchDto implements ILinkDiscordTwitchDto {
 export interface ILinkDiscordTwitchDto {
     access_token: string;
     twitch_id: string;
-}
-
-export class LootBox implements ILootBox {
-    id!: ModelId;
-    createdAt!: Date;
-    readonly updatedAt!: Date;
-    playerId!: ModelId;
-    resultId?: ModelId;
-    player!: Player;
-    result?: Creator;
-    readonly isOpen!: boolean;
-
-    constructor(data?: ILootBox) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.id = new ModelId();
-            this.playerId = new ModelId();
-            this.player = new Player();
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] ? ModelId.fromJS(_data["id"]) : new ModelId();
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>null;
-            (<any>this).updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>null;
-            this.playerId = _data["playerId"] ? ModelId.fromJS(_data["playerId"]) : new ModelId();
-            this.resultId = _data["resultId"] ? ModelId.fromJS(_data["resultId"]) : <any>null;
-            this.player = _data["player"] ? Player.fromJS(_data["player"]) : new Player();
-            this.result = _data["result"] ? Creator.fromJS(_data["result"]) : <any>null;
-            (<any>this).isOpen = _data["isOpen"] !== undefined ? _data["isOpen"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): LootBox {
-        data = typeof data === 'object' ? data : {};
-        let result = new LootBox();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id ? this.id.toJSON() : <any>null;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>null;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
-        data["playerId"] = this.playerId ? this.playerId.toJSON() : <any>null;
-        data["resultId"] = this.resultId ? this.resultId.toJSON() : <any>null;
-        data["player"] = this.player ? this.player.toJSON() : <any>null;
-        data["result"] = this.result ? this.result.toJSON() : <any>null;
-        data["isOpen"] = this.isOpen !== undefined ? this.isOpen : <any>null;
-        return data;
-    }
-}
-
-export interface ILootBox {
-    id: ModelId;
-    createdAt: Date;
-    updatedAt: Date;
-    playerId: ModelId;
-    resultId?: ModelId;
-    player: Player;
-    result?: Creator;
-    isOpen: boolean;
 }
 
 export class LootBoxDto implements ILootBoxDto {
@@ -1604,177 +1329,9 @@ export interface IModelId {
     value: number;
 }
 
-export class Name implements IName {
-    value!: string;
-
-    constructor(data?: IName) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): Name {
-        data = typeof data === 'object' ? data : {};
-        let result = new Name();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
-}
-
-export interface IName {
-    value: string;
-}
-
 export enum OrderDirection {
     Ascending = "Ascending",
     Descending = "Descending",
-}
-
-export class Player implements IPlayer {
-    id!: ModelId;
-    createdAt!: Date;
-    readonly updatedAt!: Date;
-    name!: Name;
-    slug!: Slug;
-    twitchId!: TwitchId;
-    avatarUrl!: string;
-    credits!: Credits;
-    readonly portfolio!: number;
-    value!: Credits;
-    type!: PlayerType;
-    transactions!: Transaction[];
-    lootBoxes!: LootBox[];
-    history!: PortfolioSnapshot[];
-
-    constructor(data?: IPlayer) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.id = new ModelId();
-            this.name = new Name();
-            this.slug = new Slug();
-            this.twitchId = new TwitchId();
-            this.credits = new Credits();
-            this.value = new Credits();
-            this.transactions = [];
-            this.lootBoxes = [];
-            this.history = [];
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] ? ModelId.fromJS(_data["id"]) : new ModelId();
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>null;
-            (<any>this).updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>null;
-            this.name = _data["name"] ? Name.fromJS(_data["name"]) : new Name();
-            this.slug = _data["slug"] ? Slug.fromJS(_data["slug"]) : new Slug();
-            this.twitchId = _data["twitchId"] ? TwitchId.fromJS(_data["twitchId"]) : new TwitchId();
-            this.avatarUrl = _data["avatarUrl"] !== undefined ? _data["avatarUrl"] : <any>null;
-            this.credits = _data["credits"] ? Credits.fromJS(_data["credits"]) : new Credits();
-            (<any>this).portfolio = _data["portfolio"] !== undefined ? _data["portfolio"] : <any>null;
-            this.value = _data["value"] ? Credits.fromJS(_data["value"]) : new Credits();
-            this.type = _data["type"] !== undefined ? _data["type"] : <any>null;
-            if (Array.isArray(_data["transactions"])) {
-                this.transactions = [] as any;
-                for (let item of _data["transactions"])
-                    this.transactions!.push(Transaction.fromJS(item));
-            }
-            else {
-                this.transactions = <any>null;
-            }
-            if (Array.isArray(_data["lootBoxes"])) {
-                this.lootBoxes = [] as any;
-                for (let item of _data["lootBoxes"])
-                    this.lootBoxes!.push(LootBox.fromJS(item));
-            }
-            else {
-                this.lootBoxes = <any>null;
-            }
-            if (Array.isArray(_data["history"])) {
-                this.history = [] as any;
-                for (let item of _data["history"])
-                    this.history!.push(PortfolioSnapshot.fromJS(item));
-            }
-            else {
-                this.history = <any>null;
-            }
-        }
-    }
-
-    static fromJS(data: any): Player {
-        data = typeof data === 'object' ? data : {};
-        let result = new Player();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id ? this.id.toJSON() : <any>null;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>null;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
-        data["name"] = this.name ? this.name.toJSON() : <any>null;
-        data["slug"] = this.slug ? this.slug.toJSON() : <any>null;
-        data["twitchId"] = this.twitchId ? this.twitchId.toJSON() : <any>null;
-        data["avatarUrl"] = this.avatarUrl !== undefined ? this.avatarUrl : <any>null;
-        data["credits"] = this.credits ? this.credits.toJSON() : <any>null;
-        data["portfolio"] = this.portfolio !== undefined ? this.portfolio : <any>null;
-        data["value"] = this.value ? this.value.toJSON() : <any>null;
-        data["type"] = this.type !== undefined ? this.type : <any>null;
-        if (Array.isArray(this.transactions)) {
-            data["transactions"] = [];
-            for (let item of this.transactions)
-                data["transactions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.lootBoxes)) {
-            data["lootBoxes"] = [];
-            for (let item of this.lootBoxes)
-                data["lootBoxes"].push(item.toJSON());
-        }
-        if (Array.isArray(this.history)) {
-            data["history"] = [];
-            for (let item of this.history)
-                data["history"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IPlayer {
-    id: ModelId;
-    createdAt: Date;
-    updatedAt: Date;
-    name: Name;
-    slug: Slug;
-    twitchId: TwitchId;
-    avatarUrl: string;
-    credits: Credits;
-    portfolio: number;
-    value: Credits;
-    type: PlayerType;
-    transactions: Transaction[];
-    lootBoxes: LootBox[];
-    history: PortfolioSnapshot[];
 }
 
 export class PlayerDto implements IPlayerDto {
@@ -1793,7 +1350,7 @@ export class PlayerDto implements IPlayerDto {
     transactions!: PlayerTransactionDto[];
     loot_boxes!: LootBoxDto[];
     shares!: PlayerShareDto[];
-    history!: PortfolioDto[];
+    history!: PortfolioSnapshotDto[];
 
     constructor(data?: IPlayerDto) {
         if (data) {
@@ -1851,7 +1408,7 @@ export class PlayerDto implements IPlayerDto {
             if (Array.isArray(_data["history"])) {
                 this.history = [] as any;
                 for (let item of _data["history"])
-                    this.history!.push(PortfolioDto.fromJS(item));
+                    this.history!.push(PortfolioSnapshotDto.fromJS(item));
             }
             else {
                 this.history = <any>null;
@@ -1920,7 +1477,7 @@ export interface IPlayerDto {
     transactions: PlayerTransactionDto[];
     loot_boxes: LootBoxDto[];
     shares: PlayerShareDto[];
-    history: PortfolioDto[];
+    history: PortfolioSnapshotDto[];
 }
 
 export class PlayerDtoPaginationDto implements IPlayerDtoPaginationDto {
@@ -2182,12 +1739,12 @@ export enum PlayerType {
     Admin = "Admin",
 }
 
-export class PortfolioDto implements IPortfolioDto {
+export class PortfolioSnapshotDto implements IPortfolioSnapshotDto {
     player_id!: number;
     value!: number;
     time!: Date;
 
-    constructor(data?: IPortfolioDto) {
+    constructor(data?: IPortfolioSnapshotDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2204,9 +1761,9 @@ export class PortfolioDto implements IPortfolioDto {
         }
     }
 
-    static fromJS(data: any): PortfolioDto {
+    static fromJS(data: any): PortfolioSnapshotDto {
         data = typeof data === 'object' ? data : {};
-        let result = new PortfolioDto();
+        let result = new PortfolioSnapshotDto();
         result.init(data);
         return result;
     }
@@ -2220,98 +1777,10 @@ export class PortfolioDto implements IPortfolioDto {
     }
 }
 
-export interface IPortfolioDto {
+export interface IPortfolioSnapshotDto {
     player_id: number;
     value: number;
     time: Date;
-}
-
-export class PortfolioSnapshot implements IPortfolioSnapshot {
-    value!: number;
-    playerId!: ModelId;
-    time!: Date;
-    player!: Player;
-
-    constructor(data?: IPortfolioSnapshot) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.playerId = new ModelId();
-            this.player = new Player();
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-            this.playerId = _data["playerId"] ? ModelId.fromJS(_data["playerId"]) : new ModelId();
-            this.time = _data["time"] ? new Date(_data["time"].toString()) : <any>null;
-            this.player = _data["player"] ? Player.fromJS(_data["player"]) : new Player();
-        }
-    }
-
-    static fromJS(data: any): PortfolioSnapshot {
-        data = typeof data === 'object' ? data : {};
-        let result = new PortfolioSnapshot();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        data["playerId"] = this.playerId ? this.playerId.toJSON() : <any>null;
-        data["time"] = this.time ? this.time.toISOString() : <any>null;
-        data["player"] = this.player ? this.player.toJSON() : <any>null;
-        return data;
-    }
-}
-
-export interface IPortfolioSnapshot {
-    value: number;
-    playerId: ModelId;
-    time: Date;
-    player: Player;
-}
-
-export class Quantity implements IQuantity {
-    value!: number;
-
-    constructor(data?: IQuantity) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): Quantity {
-        data = typeof data === 'object' ? data : {};
-        let result = new Quantity();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
-}
-
-export interface IQuantity {
-    value: number;
 }
 
 export enum Rarity {
@@ -2319,86 +1788,6 @@ export enum Rarity {
     Common = "Common",
     Rare = "Rare",
     Epic = "Epic",
-}
-
-export class Slug implements ISlug {
-    value!: string;
-
-    constructor(data?: ISlug) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): Slug {
-        data = typeof data === 'object' ? data : {};
-        let result = new Slug();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
-}
-
-export interface ISlug {
-    value: string;
-}
-
-export class StreamStatus implements IStreamStatus {
-    readonly isLive!: boolean;
-    readonly startedAt?: Date | null;
-    readonly endedAt?: Date | null;
-
-    constructor(data?: IStreamStatus) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            (<any>this).isLive = _data["isLive"] !== undefined ? _data["isLive"] : <any>null;
-            (<any>this).startedAt = _data["startedAt"] ? new Date(_data["startedAt"].toString()) : <any>null;
-            (<any>this).endedAt = _data["endedAt"] ? new Date(_data["endedAt"].toString()) : <any>null;
-        }
-    }
-
-    static fromJS(data: any): StreamStatus {
-        data = typeof data === 'object' ? data : {};
-        let result = new StreamStatus();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["isLive"] = this.isLive !== undefined ? this.isLive : <any>null;
-        data["startedAt"] = this.startedAt ? this.startedAt.toISOString() : <any>null;
-        data["endedAt"] = this.endedAt ? this.endedAt.toISOString() : <any>null;
-        return data;
-    }
-}
-
-export interface IStreamStatus {
-    isLive: boolean;
-    startedAt?: Date | null;
-    endedAt?: Date | null;
 }
 
 export class StreamStatusDto implements IStreamStatusDto {
@@ -2443,42 +1832,6 @@ export interface IStreamStatusDto {
     is_live: boolean;
     started_at?: Date | null;
     ended_at?: Date | null;
-}
-
-export class Ticker implements ITicker {
-    value!: string;
-
-    constructor(data?: ITicker) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): Ticker {
-        data = typeof data === 'object' ? data : {};
-        let result = new Ticker();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
-}
-
-export interface ITicker {
-    value: string;
 }
 
 export enum TimeStep {
@@ -2528,131 +1881,10 @@ export interface ITokenDto {
     access_token: string;
 }
 
-export class Transaction implements ITransaction {
-    id!: ModelId;
-    createdAt!: Date;
-    readonly updatedAt!: Date;
-    quantity!: Quantity;
-    value!: Credits;
-    action!: TransactionAction;
-    creatorId!: ModelId;
-    playerId!: ModelId;
-    readonly total!: number;
-    creator!: Creator;
-    player!: Player;
-
-    constructor(data?: ITransaction) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.id = new ModelId();
-            this.quantity = new Quantity();
-            this.value = new Credits();
-            this.creatorId = new ModelId();
-            this.playerId = new ModelId();
-            this.creator = new Creator();
-            this.player = new Player();
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] ? ModelId.fromJS(_data["id"]) : new ModelId();
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>null;
-            (<any>this).updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>null;
-            this.quantity = _data["quantity"] ? Quantity.fromJS(_data["quantity"]) : new Quantity();
-            this.value = _data["value"] ? Credits.fromJS(_data["value"]) : new Credits();
-            this.action = _data["action"] !== undefined ? _data["action"] : <any>null;
-            this.creatorId = _data["creatorId"] ? ModelId.fromJS(_data["creatorId"]) : new ModelId();
-            this.playerId = _data["playerId"] ? ModelId.fromJS(_data["playerId"]) : new ModelId();
-            (<any>this).total = _data["total"] !== undefined ? _data["total"] : <any>null;
-            this.creator = _data["creator"] ? Creator.fromJS(_data["creator"]) : new Creator();
-            this.player = _data["player"] ? Player.fromJS(_data["player"]) : new Player();
-        }
-    }
-
-    static fromJS(data: any): Transaction {
-        data = typeof data === 'object' ? data : {};
-        let result = new Transaction();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id ? this.id.toJSON() : <any>null;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>null;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>null;
-        data["quantity"] = this.quantity ? this.quantity.toJSON() : <any>null;
-        data["value"] = this.value ? this.value.toJSON() : <any>null;
-        data["action"] = this.action !== undefined ? this.action : <any>null;
-        data["creatorId"] = this.creatorId ? this.creatorId.toJSON() : <any>null;
-        data["playerId"] = this.playerId ? this.playerId.toJSON() : <any>null;
-        data["total"] = this.total !== undefined ? this.total : <any>null;
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>null;
-        data["player"] = this.player ? this.player.toJSON() : <any>null;
-        return data;
-    }
-}
-
-export interface ITransaction {
-    id: ModelId;
-    createdAt: Date;
-    updatedAt: Date;
-    quantity: Quantity;
-    value: Credits;
-    action: TransactionAction;
-    creatorId: ModelId;
-    playerId: ModelId;
-    total: number;
-    creator: Creator;
-    player: Player;
-}
-
 export enum TransactionAction {
     Buy = "Buy",
     Sell = "Sell",
     Open = "Open",
-}
-
-export class TwitchId implements ITwitchId {
-    value!: string;
-
-    constructor(data?: ITwitchId) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] !== undefined ? _data["value"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): TwitchId {
-        data = typeof data === 'object' ? data : {};
-        let result = new TwitchId();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value !== undefined ? this.value : <any>null;
-        return data;
-    }
-}
-
-export interface ITwitchId {
-    value: string;
 }
 
 export class TwitchUserDto implements ITwitchUserDto {
@@ -2701,59 +1933,6 @@ export interface ITwitchUserDto {
     display_name: string;
     login: string;
     avatar_url: string;
-}
-
-export class Vote implements IVote {
-    value!: Credits;
-    time!: Date;
-    creatorId!: ModelId;
-    creator!: Creator;
-
-    constructor(data?: IVote) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.value = new Credits();
-            this.creatorId = new ModelId();
-            this.creator = new Creator();
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] ? Credits.fromJS(_data["value"]) : new Credits();
-            this.time = _data["time"] ? new Date(_data["time"].toString()) : <any>null;
-            this.creatorId = _data["creatorId"] ? ModelId.fromJS(_data["creatorId"]) : new ModelId();
-            this.creator = _data["creator"] ? Creator.fromJS(_data["creator"]) : new Creator();
-        }
-    }
-
-    static fromJS(data: any): Vote {
-        data = typeof data === 'object' ? data : {};
-        let result = new Vote();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value ? this.value.toJSON() : <any>null;
-        data["time"] = this.time ? this.time.toISOString() : <any>null;
-        data["creatorId"] = this.creatorId ? this.creatorId.toJSON() : <any>null;
-        data["creator"] = this.creator ? this.creator.toJSON() : <any>null;
-        return data;
-    }
-}
-
-export interface IVote {
-    value: Credits;
-    time: Date;
-    creatorId: ModelId;
-    creator: Creator;
 }
 
 export class VoteDto implements IVoteDto {

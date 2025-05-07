@@ -25,11 +25,11 @@ public class OnboardCreatorCommandTests : ApplicationTests
             Username = creator.Slug
         });
 
-        Assert.AreEqual(creator.Slug, result.Slug);
-        Assert.AreEqual(creator.Name, result.Name);
-        Assert.AreEqual(creator.AvatarUrl, result.AvatarUrl);
-        Assert.AreEqual(creator.TwitchId, result.TwitchId);
-        Assert.AreEqual(creator.Ticker, result.Ticker);
+        Assert.AreEqual(creator.Slug.Value, result.Slug);
+        Assert.AreEqual(creator.Name.Value, result.Name);
+        Assert.AreEqual(creator.AvatarUrl.ToString(), result.AvatarUrl);
+        Assert.AreEqual(creator.TwitchId.Value, result.TwitchId);
+        Assert.AreEqual(creator.Ticker.Value, result.Ticker);
     }
 
     [TestMethod]
@@ -45,11 +45,11 @@ public class OnboardCreatorCommandTests : ApplicationTests
             TwitchId = creator.TwitchId
         });
 
-        Assert.AreEqual(creator.Slug, result.Slug);
-        Assert.AreEqual(creator.Name, result.Name);
-        Assert.AreEqual(creator.AvatarUrl, result.AvatarUrl);
-        Assert.AreEqual(creator.TwitchId, result.TwitchId);
-        Assert.AreEqual(creator.Ticker, result.Ticker);
+        Assert.AreEqual(creator.Slug.Value, result.Slug);
+        Assert.AreEqual(creator.Name.Value, result.Name);
+        Assert.AreEqual(creator.AvatarUrl.ToString(), result.AvatarUrl);
+        Assert.AreEqual(creator.TwitchId.Value, result.TwitchId);
+        Assert.AreEqual(creator.Ticker.Value, result.Ticker);
     }
 
     [TestMethod]
@@ -66,13 +66,13 @@ public class OnboardCreatorCommandTests : ApplicationTests
             Username = creator.Slug
         });
 
-        var result = cHandler.FindNotification<CreateCreator>(c => c.Slug == creator.Slug);
+        var result = cHandler.FindNotification<CreateCreator>(c => c.Creator.Slug == creator.Slug);
         Assert.IsNotNull(result);
-        Assert.AreEqual(creator.Slug.Value, result.Slug);
-        Assert.AreEqual(creator.Name.Value, result.Name);
-        Assert.AreEqual(creator.AvatarUrl.ToString(), result.AvatarUrl);
-        Assert.AreEqual(creator.TwitchId.Value, result.TwitchId);
-        Assert.AreEqual(creator.Ticker.Value, result.Ticker);
+        Assert.AreEqual(creator.Slug.Value, result.Creator.Slug);
+        Assert.AreEqual(creator.Name.Value, result.Creator.Name);
+        Assert.AreEqual(creator.AvatarUrl.ToString(), result.Creator.AvatarUrl);
+        Assert.AreEqual(creator.TwitchId.Value, result.Creator.TwitchId);
+        Assert.AreEqual(creator.Ticker.Value, result.Creator.Ticker);
     }
 
     [TestMethod]
@@ -86,13 +86,10 @@ public class OnboardCreatorCommandTests : ApplicationTests
         var cHandler = ServiceProvider.GetRequiredService<CreateCreatorNotificationHandler>();
         tAuth.Inject(creator);
 
-        await Assert.ThrowsExceptionAsync<CreatorTickerTakenException>(() =>
+        await Assert.ThrowsExceptionAsync<InvalidActionException>(() => Sender.Send(new OnboardTwitchCreatorCommand
         {
-            return Sender.Send(new OnboardTwitchCreatorCommand
-            {
-                Ticker = creator.Ticker,
-                Username = creator.Slug
-            });
-        });
+            Ticker = creator.Ticker,
+            Username = creator.Slug
+        }));
     }
 }
