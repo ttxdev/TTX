@@ -337,7 +337,31 @@ namespace TTX.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(t => t.SubmitterId)
                     .IsRequired();
+            });
 
+            modelBuilder.Entity<CreatorOptOut>(entity =>
+            {
+                entity.ToTable("creator_opt_outs");
+
+                entity.HasKey(a => a.Id);
+                entity.Property(a => a.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasConversion(new ModelIdConverter())
+                    .UseIdentityColumn()
+                    .HasColumnOrder(0)
+                    .HasColumnName("id");
+                entity.Property(a => a.TwitchId)
+                    .HasConversion(new TwitchIdConverter())
+                    .HasColumnOrder(1)
+                    .HasColumnName("twitch_id");
+                entity.Property(a => a.CreatedAt)
+                    .HasColumnOrder(2)
+                    .HasColumnName("created_at");
+                entity.Property(a => a.UpdatedAt)
+                    .HasColumnOrder(3)
+                    .HasColumnName("updated_at");
+                entity.HasIndex(a => a.TwitchId)
+                    .IsUnique();
             });
 
             base.OnModelCreating(modelBuilder);
@@ -376,6 +400,7 @@ namespace TTX.Infrastructure.Data
 
         public DbSet<Player> Players => Set<Player>();
         public DbSet<Creator> Creators => Set<Creator>();
+        public DbSet<CreatorOptOut> CreatorOptOuts => Set<CreatorOptOut>();
         public DbSet<Transaction> Transactions => Set<Transaction>();
         public DbSet<PortfolioSnapshot> Portfolios => Set<PortfolioSnapshot>();
         public DbSet<LootBox> LootBoxes => Set<LootBox>();
