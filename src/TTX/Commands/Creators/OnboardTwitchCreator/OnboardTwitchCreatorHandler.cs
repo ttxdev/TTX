@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto.Creators;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
@@ -13,17 +14,29 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
         IMediator mediatr,
         ApplicationDbContext context,
         ITwitchAuthService twitch
-    ) : ICommandHandler<OnboardTwitchCreatorCommand, Creator>
+    ) : ICommandHandler<OnboardTwitchCreatorCommand, CreatorDto>
     {
-        public async Task<Creator> Handle(OnboardTwitchCreatorCommand request, CancellationToken ct = default)
+        public async Task<CreatorDto> Handle(OnboardTwitchCreatorCommand request, CancellationToken ct = default)
         {
             if (await IsTickerTaken(request.Ticker, ct))
             {
-                throw new CreatorTickerTakenException();
+                throw new InvalidActionException("Ticker is already taken");
             }
 
-            TwitchUser tUser = await twitch.Find(request.Username) ?? throw new TwitchUserNotFoundException();
-            Creator creator = Creator.Create(
+            TwitchUser tUser = await FindTwitchUser(request);
+            Creator? creator = await CreatorExists(tUser.Id, ct);
+            if (creator is not null)
+            {
+                if (creator.Sync(tUser.DisplayName, tUser.Login, tUser.AvatarUrl))
+                {
+                    context.Creators.Update(creator);
+                    await context.SaveChangesAsync(ct);
+                }
+
+                return CreatorDto.Create(creator);
+            }
+
+            creator = Creator.Create(
                 tUser.DisplayName,
                 tUser.Login,
                 tUser.Id,
@@ -33,10 +46,9 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
 
             context.Creators.Add(creator);
             await context.SaveChangesAsync(ct);
-
             await mediatr.Publish(CreateCreator.Create(creator), ct);
 
-            return creator;
+            return CreatorDto.Create(creator);
         }
 
         private async Task<bool> IsTickerTaken(Ticker ticker, CancellationToken ct)
@@ -45,6 +57,30 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
                 .AnyAsync(c => c.Ticker == ticker, ct);
 
             return exists;
+        }
+
+        private async Task<TwitchUser> FindTwitchUser(OnboardTwitchCreatorCommand request)
+        {
+            TwitchUser? tUser;
+            if (request.Username is not null)
+            {
+                tUser = await twitch.Find(request.Username);
+            }
+            else if (request.TwitchId is not null)
+            {
+                tUser = await twitch.FindById(request.TwitchId);
+            }
+            else
+            {
+                throw new InvalidOperationException("Username or TwitchId must be provided");
+            }
+
+            return tUser ?? throw new NotFoundException<TwitchUser>();
+        }
+
+        private Task<Creator?> CreatorExists(TwitchId twitchId, CancellationToken ct)
+        {
+            return context.Creators.SingleOrDefaultAsync(c => c.TwitchId == twitchId, ct);
         }
     }
 }

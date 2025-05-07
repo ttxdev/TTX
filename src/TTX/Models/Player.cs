@@ -16,7 +16,7 @@ namespace TTX.Models
         public PlayerType Type { get; init; } = PlayerType.User;
         public HashSet<Transaction> Transactions { get; init; } = [];
         public HashSet<LootBox> LootBoxes { get; init; } = [];
-        public HashSet<PortfolioSnapshot> History { get; set; } =[];
+        public HashSet<PortfolioSnapshot> History { get; set; } = [];
 
         public ImmutableArray<Share> GetShares()
         {
@@ -35,7 +35,7 @@ namespace TTX.Models
 
         public Transaction Give(Creator creator)
         {
-            Transaction tx = Transaction.CreateBuy(this, creator, 1);
+            Transaction tx = Transaction.CreateOpen(this, creator, 1);
             creator.RecordTransaction(tx);
             Transactions.Add(tx);
 
@@ -47,7 +47,7 @@ namespace TTX.Models
             long value = creator.Value * amount;
             if (Credits < value)
             {
-                throw new ExceedsBalanceException();
+                throw new InvalidActionException("Insufficient funds.");
             }
 
             ImmutableArray<Share> currentShares = GetShares();
@@ -58,7 +58,7 @@ namespace TTX.Models
 
             if (currentQuantity + amount.Value > MaxShares)
             {
-                throw new MaxSharesException(MaxShares);
+                throw new InvalidActionException($"Met max shares ({MaxShares}).");
             }
 
             Credits -= value;
@@ -80,7 +80,7 @@ namespace TTX.Models
 
             if (quantity < amount.Value)
             {
-                throw new ExceedsSharesException();
+                throw new InvalidActionException("Insufficient shares.");
             }
 
             long value = creator.Value * amount;
@@ -96,13 +96,8 @@ namespace TTX.Models
         public PortfolioSnapshot RecordPortfolio(long portfolio)
         {
             Portfolio = portfolio;
-            
-            return new PortfolioSnapshot
-            {
-                PlayerId = Id,
-                Player = this,
-                Value = portfolio,
-            };
+
+            return new PortfolioSnapshot { PlayerId = Id, Player = this, Value = portfolio };
         }
 
         public LootBox AddLootBox()

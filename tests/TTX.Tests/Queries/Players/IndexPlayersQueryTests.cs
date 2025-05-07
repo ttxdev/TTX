@@ -124,6 +124,6 @@ public class IndexPlayersQueryTests : ApplicationTests
 
         var target = page.Data.FirstOrDefault();
         Assert.IsNotNull(target);
-        Assert.AreEqual(player.Name, target.Name);
+        Assert.AreEqual(player.Name.Value, target.Name);
     }
 }

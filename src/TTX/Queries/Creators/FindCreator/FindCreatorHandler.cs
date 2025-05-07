@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TTX.Dto.Creators;
 using TTX.Infrastructure.Data;
 using TTX.Models;
 
 namespace TTX.Queries.Creators.FindCreator
 {
     public class FindCreatorHandler(ApplicationDbContext context)
-        : CreatorQueryHandler(context), IQueryHandler<FindCreatorQuery, Creator?>
+        : CreatorQueryHandler(context), IQueryHandler<FindCreatorQuery, CreatorDto?>
     {
-        public async Task<Creator?> Handle(FindCreatorQuery request, CancellationToken ct)
+        public async Task<CreatorDto?> Handle(FindCreatorQuery request, CancellationToken ct)
         {
             Creator? creator = await Context.Creators
                 .Include(c => c.Transactions.OrderBy(t => t.CreatedAt))
@@ -26,7 +27,7 @@ namespace TTX.Queries.Creators.FindCreator
                 creator.History = [.. value];
             }
 
-            return creator;
+            return CreatorDto.Create(creator);
         }
     }
 }

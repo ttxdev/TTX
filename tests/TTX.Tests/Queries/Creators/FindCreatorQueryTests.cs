@@ -28,7 +28,7 @@ public class FindCreatorQueryTests : ApplicationTests
 
         Assert.IsNotNull(creator);
     }
-    
+
     [TestMethod]
     public async Task FindCreator_ShouldReturnValueHistory()
     {
@@ -37,12 +37,12 @@ public class FindCreatorQueryTests : ApplicationTests
         await DbContext.SaveChangesAsync();
         await Sender.Send(new RecordNetChangeCommand
         {
-            CreatorSlug = target.Slug,
+            Username = target.Slug,
             NetChange = 50
         });
         await Sender.Send(new RecordNetChangeCommand
         {
-            CreatorSlug = target.Slug,
+            Username = target.Slug,
             NetChange = 25
         });
 
@@ -59,6 +59,6 @@ public class FindCreatorQueryTests : ApplicationTests
         Assert.IsNotNull(creator);
         var vote = creator.History.FirstOrDefault();
         Assert.IsNotNull(vote);
-        Assert.AreEqual(275, vote.Value);;
+        Assert.AreEqual(275, vote.Value);
     }
 }

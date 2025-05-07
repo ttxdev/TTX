@@ -1,14 +1,14 @@
-﻿using TTX.Models;
-using TTX.ValueObjects;
+﻿using System.Text.Json.Serialization;
+using TTX.Dto.Transactions;
+using TTX.Models;
 
 namespace TTX.Commands.Ordering.PlaceOrder
 {
-    public readonly struct PlaceOrderCommand : ICommand<Transaction>
+    public readonly struct PlaceOrderCommand : ICommand<CreatorTransactionDto>
     {
-        public required ModelId Actor { get; init; }
-        public required Slug Creator { get; init; }
-        public required Quantity Amount { get; init; }
-        public required TransactionAction Action { get; init; }
-        public bool IsBuy => Action == TransactionAction.Buy;
+        [JsonPropertyName("actor_id")] public required int ActorId { get; init; }
+        [JsonPropertyName("creator")] public required string Creator { get; init; }
+        [JsonPropertyName("amount")] public required int Amount { get; init; }
+        [JsonPropertyName("action")] public required TransactionAction Action { get; init; }
     }
 }

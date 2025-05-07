@@ -30,7 +30,7 @@ public class FindPlayerQueryTests : ApplicationTests
 
         Assert.IsNotNull(player);
     }
-       
+
     [TestMethod]
     public async Task FindPlayer_ShouldReturnValueHistory()
     {
@@ -43,7 +43,7 @@ public class FindPlayerQueryTests : ApplicationTests
         {
             Action = TransactionAction.Buy,
             Amount = 1,
-            Actor = target.Id,
+            ActorId = target.Id,
             Creator = creator.Slug
         });
         await Sender.Send(new CalculatePortfolioCommand
@@ -64,6 +64,6 @@ public class FindPlayerQueryTests : ApplicationTests
         Assert.IsNotNull(player);
         var portfolio = player.History.FirstOrDefault();
         Assert.IsNotNull(portfolio);
-        Assert.AreEqual(50, portfolio.Value);;
+        Assert.AreEqual(50, portfolio.Value);
     }
 }

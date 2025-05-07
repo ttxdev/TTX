@@ -21,7 +21,7 @@ namespace TTX.Models
         {
             if (IsOpen)
             {
-                throw new LootBoxOpenedException();
+                throw new InvalidActionException("Lootbox is already opened.");
             }
 
             if (creators.Length == 0)

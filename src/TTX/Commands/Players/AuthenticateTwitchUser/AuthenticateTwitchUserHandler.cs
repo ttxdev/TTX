@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TTX.Dto.Players;
 using TTX.Exceptions;
 using TTX.Infrastructure.Data;
 using TTX.Interfaces.Twitch;
@@ -12,15 +13,15 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
         ApplicationDbContext context,
         IMediator mediator,
         ITwitchAuthService twitch)
-        : ICommandHandler<AuthenticateTwitchUserCommand, Player>
+        : ICommandHandler<AuthenticateTwitchUserCommand, PlayerDto>
     {
-        public async Task<Player> Handle(AuthenticateTwitchUserCommand request, CancellationToken ct)
+        public async Task<PlayerDto> Handle(AuthenticateTwitchUserCommand request, CancellationToken ct)
         {
             TwitchUser tUser = await FindTwitchUser(request);
             Player? player = await context.Players.SingleOrDefaultAsync(p => p.TwitchId == tUser.Id, ct);
             if (player is not null)
             {
-                return await Sync(tUser, player);
+                return PlayerDto.Create(await Sync(tUser, player));
             }
 
             player = Player.Create(
@@ -33,7 +34,7 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
             await context.SaveChangesAsync(ct);
             await mediator.Publish(CreatePlayer.Create(player), ct);
 
-            return player;
+            return PlayerDto.Create(player);
         }
 
         private async Task<TwitchUser> FindTwitchUser(AuthenticateTwitchUserCommand request)
@@ -52,7 +53,7 @@ namespace TTX.Commands.Players.AuthenticateTwitchUser
                 throw new InvalidOperationException("Invalid request, Twitch identifier not provided");
             }
 
-            return tUser ?? throw new TwitchUserNotFoundException();
+            return tUser ?? throw new NotFoundException<TwitchUser>();
         }
 
         private async Task<Player> Sync(TwitchUser tUser, Player player)

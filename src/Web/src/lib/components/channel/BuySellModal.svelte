@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext, onMount } from 'svelte';
-	import { fly, fade } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import { errorToast } from '$lib/toast';
 	import { formatTicker, formatValue } from '$lib/util';
 	import { getApiClient } from '$lib';
@@ -182,7 +182,7 @@
 		{#if visible}
 			<div
 				class="modal-box relative z-10 w-full max-w-md rounded-2xl p-6 shadow-lg"
-				in:fly={{ y: 1000, duration: 800 }}
+				in:fade
 				out:fade
 			>
 				{#if !isLoading}

@@ -7,7 +7,7 @@ using TTX.Api.Dto;
 using TTX.Api.Interfaces;
 using TTX.Api.Provider;
 using TTX.Commands.Players.AuthenticateDiscordUser;
-using TTX.Models;
+using TTX.Dto.Players;
 using TTX.ValueObjects;
 
 namespace TTX.Api.Services;
@@ -40,13 +40,13 @@ public class SessionService(
             $"https://id.twitch.tv/oauth2/authorize?client_id={clientId}&redirect_uri={redirectUri}&response_type=code&scope={scope}&state={state}";
     }
 
-    public string CreateSession(Player player)
+    public string CreateSession(PlayerPartialDto player)
     {
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, player.Id.ToString()),
             new Claim(ClaimTypes.Name, player.Name),
-            new Claim("AvatarUrl", player.AvatarUrl.ToString()),
+            new Claim("AvatarUrl", player.AvatarUrl),
             new Claim(ClaimTypes.Role, player.Type.ToString()),
             new Claim("UpdatedAt", player.UpdatedAt.ToString("o"))
         };
@@ -55,8 +55,8 @@ public class SessionService(
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: "api.ttx.gg",
-            audience: "ttx.gg",
+            "api.ttx.gg",
+            "ttx.gg",
             claims,
             expires: DateTime.Now.AddDays(7),
             signingCredentials: creds
@@ -78,8 +78,8 @@ public class SessionService(
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: "api.ttx.gg",
-            audience: "discord.ttx.gg",
+            "api.ttx.gg",
+            "discord.ttx.gg",
             claims,
             expires: DateTime.Now.AddDays(1),
             signingCredentials: creds

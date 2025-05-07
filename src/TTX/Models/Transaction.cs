@@ -13,14 +13,9 @@ namespace TTX.Models
         public Creator Creator { get; init; } = null!;
         public Player Player { get; init; } = null!;
 
-        public bool IsBuy()
+        public bool IsGain()
         {
-            return Action == TransactionAction.Buy;
-        }
-
-        public bool IsSell()
-        {
-            return Action == TransactionAction.Sell;
+            return Action is TransactionAction.Buy or TransactionAction.Open;
         }
 
         public static Transaction Create(Player actor, Creator creator, Quantity amount, TransactionAction action)
@@ -47,6 +42,11 @@ namespace TTX.Models
         public static Transaction CreateSell(Player actor, Creator creator, Quantity amount)
         {
             return Create(actor, creator, amount, TransactionAction.Sell);
+        }
+
+        public static Transaction CreateOpen(Player actor, Creator creator, Quantity amount)
+        {
+            return Create(actor, creator, amount, TransactionAction.Open);
         }
     }
 }

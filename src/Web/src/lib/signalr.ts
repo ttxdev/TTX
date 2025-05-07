@@ -3,7 +3,7 @@ import { PUBLIC_API_BASE_URL as apiBaseUrl } from '$env/static/public';
 
 export async function startConnection(hub: string): Promise<HubConnection> {
 	const connection = new HubConnectionBuilder()
-		.withUrl(`${apiBaseUrl}/hubs/${hub}`, { withCredentials: false })
+		.withUrl(`${apiBaseUrl}/hubs/${hub}`)
 		.withAutomaticReconnect()
 		.build();
 

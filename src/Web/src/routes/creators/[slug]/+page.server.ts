@@ -17,16 +17,19 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			new Date(Date.now() - hours * 60 * 60 * 1000)
 		);
 
+		const isPlayer = client.getPlayer(channelSlug).then(() => true).catch(() => false)
+
 		return {
 			creator: creator.toJSON() as CreatorDto,
 			shares: creator.shares.map((d) => d.toJSON() as CreatorShareDto),
 			transactions: creator.transactions
   			.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
 		  	.map((d) => d.toJSON() as CreatorTransactionDto),
-			interval
+			interval,
+			isPlayer
 		};
 	} catch (err) {
 		console.error(err);
-		error(404, 'Channel not found');
+		throw error(404, 'Channel not found');
 	}
 };

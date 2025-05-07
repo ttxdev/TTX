@@ -92,6 +92,62 @@ namespace TTX.Infrastructure.Data.Migrations
                     b.ToTable("creators", "public");
                 });
 
+            modelBuilder.Entity("TTX.Models.CreatorApplication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasColumnOrder(6);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status")
+                        .HasColumnOrder(5);
+
+                    b.Property<int>("SubmitterId")
+                        .HasColumnType("integer")
+                        .HasColumnName("submitter_id")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("Ticker")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ticker")
+                        .HasColumnOrder(4);
+
+                    b.Property<string>("TwitchId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("twitch_id")
+                        .HasColumnOrder(3);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at")
+                        .HasColumnOrder(7);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubmitterId");
+
+                    b.ToTable("creator_applications", "public");
+                });
+
             modelBuilder.Entity("TTX.Models.LootBox", b =>
                 {
                     b.Property<int>("Id")
@@ -335,6 +391,17 @@ namespace TTX.Infrastructure.Data.Migrations
 
                     b.Navigation("StreamStatus")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TTX.Models.CreatorApplication", b =>
+                {
+                    b.HasOne("TTX.Models.Player", "Submitter")
+                        .WithMany()
+                        .HasForeignKey("SubmitterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Submitter");
                 });
 
             modelBuilder.Entity("TTX.Models.LootBox", b =>
