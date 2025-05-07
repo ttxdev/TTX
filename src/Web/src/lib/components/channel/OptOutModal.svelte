@@ -2,6 +2,10 @@
 	import type { ICreatorDto } from '$lib/api';
 	import { goto } from '$app/navigation';
 	import toast from 'svelte-french-toast';
+	import { getApiClient } from '$lib';
+	import { getToken } from '$lib/auth/sessions';
+	import { getContext } from 'svelte';
+
 	type Props = {
 		creator: ICreatorDto;
 		onClose: () => void;
@@ -15,21 +19,8 @@
 
 		isLoading = true;
 		try {
-			const response = await fetch(`/creators/${creator.slug}/opt-out`, {
-				method: 'POST'
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => null);
-				throw new Error(
-					errorData?.message || `Server error: ${response.status} ${response.statusText}`
-				);
-			}
-
-			const res = await response.json();
-			if (!res.success) {
-				throw new Error(res.message || 'Failed to opt out');
-			}
+			const client = getApiClient(getContext('token') ?? '');
+			await client.creatorOptOut(creator.slug);
 
 			toast.success('You have been opted out of TTX.');
 			goto('/', { invalidateAll: true });
