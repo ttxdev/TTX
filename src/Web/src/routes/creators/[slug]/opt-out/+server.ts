@@ -15,12 +15,6 @@ export const POST: RequestHandler = async ({ params, cookies }) => {
 	}
 
 	const client = getApiClient(token);
-	const user = await client.getSelf();
-
-	const isPlayer = await client.getPlayer(slug).then(() => user.slug  === slug).catch(() => false);
-	if (!isPlayer) {
-		throw error(403, 'Only the creator can opt out');
-	}
 
 	try {
 		await client.creatorOptOut(slug);
