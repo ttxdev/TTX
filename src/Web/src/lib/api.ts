@@ -26,6 +26,195 @@ export class TTXClient {
      * @param orderDir (optional) 
      * @return OK
      */
+    getCreatorApplications(page?: number | undefined, limit?: number | undefined, search?: string | undefined, orderBy?: CreatorApplicationOrderBy | undefined, orderDir?: OrderDirection | undefined): Promise<CreatorApplicationDtoPaginationDto> {
+        let url_ = this.baseUrl + "/creator-applications?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (limit === null)
+            throw new Error("The parameter 'limit' cannot be null.");
+        else if (limit !== undefined)
+            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "search=" + encodeURIComponent("" + search) + "&";
+        if (orderBy === null)
+            throw new Error("The parameter 'orderBy' cannot be null.");
+        else if (orderBy !== undefined)
+            url_ += "orderBy=" + encodeURIComponent("" + orderBy) + "&";
+        if (orderDir === null)
+            throw new Error("The parameter 'orderDir' cannot be null.");
+        else if (orderDir !== undefined)
+            url_ += "orderDir=" + encodeURIComponent("" + orderDir) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCreatorApplications(_response);
+        });
+    }
+
+    protected processGetCreatorApplications(response: Response): Promise<CreatorApplicationDtoPaginationDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreatorApplicationDtoPaginationDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CreatorApplicationDtoPaginationDto>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createCreatorApplication(body?: CreateCreatorApplicationCommand | undefined): Promise<CreatorApplicationDto> {
+        let url_ = this.baseUrl + "/creator-applications";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCreatorApplication(_response);
+        });
+    }
+
+    protected processCreateCreatorApplication(response: Response): Promise<CreatorApplicationDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreatorApplicationDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CreatorApplicationDto>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getCreatorApplication(id: number): Promise<CreatorApplicationDto> {
+        let url_ = this.baseUrl + "/creator-applications/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCreatorApplication(_response);
+        });
+    }
+
+    protected processGetCreatorApplication(response: Response): Promise<CreatorApplicationDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreatorApplicationDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CreatorApplicationDto>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateCreatorApplication(id: number, body?: UpdateCreatorApplicationCommand | undefined): Promise<CreatorApplicationDto> {
+        let url_ = this.baseUrl + "/creator-applications/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCreatorApplication(_response);
+        });
+    }
+
+    protected processUpdateCreatorApplication(response: Response): Promise<CreatorApplicationDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreatorApplicationDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CreatorApplicationDto>(null as any);
+    }
+
+    /**
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @param search (optional) 
+     * @param orderBy (optional) 
+     * @param orderDir (optional) 
+     * @return OK
+     */
     getCreators(page?: number | undefined, limit?: number | undefined, search?: string | undefined, orderBy?: CreatorOrderBy | undefined, orderDir?: OrderDirection | undefined): Promise<CreatorPartialDtoPaginationDto> {
         let url_ = this.baseUrl + "/creators?";
         if (page === null)
@@ -627,6 +816,50 @@ export class TTXClient {
     }
 }
 
+export class CreateCreatorApplicationCommand implements ICreateCreatorApplicationCommand {
+    submitter_id!: number;
+    username!: string;
+    ticker!: string;
+
+    constructor(data?: ICreateCreatorApplicationCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.submitter_id = _data["submitter_id"] !== undefined ? _data["submitter_id"] : <any>null;
+            this.username = _data["username"] !== undefined ? _data["username"] : <any>null;
+            this.ticker = _data["ticker"] !== undefined ? _data["ticker"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CreateCreatorApplicationCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCreatorApplicationCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["submitter_id"] = this.submitter_id !== undefined ? this.submitter_id : <any>null;
+        data["username"] = this.username !== undefined ? this.username : <any>null;
+        data["ticker"] = this.ticker !== undefined ? this.ticker : <any>null;
+        return data;
+    }
+}
+
+export interface ICreateCreatorApplicationCommand {
+    submitter_id: number;
+    username: string;
+    ticker: string;
+}
+
 export class CreateTransactionDto implements ICreateTransactionDto {
     creator!: string;
     action!: TransactionAction;
@@ -669,6 +902,135 @@ export interface ICreateTransactionDto {
     creator: string;
     action: TransactionAction;
     amount: number;
+}
+
+export class CreatorApplicationDto implements ICreatorApplicationDto {
+    id!: number;
+    created_at!: Date;
+    updated_at!: Date;
+    twitch_id!: string;
+    ticker!: string;
+    status!: CreatorApplicationStatus;
+    submitter!: PlayerPartialDto;
+
+    constructor(data?: ICreatorApplicationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.submitter = new PlayerPartialDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.created_at = _data["created_at"] ? new Date(_data["created_at"].toString()) : <any>null;
+            this.updated_at = _data["updated_at"] ? new Date(_data["updated_at"].toString()) : <any>null;
+            this.twitch_id = _data["twitch_id"] !== undefined ? _data["twitch_id"] : <any>null;
+            this.ticker = _data["ticker"] !== undefined ? _data["ticker"] : <any>null;
+            this.status = _data["status"] !== undefined ? _data["status"] : <any>null;
+            this.submitter = _data["submitter"] ? PlayerPartialDto.fromJS(_data["submitter"]) : new PlayerPartialDto();
+        }
+    }
+
+    static fromJS(data: any): CreatorApplicationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatorApplicationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["created_at"] = this.created_at ? this.created_at.toISOString() : <any>null;
+        data["updated_at"] = this.updated_at ? this.updated_at.toISOString() : <any>null;
+        data["twitch_id"] = this.twitch_id !== undefined ? this.twitch_id : <any>null;
+        data["ticker"] = this.ticker !== undefined ? this.ticker : <any>null;
+        data["status"] = this.status !== undefined ? this.status : <any>null;
+        data["submitter"] = this.submitter ? this.submitter.toJSON() : <any>null;
+        return data;
+    }
+}
+
+export interface ICreatorApplicationDto {
+    id: number;
+    created_at: Date;
+    updated_at: Date;
+    twitch_id: string;
+    ticker: string;
+    status: CreatorApplicationStatus;
+    submitter: PlayerPartialDto;
+}
+
+export class CreatorApplicationDtoPaginationDto implements ICreatorApplicationDtoPaginationDto {
+    data!: CreatorApplicationDto[];
+    total!: number;
+
+    constructor(data?: ICreatorApplicationDtoPaginationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.data = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(CreatorApplicationDto.fromJS(item));
+            }
+            else {
+                this.data = <any>null;
+            }
+            this.total = _data["total"] !== undefined ? _data["total"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CreatorApplicationDtoPaginationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatorApplicationDtoPaginationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        data["total"] = this.total !== undefined ? this.total : <any>null;
+        return data;
+    }
+}
+
+export interface ICreatorApplicationDtoPaginationDto {
+    data: CreatorApplicationDto[];
+    total: number;
+}
+
+export enum CreatorApplicationOrderBy {
+    Name = "Name",
+    Submitter = "Submitter",
+    CreatedAt = "CreatedAt",
+}
+
+export enum CreatorApplicationStatus {
+    Pending = "Pending",
+    Approved = "Approved",
+    Rejected = "Rejected",
 }
 
 export class CreatorDto implements ICreatorDto {
@@ -2021,6 +2383,46 @@ export interface ITwitchUserDto {
     display_name: string;
     login: string;
     avatar_url: string;
+}
+
+export class UpdateCreatorApplicationCommand implements IUpdateCreatorApplicationCommand {
+    application_id!: number;
+    status!: CreatorApplicationStatus;
+
+    constructor(data?: IUpdateCreatorApplicationCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.application_id = _data["application_id"] !== undefined ? _data["application_id"] : <any>null;
+            this.status = _data["status"] !== undefined ? _data["status"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): UpdateCreatorApplicationCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCreatorApplicationCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["application_id"] = this.application_id !== undefined ? this.application_id : <any>null;
+        data["status"] = this.status !== undefined ? this.status : <any>null;
+        return data;
+    }
+}
+
+export interface IUpdateCreatorApplicationCommand {
+    application_id: number;
+    status: CreatorApplicationStatus;
 }
 
 export class VoteDto implements IVoteDto {
