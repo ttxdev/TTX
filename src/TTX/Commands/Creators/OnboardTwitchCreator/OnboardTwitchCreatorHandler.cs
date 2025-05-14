@@ -36,6 +36,11 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
                 return CreatorDto.Create(creator);
             }
 
+            if (await IsOptedOut(tUser.Id, ct))
+            {
+                throw new InvalidActionException("Creator is opted out");
+            }
+
             creator = Creator.Create(
                 tUser.DisplayName,
                 tUser.Login,
@@ -81,6 +86,11 @@ namespace TTX.Commands.Creators.OnboardTwitchCreator
         private Task<Creator?> CreatorExists(TwitchId twitchId, CancellationToken ct)
         {
             return context.Creators.SingleOrDefaultAsync(c => c.TwitchId == twitchId, ct);
+        }
+
+        private Task<bool> IsOptedOut(TwitchId twitchId, CancellationToken ct)
+        {
+            return context.CreatorOptOuts.AnyAsync(c => c.TwitchId == twitchId, ct);
         }
     }
 }

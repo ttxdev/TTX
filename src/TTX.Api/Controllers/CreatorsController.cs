@@ -4,7 +4,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TTX.Api.Interfaces;
-using TTX.Api.Services;
 using TTX.Commands.Creators.CreatorOptOuts;
 using TTX.Commands.Creators.OnboardTwitchCreator;
 using TTX.Dto;
@@ -109,22 +108,22 @@ public class CreatorsController(ISender sender, ISessionService sessions) : Cont
         return Ok(creator);
     }
 
-    [HttpPost("{username}/opt-out")]
+    [HttpDelete("{creatorSlug}")]
     [EndpointName("CreatorOptOut")]
-    public async Task<ActionResult<CreatorOptOut>> CreatorOptOut(
-        string username
+    public async Task<ActionResult<CreatorOptOutDto>> CreatorOptOut(
+        string creatorSlug
     )
     {
         var curUser = sessions.GetCurrentUserSlug();
 
-        if (curUser is null || curUser.Value != username) 
+        if (curUser is null || curUser.Value != creatorSlug)
         {
             return Unauthorized("Current user is not the creator");
         }
 
         var res = await sender.Send(new CreatorOptOutCommand
         {
-            Username = username
+            Username = creatorSlug
         });
 
         return Ok(res);

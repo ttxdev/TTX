@@ -5,14 +5,11 @@ using TTX.Commands.Creators.UpdateStreamStatus;
 using TTX.Models;
 using TTX.ValueObjects;
 using TwitchLib.Api;
-using TwitchLib.PubSub;
-using TwitchLib.PubSub.Events;
 
 namespace TTX.StreamMonitor.Services;
 
 public class TwitchStreamService
 {
-    private readonly TwitchPubSub _client;
     private readonly Dictionary<TwitchId, Creator> _creators = [];
     private readonly ILogger _logger;
     private readonly IServiceProvider _services;
@@ -26,11 +23,6 @@ public class TwitchStreamService
         _twitch = new TwitchAPI();
         _twitch.Settings.ClientId = clientId;
         _twitch.Settings.Secret = clientSecret;
-
-        _client = new TwitchPubSub();
-        _client.OnPubSubServiceConnected += (_, e) => OnReady();
-        _client.OnStreamUp += (_, e) => OnStreamOnline(e);
-        _client.OnStreamDown += (_, e) => OnStreamOffline(e);
     }
 
     public void AddCreator(Creator creator)
@@ -45,20 +37,18 @@ public class TwitchStreamService
 
     public Task Start(CancellationToken cancellationToken)
     {
-        foreach (var creator in _creators.Values) _client.ListenToVideoPlayback(creator.Slug.Value);
-
-        _client.Connect();
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
             while (!cancellationToken.IsCancellationRequested)
             {
+                await Check();
+                await Task.Delay(300_000);
             }
         }, cancellationToken);
     }
 
-    private async void OnReady()
+    private async Task Check()
     {
-        _logger.LogInformation("Ready");
         var creatorSlugs = _creators.Values.Select(c => c.Slug.Value).ToList();
         foreach (var chunk in SplitList(creatorSlugs, 100))
         {
@@ -84,32 +74,6 @@ public class TwitchStreamService
                         At = DateTime.UtcNow
                     });
         }
-
-        _logger.LogInformation("Listening...");
-    }
-
-    private async void OnStreamOnline(OnStreamUpArgs e)
-    {
-        var creator = _creators[e.ChannelId];
-
-        await UpdateStatus(new UpdateStreamStatusCommand
-        {
-            Username = creator.Slug,
-            IsLive = true,
-            At = DateTime.UtcNow
-        });
-    }
-
-    private async void OnStreamOffline(OnStreamDownArgs e)
-    {
-        var creator = _creators[e.ChannelId];
-
-        await UpdateStatus(new UpdateStreamStatusCommand
-        {
-            Username = creator.Slug,
-            IsLive = false,
-            At = DateTime.UtcNow
-        });
     }
 
     private async Task UpdateStatus(UpdateStreamStatusCommand cmd)

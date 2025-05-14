@@ -61,7 +61,7 @@
 		try {
     		const conn = await startConnection('events');
     		conn.on('UpdateCreatorValue', ({ vote }) => addVote(vote));
-    		conn.on('CreateTransaction', ({ transaction }) => addTransaction(transaction));
+    		// conn.on('CreateTransaction', ({ transaction }) => addTransaction(transaction));
 		} catch (err) {
 			console.error(err);
 		}
