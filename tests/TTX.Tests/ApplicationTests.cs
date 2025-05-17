@@ -8,6 +8,8 @@ using TTX.Interfaces.Twitch;
 using TTX.Tests.Infrastructure.Twitch;
 using TTX.Tests.Notifications;
 using dotenv.net;
+using TTX.Api.Interfaces;
+using TTX.Api.Services;
 
 namespace TTX.Tests;
 
@@ -40,6 +42,7 @@ public abstract class ApplicationTests
                 cfg.RegisterServicesFromAssemblyContaining<ApplicationTests>();
             })
             .AddSingleton(Seed)
+            .AddSingleton<ISessionService, SessionService>()
             .AddSingleton<CreateCreatorNotificationHandler>()
             .AddSingleton<CreatePlayerNotificationHandler>()
             .AddSingleton<UpdateCreatorValueNotificationHandler>()
@@ -55,7 +58,7 @@ public abstract class ApplicationTests
         Sender = ServiceProvider.GetRequiredService<ISender>();
         TestNotificationHandler.Notifications.Clear();
         DbContext.Database.EnsureDeleted();
-        DbContext.Database.EnsureCreated();
+        DbContext.Database.Migrate();
     }
 
     [TestCleanup]

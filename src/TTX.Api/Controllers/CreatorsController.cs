@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using System.Runtime.InteropServices;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ using TTX.Commands.Creators.OnboardTwitchCreator;
 using TTX.Dto;
 using TTX.Dto.Creators;
 using TTX.Dto.Transactions;
+using TTX.Models;
 using TTX.Queries;
 using TTX.Queries.Creators.FindCreator;
 using TTX.Queries.Creators.IndexCreators;

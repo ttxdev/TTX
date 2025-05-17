@@ -1,9 +1,14 @@
+using System.Net;
+using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +28,7 @@ using TTX.Interfaces.Twitch;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 [assembly: ApiController]
+[assembly: InternalsVisibleTo("TTX.Tests")]
 
 var builder = WebApplication.CreateBuilder(args);
 if (builder.Environment.IsDevelopment()) DotEnv.Load();
@@ -120,6 +126,20 @@ builder.Services.AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy())
     .AddDbContextCheck<ApplicationDbContext>();
 
+builder.Services.AddRateLimiter(options => {
+    options.AddPolicy("TransactionRateLimiter", context => {
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.User.FindFirstValue(ClaimTypes.NameIdentifier),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,    
+                Window = TimeSpan.FromSeconds(10)
+            });
+    });
+
+    options.RejectionStatusCode = 429;
+});
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -159,6 +179,7 @@ app.MapHealthChecks("/health");
 app.UseCors("AllowCredentials");
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.UseMiddleware<TtxExceptionMiddleware>();
 app.MapControllers();
 app.MapHub<EventHub>("hubs/events");
