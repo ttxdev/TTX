@@ -1,57 +1,54 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
-using System.Text.Unicode;
 using Microsoft.Extensions.DependencyInjection;
 using TTX.Api.Interfaces;
 using TTX.Dto.Players;
 using TTX.Models;
 using TTX.Tests.Factories;
 
-namespace TTX.Tests.Api;
-
-[TestClass]
-public class Transaction : ApplicationTests
+namespace TTX.Tests.Api
 {
-    [TestMethod]
-    public async Task PlaceOrder_ShouldHitRateLimit()
+    [TestClass]
+    public class Transaction : ApplicationTests
     {
-        //Arrange
-        var credits = 1000;
-        var quantity = 1;
-        var creatorValue = 5;
-        var creator = CreatorFactory.Create(creatorValue);
-        var player = PlayerFactory.Create(credits);
-
-        DbContext.Players.Add(player);
-        DbContext.Creators.Add(creator);
-        await DbContext.SaveChangesAsync();
-
-        var application = new TTXWebApplicationFactory();
-        var sessions = application.Services.GetRequiredService<ISessionService>();
-        var token = sessions.CreateSession(PlayerPartialDto.Create(player));
-        var client = application.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        //Act
-        var data = JsonContent.Create(new { 
-            action = TransactionAction.Buy.ToString(),
-            creator = creator.Slug.ToString(),
-            amount = quantity 
-        });
-        bool gotTooManyRequests = false;
-
-        foreach (var item in Enumerable.Range(0, 11))
+        [TestMethod]
+        public async Task PlaceOrder_ShouldHitRateLimit()
         {
-            var res = await client.PostAsync("/transactions", data);
+            long credits = 1000;
+            int quantity = 1;
+            long creatorValue = 5;
+            Creator creator = CreatorFactory.Create(creatorValue);
+            Player player = PlayerFactory.Create(credits);
 
-            if(res.StatusCode == HttpStatusCode.TooManyRequests) {
-                gotTooManyRequests = true;
-                break;
+            DbContext.Players.Add(player);
+            DbContext.Creators.Add(creator);
+            await DbContext.SaveChangesAsync();
+
+            TTXWebApplicationFactory application = new();
+            ISessionService sessions = application.Services.GetRequiredService<ISessionService>();
+            string token = sessions.CreateSession(PlayerPartialDto.Create(player));
+            HttpClient client = application.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            JsonContent data = JsonContent.Create(new {
+                action = TransactionAction.Buy.ToString(),
+                creator = creator.Slug.ToString(),
+                amount = quantity
+            });
+            bool gotTooManyRequests = false;
+
+            foreach (int _ in Enumerable.Range(0, 11))
+            {
+                HttpResponseMessage res = await client.PostAsync("/transactions", data);
+
+                if (res.StatusCode == HttpStatusCode.TooManyRequests) {
+                    gotTooManyRequests = true;
+                    break;
+                }
             }
-        }
 
-        Assert.AreEqual(true, gotTooManyRequests);
+            Assert.AreEqual(true, gotTooManyRequests);
+        }
     }
 }
