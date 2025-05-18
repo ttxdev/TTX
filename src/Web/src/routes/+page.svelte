@@ -45,7 +45,11 @@
 				<span class="italic">don't call the SEC</span>. TTX, be truly invested in your streamer.
 			</p>
 			<div class="flex flex-row justify-center">
-				<ExternalLink href={PUBLIC_DISCORD_URL} target="_blank" className="w-fit text-purple-500 hover:underline">
+				<ExternalLink
+					href={PUBLIC_DISCORD_URL}
+					target="_blank"
+					className="w-fit text-purple-500 hover:underline"
+				>
 					Join our Discord!
 				</ExternalLink>
 			</div>
@@ -56,6 +60,15 @@
 				<span class="font-black text-purple-500">View all creators →</span>
 			</a>
 		</div>
+	</section>
+	<section class="flex flex-col items-center justify-center gap-4 py-8">
+		<p class="font-display text-center text-2xl max-md:text-xl">Want to become a Creator?</p>
+		<a
+			href="/apply"
+			class="btn rounded-full border-purple-400 bg-purple-400 px-8 text-white transition-all duration-200 hover:scale-105 hover:bg-purple-500"
+		>
+			Apply Now
+		</a>
 	</section>
 	<section class="flex max-md:flex-col">
 		<div class="flex w-full flex-col items-center justify-center gap-12">
