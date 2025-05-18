@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using TTX.Api.Dto;
 using TTX.Api.Interfaces;
 using TTX.Commands.Ordering.PlaceOrder;
@@ -14,6 +15,7 @@ public class TransactionsController(ISender sender, ISessionService sessions) : 
 {
     [Authorize]
     [HttpPost]
+    [EnableRateLimiting("TransactionRateLimiter")]
     [EndpointName("PlaceOrder")]
     public async Task<ActionResult<CreatorTransactionDto>> Create([FromBody] CreateTransactionDto order)
     {

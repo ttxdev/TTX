@@ -12,7 +12,9 @@ namespace TTX.Queries.CreatorApplications.IndexCreatorApplications
         public async Task<PaginationDto<CreatorApplicationDto>> Handle(IndexCreatorApplicationQuery request,
             CancellationToken ct)
         {
-            IQueryable<CreatorApplication> query = context.CreatorApplications.AsQueryable();
+            IQueryable<CreatorApplication> query = context.CreatorApplications
+                .Include(c => c.Submitter)
+                .AsQueryable();
             ApplySearch(ref query, request.Search);
             ApplyOrder(ref query, request.Order);
 
@@ -22,7 +24,8 @@ namespace TTX.Queries.CreatorApplications.IndexCreatorApplications
 
             return new PaginationDto<CreatorApplicationDto>
             {
-                Total = total, Data = [.. apps.Select(CreatorApplicationDto.Create)]
+                Total = total,
+                Data = [.. apps.Select(CreatorApplicationDto.Create)]
             };
         }
 
