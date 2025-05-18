@@ -10,13 +10,13 @@ export const load: PageServerLoad= async ({ cookies }) => {
     const self = await client.getSelf();
 
     if (!self) return
-    // If the user has already applied, redirect to the application page
-    // const res = await client.getCreatorApplications(1, 1, self.name)
+    const res = await client.getCreatorApplications(1, 1, self.name)
 
-    // const app = res.data[0]
-    // if (app) {
-    //     return redirect(307, `/apply/${app.id}`)
-    // }
+    const app = res.data[0]
+    if (app) {
+        throw redirect(307, `/apply/${app.id}`)
+    }
+
 
     return {
         user: self.toJSON() as PlayerDto,
