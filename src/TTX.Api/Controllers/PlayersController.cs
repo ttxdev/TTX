@@ -1,22 +1,22 @@
 using System.Net.Mime;
-using MediatR;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TTX.Api.Interfaces;
-using TTX.Commands.LootBoxes.OpenLootBox;
-using TTX.Dto;
-using TTX.Dto.LootBoxes;
-using TTX.Dto.Players;
-using TTX.Queries;
-using TTX.Queries.Players.FindPlayer;
-using TTX.Queries.Players.IndexPlayers;
+using TTX.Api.Converters;
+using TTX.App.Dto.LootBoxes;
+using TTX.App.Dto.Pagination;
+using TTX.App.Dto.Players;
+using TTX.App.Dto.Portfolio;
+using TTX.App.Services.Players;
+using TTX.App.Services.Transactions;
+using TTX.Domain.ValueObjects;
 
 namespace TTX.Api.Controllers;
 
 [ApiController]
 [Route("players")]
 [Produces(MediaTypeNames.Application.Json)]
-public class PlayersController(ISender sender, ISessionService sessions) : ControllerBase
+public class PlayersController(PlayerService playerService, TransactionService _transactionService) : ControllerBase
 {
     [HttpGet]
     [EndpointName("GetPlayers")]
@@ -28,7 +28,7 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
         [FromQuery] OrderDirection? orderDir = null
     )
     {
-        var page = await sender.Send(new IndexPlayersQuery
+        PaginationDto<PlayerDto> page = await playerService.Index(new IndexPlayersRequest
         {
             Page = index,
             Limit = limit,
@@ -55,41 +55,35 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
     public async Task<ActionResult<PlayerDto>> Show(string username, [FromQuery] TimeStep step = TimeStep.FiveMinute,
         [FromQuery] DateTimeOffset? after = null)
     {
-        var player = await sender.Send(new FindPlayerQuery
+        PlayerDto? player = await playerService.Find(username, new HistoryParams
         {
-            Slug = username,
-            HistoryParams = new HistoryParams
-            {
-                Step = step,
-                After = after ?? DateTimeOffset.UtcNow.AddDays(-1)
-            }
+            Step = step,
+            After = after ?? DateTimeOffset.UtcNow.AddDays(-1)
         });
+
         if (player is null)
+        {
             return NotFound();
+        }
 
         return Ok(player);
     }
 
+    [Authorize]
     [HttpGet("me")]
     [EndpointName("GetSelf")]
     public async Task<ActionResult<PlayerDto>> GetMe()
     {
-        var username = sessions.GetCurrentUserSlug();
-        if (username is null)
-            return Unauthorized();
-
-        var player = await sender.Send(new FindPlayerQuery
+        PlayerDto? player = await playerService.Find(User.FindFirstValue(ClaimTypes.Name)!, new HistoryParams
         {
-            Slug = username,
-            HistoryParams = new HistoryParams
-            {
-                Step = TimeStep.Minute,
-                After = DateTime.UtcNow
-            }
+            Step = TimeStep.Minute,
+            After = DateTime.UtcNow
         });
 
         if (player is null)
+        {
             return NotFound();
+        }
 
         return Ok(player);
     }
@@ -99,16 +93,9 @@ public class PlayersController(ISender sender, ISessionService sessions) : Contr
     [EndpointName("Gamba")]
     public async Task<ActionResult<LootBoxResultDto>> Gamba(int lootBoxId)
     {
-        var id = sessions.GetCurrentUserId();
-        if (id is null)
-            return Unauthorized();
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        Result<LootBoxResultDto> result = await _transactionService.OpenLootBox(userId, lootBoxId);
 
-        var result = await sender.Send(new OpenLootBoxCommand
-        {
-            ActorId = id,
-            LootBoxId = lootBoxId
-        });
-
-        return Ok(result);
+        return result.ToActionResult();
     }
 }

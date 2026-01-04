@@ -21,21 +21,21 @@ spec:
       imagePullSecrets:
         - name: ttx-regcreds
       containers:
-      - name: api
-        image: ghcr.io/ttxdev/ttx.api:main
-        imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
-        ports:
-        - containerPort: 8080
-        envFrom:
-          - secretRef:
-              name: ttx-config
-        volumeMounts:
-          - name: dataprotection
-            mountPath: /var/ttx/keys
+        - name: api
+          image: ghcr.io/ttxdev/ttx.api:main
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: ttx-config
+          volumeMounts:
+            - name: dataprotection
+              mountPath: /var/ttx/keys
 
 ---
 apiVersion: apps/v1
@@ -56,15 +56,15 @@ spec:
       imagePullSecrets:
         - name: ttx-regcreds
       containers:
-      - name: web
-        image: ghcr.io/ttxdev/ttx.web:main
-        imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 3000
+        - name: web
+          image: ghcr.io/ttxdev/ttx.web:main
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 3000
 
 ---
 apiVersion: apps/v1
@@ -84,13 +84,13 @@ spec:
       imagePullSecrets:
         - name: ttx-regcreds
       containers:
-      - name: bot
-        image: ghcr.io/ttxdev/ttx.bot:main
-        imagePullPolicy: Always
-        resources:
-        envFrom:
-          - secretRef:
-              name: ttx-config
+        - name: bot
+          image: ghcr.io/ttxdev/ttx.bot:main
+          imagePullPolicy: Always
+          resources:
+          envFrom:
+            - secretRef:
+                name: ttx-config
 
 ---
 apiVersion: apps/v1
@@ -110,12 +110,12 @@ spec:
       imagePullSecrets:
         - name: ttx-regcreds
       containers:
-      - name: streammonitor
-        image: ghcr.io/ttxdev/ttx.streammonitor:main
-        imagePullPolicy: Always
-        envFrom:
-          - secretRef:
-              name: ttx-config
+        - name: streammonitor
+          image: ghcr.io/ttxdev/ttx.streammonitor:main
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: ttx-config
 
 ---
 apiVersion: apps/v1
@@ -135,12 +135,12 @@ spec:
       imagePullSecrets:
         - name: ttx-regcreds
       containers:
-      - name: portfoliomonitor
-        image: ghcr.io/ttxdev/ttx.portfoliomonitor:main
-        imagePullPolicy: Always
-        envFrom:
-          - secretRef:
-              name: ttx-config
+        - name: portfoliomonitor
+          image: ghcr.io/ttxdev/ttx.portfoliomonitor:main
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: ttx-config
 
 ---
 apiVersion: apps/v1
@@ -158,12 +158,12 @@ spec:
         app: redis
     spec:
       containers:
-      - name: redis
-        image: redis:latest
-        imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 6379
+        - name: redis
+          image: redis:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 6379

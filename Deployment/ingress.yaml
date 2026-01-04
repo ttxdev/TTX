@@ -7,23 +7,23 @@ metadata:
     name: ttx
 spec:
   rules:
-  - host: api.ttx.gg
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: ttx-api
-            port:
-              number: 3030
-  - host: ttx.gg
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: ttx-web
-            port:
-              number: 3031
+    - host: api.ttx.gg
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: ttx-api
+                port:
+                  number: 3030
+    - host: ttx.gg
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: ttx-web
+                port:
+                  number: 3031

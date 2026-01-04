@@ -18,9 +18,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
-      - name: Configure NuGet source
-        run: dotnet nuget update source ttxdev --username ttxdev --password ${{ secrets.NUGET_TOKEN }} --store-password-in-clear-text
+          dotnet-version: 10.0.x
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
@@ -56,13 +54,11 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
-      - name: Configure NuGet source
-        run: dotnet nuget update source ttxdev --username ttxdev --password ${{ secrets.NUGET_TOKEN }} --store-password-in-clear-text
+          dotnet-version: 10.0.x
       - name: Restore dependencies
         run: dotnet restore
       - name: Test
         env:
-          TTX_CONNECTION_STRING: "Server=localhost;Port=5432;Database=ttx_test;Username=postgres;Password=postgres;"
-          TTX_REDIS_URL: "localhost:6379"
+          TTX_TESTS_ConnectionStrings__Postgres: "Server=localhost;Port=5432;Database=ttx_test;Username=postgres;Password=postgres;"
+          TTX_TESTS_ConnectionStrings__Redis: "localhost:6379"
         run: dotnet test --verbosity normal

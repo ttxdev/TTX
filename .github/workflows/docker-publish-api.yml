@@ -1,13 +1,11 @@
 name: Docker Publish TTX.Api
 
 on:
-  schedule:
-    - cron: '32 1 * * *'
   push:
-    branches: ['main']
-    tags: ['v*.*.*']
+    branches: ["main"]
+    tags: ["v*.*.*"]
   pull_request:
-    branches: ['main']
+    branches: ["main"]
 
 env:
   REGISTRY: ghcr.io
