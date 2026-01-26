@@ -1,20 +1,19 @@
 using Microsoft.Extensions.DependencyInjection;
 using TTX.App.Jobs.Streams;
 using TTX.Tests.App.Infrastructure.Streams;
-using TTX.Tests.App.Services;
 
 namespace TTX.Tests.App.Jobs.Streams;
 
 [TestClass]
 public class StreamMonitorJobTests : ServiceTests
 {
-    public virtual TestContext TestContext { get; init; }
+    public virtual TestContext TestContext { get; set; } = null!;
 
     [TestMethod]
     public async Task TestJob()
     {
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
-        StreamMonitorAdapter adapter = (_services.GetRequiredService<IStreamMonitorAdapter>() as StreamMonitorAdapter)!;
+        TestStreamMonitorAdapter adapter = (_services.GetRequiredService<IStreamMonitorAdapter>() as TestStreamMonitorAdapter)!;
         StreamMonitorJob job = scope.ServiceProvider.GetRequiredService<StreamMonitorJob>();
         CancellationTokenSource csr = new();
         try

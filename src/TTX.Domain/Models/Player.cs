@@ -1,4 +1,5 @@
 using TTX.Domain.Exceptions;
+using TTX.Domain.Platforms;
 using TTX.Domain.ValueObjects;
 
 namespace TTX.Domain.Models;
@@ -110,14 +111,14 @@ public class Player : User
         return lootBox;
     }
 
-    public static Player Create(Name name, Slug slug, PlatformId platformId, Uri avatarUrl, Credits? credits = null)
+    public static Player Create(PlatformUser user, Credits? credits = null)
     {
         Player player = new()
         {
-            Name = name,
-            Slug = slug,
-            AvatarUrl = avatarUrl,
-            PlatformId = platformId,
+            Name = user.DisplayName,
+            Slug = user.Username,
+            AvatarUrl = user.AvatarUrl,
+            PlatformId = user.Id,
             Credits = credits ?? StarterCredits
         };
 

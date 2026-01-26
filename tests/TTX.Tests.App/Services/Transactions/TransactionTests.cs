@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TTX.App.Data;
+using TTX.Infrastructure.Data;
 using TTX.App.Dto.LootBoxes;
 using TTX.App.Services.Transactions;
 using TTX.App.Services.Transactions.Exceptions;
@@ -12,7 +12,7 @@ namespace TTX.Tests.App.Services.Transactions;
 [TestClass]
 public class TransactionTests : ServiceTests
 {
-    public virtual TestContext TestContext { get; set; }
+    public virtual TestContext TestContext { get; set; } = null!;
 
     [TestMethod]
     public async Task PlayerCanBuy()

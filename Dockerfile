@@ -13,12 +13,7 @@ WORKDIR /opt/app
 COPY --from=base /opt/app .
 RUN dotnet build -c $BUILD_CONFIGURATION -o /opt/app/build
 
-FROM build AS jobs
-COPY --from=build /opt/app/build .
-WORKDIR /opt/app
-ENTRYPOINT ["dotnet", "TTX.Jobs.dll"]
-
-FROM build AS api
+FROM build
 EXPOSE 8080
 EXPOSE 8081
 WORKDIR /opt/app

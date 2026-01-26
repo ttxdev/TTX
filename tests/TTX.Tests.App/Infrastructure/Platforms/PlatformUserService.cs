@@ -1,4 +1,5 @@
 using TTX.App.Interfaces.Platforms;
+using TTX.Domain.Platforms;
 using TTX.Domain.ValueObjects;
 
 namespace TTX.Tests.App.Infrastructure.Platforms;

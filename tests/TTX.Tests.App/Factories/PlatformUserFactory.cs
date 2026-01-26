@@ -1,5 +1,5 @@
 using Bogus;
-using TTX.App.Interfaces.Platforms;
+using TTX.Domain.Platforms;
 
 namespace TTX.Tests.App.Factories;
 

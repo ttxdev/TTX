@@ -1,3 +1,4 @@
+using TTX.Domain.Platforms;
 using TTX.Domain.ValueObjects;
 
 namespace TTX.Domain.Models;
@@ -10,24 +11,24 @@ public class User : Model
     public Platform Platform { get; init; } = Platform.Twitch;
     public required Uri AvatarUrl { get; set; }
 
-    public bool Sync(Name? name = null, Slug? slug = null, Uri? avatarUrl = null)
+    public bool Sync(PlatformUser user)
     {
         bool changed = false;
-        if (name is not null && name != Name)
+        if (user.DisplayName != Name)
         {
-            Name = name;
+            Name = user.DisplayName;
             changed = true;
         }
 
-        if (slug is not null && slug != Slug)
+        if (user.Username != Slug)
         {
-            Slug = slug;
+            Slug = user.Username;
             changed = true;
         }
 
-        if (avatarUrl is not null && avatarUrl != AvatarUrl)
+        if (user.AvatarUrl != AvatarUrl)
         {
-            AvatarUrl = avatarUrl;
+            AvatarUrl = user.AvatarUrl;
             changed = true;
         }
 

@@ -12,6 +12,7 @@ using TTX.App.Services.Creators.Exceptions;
 using TTX.App.Services.Creators.Validation;
 using TTX.Domain.Exceptions;
 using TTX.Domain.Models;
+using TTX.Domain.Platforms;
 using TTX.Domain.ValueObjects;
 
 namespace TTX.App.Services.Creators;
@@ -107,7 +108,7 @@ public class CreatorService(
         if (creator is not null)
         {
             _repository.Update(creator);
-            if (creator.Sync(user.DisplayName, user.Username, user.AvatarUrl))
+            if (creator.Sync(user))
             {
                 await _repository.SaveChanges();
             }
@@ -120,16 +121,7 @@ public class CreatorService(
             return Result<ModelId>.Err(new CreatorOptedOutException());
         }
 
-        creator = new()
-        {
-            PlatformId = user.Id,
-            Platform = request.Platform,
-            Name = user.DisplayName,
-            Slug = user.Username,
-            AvatarUrl = user.AvatarUrl,
-            Ticker = request.Ticker
-        };
-
+        creator = Creator.Create(user, request.Ticker, request.Platform);
         _repository.Add(creator);
         await _repository.SaveChanges();
         await _events.Dispatch(CreateCreatorEvent.Create(creator));

@@ -46,8 +46,8 @@ public static class DependencyInjection
                 services.AddSingleton<IEventDispatcher, RedisEventDispatcher>();
                 services.AddSingleton<IEventReceiver, RedisEventReceiver>();
                 break;
-            default:
             case EventDriver.Memory:
+            default:
                 services.AddSingleton<IEventDispatcher, MemoryEventHandler>();
                 services.AddSingleton<IEventReceiver, MemoryEventHandler>();
                 break;

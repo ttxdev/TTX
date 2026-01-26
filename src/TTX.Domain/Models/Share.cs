@@ -2,7 +2,7 @@ using TTX.Domain.ValueObjects;
 
 namespace TTX.Domain.Models;
 
-public class Share
+public record Share
 {
     public required Creator Creator { get; init; }
     public required Player Player { get; init; }

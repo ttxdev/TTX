@@ -1,6 +1,6 @@
 using TTX.Domain.ValueObjects;
 
-namespace TTX.App.Interfaces.Platforms;
+namespace TTX.Domain.Platforms;
 
 public record PlatformUser
 {

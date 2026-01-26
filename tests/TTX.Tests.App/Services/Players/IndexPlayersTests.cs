@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TTX.App.Data;
+using TTX.Infrastructure.Data;
 using TTX.App.Dto.Pagination;
 using TTX.App.Dto.Players;
 using TTX.App.Dto.Portfolio;
@@ -12,7 +12,7 @@ namespace TTX.Tests.App.Services.Players;
 [TestClass]
 public class IndexPlayersTests : ServiceTests
 {
-    public virtual TestContext TestContext { get; set; }
+    public virtual TestContext TestContext { get; set; } = null!;
 
     [TestInitialize]
     public void Setup()

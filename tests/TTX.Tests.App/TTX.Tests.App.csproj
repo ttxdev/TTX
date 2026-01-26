@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\TTX.App\TTX.App.csproj" />
+    <ProjectReference Include="..\..\src\TTX.Infrastructure\TTX.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

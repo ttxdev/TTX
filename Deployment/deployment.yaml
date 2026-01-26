@@ -22,7 +22,7 @@ spec:
         - name: ttx-regcreds
       containers:
         - name: api
-          image: ghcr.io/ttxdev/ttx.api:main
+          image: ghcr.io/ttxdev/ttx:main
           imagePullPolicy: Always
           resources:
             limits:
@@ -34,7 +34,7 @@ spec:
             - secretRef:
                 name: ttx-config
           volumeMounts:
-            - name: dataprotection
+            - name: ttx-dataprotection
               mountPath: /var/ttx/keys
 
 ---
@@ -88,56 +88,6 @@ spec:
           image: ghcr.io/ttxdev/ttx.bot:main
           imagePullPolicy: Always
           resources:
-          envFrom:
-            - secretRef:
-                name: ttx-config
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ttx-streammonitor
-  namespace: ttx
-spec:
-  selector:
-    matchLabels:
-      app: ttx-streammonitor
-  template:
-    metadata:
-      labels:
-        app: ttx-streammonitor
-    spec:
-      imagePullSecrets:
-        - name: ttx-regcreds
-      containers:
-        - name: streammonitor
-          image: ghcr.io/ttxdev/ttx.streammonitor:main
-          imagePullPolicy: Always
-          envFrom:
-            - secretRef:
-                name: ttx-config
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ttx-portfoliomonitor
-  namespace: ttx
-spec:
-  selector:
-    matchLabels:
-      app: ttx-portfoliomonitor
-  template:
-    metadata:
-      labels:
-        app: ttx-portfoliomonitor
-    spec:
-      imagePullSecrets:
-        - name: ttx-regcreds
-      containers:
-        - name: portfoliomonitor
-          image: ghcr.io/ttxdev/ttx.portfoliomonitor:main
-          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: ttx-config

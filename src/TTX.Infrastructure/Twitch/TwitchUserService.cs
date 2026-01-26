@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using TTX.App.Interfaces.Platforms;
+using TTX.Domain.Platforms;
 using TTX.Domain.ValueObjects;
 using TTX.Infrastructure.Options;
 using TwitchLib.Api;

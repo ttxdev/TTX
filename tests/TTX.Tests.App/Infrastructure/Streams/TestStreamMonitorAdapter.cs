@@ -4,7 +4,7 @@ using TTX.Domain.ValueObjects;
 
 namespace TTX.Tests.App.Infrastructure.Streams;
 
-public class StreamMonitorAdapter : IStreamMonitorAdapter
+public class TestStreamMonitorAdapter : IStreamMonitorAdapter
 {
     public event EventHandler<StreamUpdateEvent>? StreamStatusUpdated;
 

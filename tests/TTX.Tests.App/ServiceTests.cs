@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TTX.App.Data;
 using TTX.Tests.App.Factories;
+using TTX.Infrastructure.Data;
 using TTX.App;
 
-namespace TTX.Tests.App.Services;
+namespace TTX.Tests.App;
 
 [TestClass]
 public class ServiceTests
@@ -16,18 +16,18 @@ public class ServiceTests
     protected static TickerFactory _tickerFactory = null!;
 
     [AssemblyInitialize]
-    public static async ValueTask Setup(TestContext ctx)
+    public static void Setup(TestContext context)
     {
         IConfiguration config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .AddUserSecrets<ServiceTests>()
-            .AddEnvironmentVariables("TTX_TESTS_")
+            .AddEnvironmentVariables()
             .Build();
 
         _services = new ServiceCollection()
-            .AddTestServices()
-            .AddTestInfrastructure(config)
             .AddTtx(config.GetSection("TTX:Core"))
+            .AddTestServices()
+            .AddTestInfrastructure(config.GetSection("TTX:Infrastructure"))
             .BuildServiceProvider();
 
         _creatorFactory = _services.GetRequiredService<CreatorFactory>();
@@ -35,16 +35,14 @@ public class ServiceTests
         _platformUserFactory = _services.GetRequiredService<PlatformUserFactory>();
         _tickerFactory = _services.GetRequiredService<TickerFactory>();
 
-        await using AsyncServiceScope scope = _services.CreateAsyncScope();
-        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await dbContext.Database.EnsureCreatedAsync(ctx.CancellationToken);
+        ApplicationDbContext dbContext = _services.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.EnsureCreated();
     }
 
     [AssemblyCleanup]
-    public static async ValueTask Cleanup(TestContext ctx)
+    public static void Cleanup(TestContext context)
     {
-        await using AsyncServiceScope scope = _services.CreateAsyncScope();
-        ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await db.Database.EnsureDeletedAsync(ctx.CancellationToken);
+        ApplicationDbContext dbContext = _services.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.EnsureDeleted();
     }
 }

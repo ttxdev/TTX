@@ -1,18 +1,18 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using TTX.App.Data;
+using Microsoft.Extensions.DependencyInjection;
 using TTX.App.Dto.Creators;
 using TTX.App.Dto.Pagination;
 using TTX.App.Dto.Portfolio;
 using TTX.App.Services.Creators;
 using TTX.Domain.Models;
+using TTX.Infrastructure.Data;
 
 namespace TTX.Tests.App.Services.Creators;
 
 [TestClass]
 public class IndexCreatorsTests : ServiceTests
 {
-    public virtual TestContext TestContext { get; set; }
+    public virtual TestContext TestContext { get; set; } = null!;
 
     [TestInitialize]
     public void Setup()

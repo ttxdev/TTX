@@ -10,6 +10,7 @@ using TTX.App.Repositories;
 using TTX.Domain.Exceptions;
 using TTX.Domain.Models;
 using TTX.Domain.ValueObjects;
+using TTX.Domain.Platforms;
 
 namespace TTX.App.Services.Players;
 
@@ -70,7 +71,7 @@ public class PlayerService(
         if (player is not null)
         {
             _repository.Update(player);
-            if (player.Sync(name: pUser.DisplayName, slug: pUser.Username, avatarUrl: pUser.AvatarUrl))
+            if (player.Sync(pUser))
             {
                 await _repository.SaveChanges();
             }
@@ -78,7 +79,7 @@ public class PlayerService(
             return Result<PlayerPartialDto>.Ok(PlayerPartialDto.Create(player));
         }
 
-        player = Player.Create(name: pUser.DisplayName, slug: pUser.Username, platformId: pUser.Id, avatarUrl: pUser.AvatarUrl);
+        player = Player.Create(pUser);
         _repository.Add(player);
         await _repository.SaveChanges();
         await _events.Dispatch(CreatePlayerEvent.Create(player));

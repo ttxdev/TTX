@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using TTX.Domain.Platforms;
 using TTX.Domain.ValueObjects;
 
 namespace TTX.Domain.Models;
@@ -35,5 +36,18 @@ public class Creator : User
         Vote vote = new() { Creator = this, CreatorId = Id, Value = Value, Time = DateTimeOffset.UtcNow };
         History.Add(vote);
         return vote;
+    }
+
+    public static Creator Create(PlatformUser user, Ticker ticker, Platform platform)
+    {
+        return new()
+        {
+            Ticker = ticker,
+            Platform = platform,
+            PlatformId = user.Id,
+            Name = user.DisplayName,
+            Slug = user.Username,
+            AvatarUrl = user.AvatarUrl
+        };
     }
 }

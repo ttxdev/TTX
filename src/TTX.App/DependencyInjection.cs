@@ -26,10 +26,10 @@ public static class DependencyInjection
 
                     return new Random();
                 })
-          // Services
-          .AddScoped<CreatorService>()
-          .AddScoped<TransactionService>()
-          .AddScoped<PlayerService>();
+            // Services
+            .AddScoped<CreatorService>()
+            .AddScoped<TransactionService>()
+            .AddScoped<PlayerService>();
     }
 
     public static IServiceCollection AddTtxJobs(this IServiceCollection services, IConfiguration configuration)
