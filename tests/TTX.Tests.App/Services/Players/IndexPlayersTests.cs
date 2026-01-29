@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TTX.App.Data;
+using TTX.App.Data.Repositories;
 using TTX.App.Dto.Pagination;
 using TTX.App.Dto.Players;
 using TTX.App.Dto.Portfolio;
@@ -181,13 +182,15 @@ page.Data[i - 1].Credits, $"Player at index {i - 1} has fewer credits than playe
     {
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
         PlayerService playerService = scope.ServiceProvider.GetRequiredService<PlayerService>();
         Player target = _playerFactory.Create(credits: 200);
         Creator creator = _creatorFactory.Create(value: 50);
         dbContext.Players.Add(target);
         dbContext.Creators.Add(creator);
         target.Give(creator);
-        target.TakePortfolioSnapshot();
+        await dbContext.SaveChangesAsync(TestContext.CancellationToken);
+        await portfolioRepository.StoreSnapshot(target.TakePortfolioSnapshot());
         await dbContext.SaveChangesAsync(TestContext.CancellationToken);
 
         PlayerDto? player = await playerService.Find(target.Slug, new HistoryParams

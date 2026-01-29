@@ -48,7 +48,7 @@ public class PlayerService(
             _ => throw new NotImplementedException(),
         };
 
-        int limit = int.Max(request.Limit, 100);
+        int limit = int.Min(request.Limit, 100);
         int total = await query.CountAsync();
         IQueryable<Player> data = query.Skip((request.Page - 1) * limit).Take(limit);
         Player[] players = await data.ToArrayAsync();

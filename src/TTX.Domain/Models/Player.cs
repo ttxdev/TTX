@@ -97,10 +97,7 @@ public class Player : User
     public PortfolioSnapshot TakePortfolioSnapshot()
     {
         Portfolio = GetShares().Aggregate(0L, (acc, share) => acc + (share.Creator.Value * share.Quantity.Value));
-        PortfolioSnapshot snapshot = new() { PlayerId = Id, Player = this, Value = Portfolio };
-        History.Add(snapshot);
-
-        return snapshot;
+        return new() { PlayerId = Id, Value = Portfolio };
     }
 
     public LootBox AddLootBox()

@@ -37,14 +37,6 @@ public static class DependencyInjection
             {
                 opt.EnableDetailedErrors(true);
                 opt.EnableSensitiveDataLogging(true);
-                if (config.GetValue<DatabaseDriver>("Data") == DatabaseDriver.Postgres)
-                {
-                    opt.UseNpgsql(config.GetConnectionString("Postgres")!);
-                }
-                else
-                {
-                    opt.UseSqlite(config.GetConnectionString("Sqlite") ?? $"Data Source=ttx_test_{ctx.TestName}.db");
-                }
             })
             .AddSingleton<IEventDispatcher, MemoryEventHandler>()
             .AddSingleton<IEventReceiver, MemoryEventHandler>()

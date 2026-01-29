@@ -33,9 +33,7 @@ public class Creator : User
     {
         Value = Math.Max(MinValue, Value + netChange);
 
-        Vote vote = new() { Creator = this, CreatorId = Id, Value = Value, Time = DateTimeOffset.UtcNow };
-        History.Add(vote);
-        return vote;
+        return new() { Creator = this, CreatorId = Id, Value = Value };
     }
 
     public static Creator Create(PlatformUser user, Ticker ticker, Platform platform)

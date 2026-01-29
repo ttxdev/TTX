@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TTX.App.Data;
+using TTX.App.Data.Repositories;
 using TTX.App.Dto.Creators;
 using TTX.App.Dto.Pagination;
 using TTX.App.Dto.Portfolio;
@@ -163,15 +164,21 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
         const int total = 20;
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
         CreatorService creatorService = scope.ServiceProvider.GetRequiredService<CreatorService>();
         Random random = scope.ServiceProvider.GetRequiredService<Random>();
+        List<Creator> creators = [];
         foreach (int _ in Enumerable.Range(0, total))
         {
             Creator creator = _creatorFactory.Create();
+            creators.Add(creator);
             dbContext.Creators.Add(creator);
-            creator.ApplyNetChange(random.Next(200));
         }
         await dbContext.SaveChangesAsync(TestContext.CancellationToken);
+        foreach (Creator c in creators)
+        {
+            await portfolioRepository.StoreVote(c.ApplyNetChange(random.Next(200)));
+        }
 
         PaginationDto<CreatorDto> page = await creatorService.Index(new IndexCreatorsRequest
         {
@@ -210,12 +217,13 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
     {
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
         CreatorService creatorService = scope.ServiceProvider.GetRequiredService<CreatorService>();
         Creator target = _creatorFactory.Create(value: 200);
         dbContext.Creators.Add(target);
-        target.ApplyNetChange(50);
-        target.ApplyNetChange(25);
         await dbContext.SaveChangesAsync(TestContext.CancellationToken);
+        await portfolioRepository.StoreVote(target.ApplyNetChange(50));
+        await portfolioRepository.StoreVote(target.ApplyNetChange(25));
 
         CreatorDto? creator = await creatorService.Find(target.Slug, new HistoryParams
         {

@@ -22,7 +22,7 @@ builder.Services
                 Console.WriteLine("Done.");
             });
         })
-    .AddTtx(builder.Configuration.GetSection("TTX:Core"))
+    .AddTtx(builder.Configuration.GetSection("TTX"))
     .AddTtxInfra(builder.Configuration.GetSection("TTX:Infrastructure"))
     .AddTtxApi(builder.Environment, builder.Configuration.GetSection("TTX:Api"));
 

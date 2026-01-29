@@ -13,6 +13,11 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         return _dbContext.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO votes (creator_id, value, time) VALUES ({vote.CreatorId.Value}, {vote.Value.Value}, {vote.Time})");
     }
 
+    public Task StoreSnapshot(PortfolioSnapshot snapshot)
+    {
+        return _dbContext.Database.ExecuteSqlAsync($"INSERT INTO player_portfolios (player_id, value, time) VALUES ({snapshot.PlayerId.Value}, {snapshot.Value}, {snapshot.Time})");
+    }
+
     public async Task<Dictionary<int, PortfolioSnapshot[]>> GetHistoryFor(
         IEnumerable<Player> players,
         TimeStep step,

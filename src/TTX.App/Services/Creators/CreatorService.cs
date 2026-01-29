@@ -61,7 +61,7 @@ public class CreatorService(
             _ => throw new NotImplementedException(),
         };
 
-        int limit = int.Max(request.Limit, 100);
+        int limit = int.Min(request.Limit, 100);
         int total = await query.CountAsync();
         Creator[] creators =
             await query.Skip((request.Page - 1) * limit).Take(limit).ToArrayAsync();
