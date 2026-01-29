@@ -8,10 +8,6 @@ public class TestStreamMonitorAdapter : IStreamMonitorAdapter
 {
     public event EventHandler<StreamUpdateEvent>? StreamStatusUpdated;
 
-    public void SetCreators(IEnumerable<Creator> creators)
-    {
-    }
-
     public async Task Start(CancellationToken cancellationToken = default)
     {
         while (!cancellationToken.IsCancellationRequested)
@@ -26,6 +22,11 @@ public class TestStreamMonitorAdapter : IStreamMonitorAdapter
     }
 
     public bool RemoveCreator(ModelId creatorId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SetCreators(IEnumerable<Creator> creators)
     {
         throw new NotImplementedException();
     }

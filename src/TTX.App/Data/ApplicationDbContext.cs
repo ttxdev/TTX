@@ -1,10 +1,10 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using TTX.Infrastructure.Data.Converters;
+using TTX.App.Data.Converters;
 using TTX.Domain.Models;
 
-namespace TTX.Infrastructure.Data;
+namespace TTX.App.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
@@ -23,7 +23,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(p => p.Id)
                 .ValueGeneratedOnAdd()
                 .HasConversion(new ModelIdConverter())
-                .UseIdentityColumn()
                 .HasColumnName("id");
             entity.Property(p => p.Name)
                 .HasConversion(new NameConverter())
@@ -83,7 +82,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(c => c.Id)
                 .ValueGeneratedOnAdd()
                 .HasConversion(new ModelIdConverter())
-                .UseIdentityColumn()
                 .HasColumnName("id");
             entity.Property(c => c.Name)
                 .HasConversion(new NameConverter())
@@ -180,7 +178,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(l => l.Id)
                 .ValueGeneratedOnAdd()
                 .HasConversion(new ModelIdConverter())
-                .UseIdentityColumn()
                 .HasColumnName("id");
             entity.Property(l => l.PlayerId)
                 .HasConversion(new ModelIdConverter())
@@ -211,7 +208,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(t => t.Id)
                 .ValueGeneratedOnAdd()
                 .HasConversion(new ModelIdConverter())
-                .UseIdentityColumn()
                 .HasColumnName("id");
             entity.Property(t => t.Quantity)
                 .HasConversion(new QuantityConverter())
@@ -255,7 +251,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(a => a.Id)
                 .ValueGeneratedOnAdd()
                 .HasConversion(new ModelIdConverter())
-                .UseIdentityColumn()
                 .HasColumnName("id");
             entity.Property(a => a.SubmitterId)
                 .HasConversion(new ModelIdConverter())
@@ -294,7 +289,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(a => a.Id)
                 .ValueGeneratedOnAdd()
                 .HasConversion(new ModelIdConverter())
-                .UseIdentityColumn()
                 .HasColumnName("id");
             entity.Property(a => a.PlatformId)
                 .HasConversion(new PlatformIdConverter())

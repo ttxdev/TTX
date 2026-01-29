@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TTX.Domain.ValueObjects;
 
-namespace TTX.Infrastructure.Data.Converters;
+namespace TTX.App.Data.Converters;
 
 public class ValueObjectConverter<T, V>(
     Func<V, T> createFunc

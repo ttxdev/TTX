@@ -8,13 +8,13 @@ public class CreatorOptOut : Model
     public required Platform Platform { get; init; }
     public string Reason { get; init; } = string.Empty;
 
-    public static CreatorOptOut Create(Creator creator, string? reason = null)
+    public static CreatorOptOut Create(Creator creator, string reason = "")
     {
         return new()
         {
             PlatformId = creator.PlatformId,
             Platform = creator.Platform,
-            Reason = reason ?? string.Empty
+            Reason = reason
         };
     }
 }

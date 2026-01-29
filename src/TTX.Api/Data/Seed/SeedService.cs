@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TTX.App.Data;
 using TTX.Domain.Models;
-using TTX.Infrastructure.Data;
 
 namespace TTX.Api.Data.Seed;
 

@@ -1,5 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
+using TTX.App.Data;
 using TTX.App.Jobs.Streams;
+using TTX.Domain.Models;
+using TTX.Tests.App.Factories;
 using TTX.Tests.App.Infrastructure.Streams;
 
 namespace TTX.Tests.App.Jobs.Streams;
@@ -7,14 +10,21 @@ namespace TTX.Tests.App.Jobs.Streams;
 [TestClass]
 public class StreamMonitorJobTests : ServiceTests
 {
-    public virtual TestContext TestContext { get; set; } = null!;
-
     [TestMethod]
     public async Task TestJob()
     {
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
-        TestStreamMonitorAdapter adapter = (_services.GetRequiredService<IStreamMonitorAdapter>() as TestStreamMonitorAdapter)!;
+        CreatorFactory creatorFactory = scope.ServiceProvider.GetRequiredService<CreatorFactory>();
+        TestStreamMonitorAdapter adapter = (scope.ServiceProvider.GetRequiredService<IStreamMonitorAdapter>() as TestStreamMonitorAdapter)!;
         StreamMonitorJob job = scope.ServiceProvider.GetRequiredService<StreamMonitorJob>();
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        Creator creator = creatorFactory.Create();
+        dbContext.Creators.Add(creator);
+        TimeSpan delay = TimeSpan.FromDays(10);
+        DateTime startedAt = DateTime.UtcNow;
+        DateTime endedAt = startedAt.Add(delay);
+        await dbContext.SaveChangesAsync(TestContext.CancellationToken);
+
         CancellationTokenSource csr = new();
         try
         {
@@ -22,14 +32,19 @@ public class StreamMonitorJobTests : ServiceTests
                 job.StartAsync(csr.Token),
                 Task.Run(async () =>
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(1), TestContext.CancellationToken);
-                    adapter.Dispatch(new StreamUpdateEvent()
+                    adapter.Dispatch(new StreamUpdateEvent
                     {
-                        CreatorId = 0,
-                        IsLive = false,
-                        At = DateTime.UtcNow
+                        CreatorId = creator.Id,
+                        IsLive = true,
+                        At = startedAt
                     });
-                    await Task.Delay(TimeSpan.FromSeconds(1), TestContext.CancellationToken);
+                    adapter.Dispatch(new StreamUpdateEvent
+                    {
+                        CreatorId = creator.Id,
+                        IsLive = false,
+                        At = endedAt
+                    });
+                    await Task.Delay(TimeSpan.FromSeconds(1));
                     await csr.CancelAsync();
                 }, TestContext.CancellationToken)
             );
@@ -38,5 +53,10 @@ public class StreamMonitorJobTests : ServiceTests
         {
 
         }
+
+        Assert.Inconclusive("todo");
+        // Assert.IsFalse(creator.StreamStatus.IsLive);
+        // Assert.AreEqual(creator.StreamStatus.StartedAt, startedAt);
+        // Assert.AreEqual(creator.StreamStatus.EndedAt, endedAt);
     }
 }

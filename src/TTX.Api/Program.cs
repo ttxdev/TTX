@@ -4,7 +4,7 @@ using TTX.Infrastructure;
 using TTX.App;
 using TTX.Api;
 using TTX.Api.Data.Seed;
-using TTX.Infrastructure.Data;
+using TTX.App.Data;
 [assembly: ApiController]
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);

@@ -1,11 +1,12 @@
 using FluentValidation;
-using TTX.App.Repositories;
+using TTX.App.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace TTX.App.Services.Creators.Validation;
 
 public class OnboardValidator : AbstractValidator<OnboardRequest>
 {
-    public OnboardValidator(ICreatorRepository _repository) : base()
+    public OnboardValidator(ApplicationDbContext dbContext) : base()
     {
         RuleFor(r => r.Username)
             .NotEmpty()
@@ -22,7 +23,7 @@ public class OnboardValidator : AbstractValidator<OnboardRequest>
             .WithMessage("is required");
 
         RuleFor(r => r.Ticker)
-            .MustAsync((ticker, _) => _repository.IsTickerTaken(ticker))
+            .MustAsync((ticker, ct) => dbContext.Creators.Where(c => c.Ticker == ticker).AnyAsync(ct))
             .WithErrorCode("UNIQUE")
             .WithMessage("must be unique");
     }

@@ -1,4 +1,4 @@
-namespace TTX.Infrastructure.Options;
+namespace TTX.App.Options;
 
 public enum DatabaseDriver
 {

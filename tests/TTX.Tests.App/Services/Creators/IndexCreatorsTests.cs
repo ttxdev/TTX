@@ -1,21 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TTX.App.Data;
 using TTX.App.Dto.Creators;
 using TTX.App.Dto.Pagination;
 using TTX.App.Dto.Portfolio;
 using TTX.App.Services.Creators;
 using TTX.Domain.Models;
-using TTX.Infrastructure.Data;
 
 namespace TTX.Tests.App.Services.Creators;
 
 [TestClass]
 public class IndexCreatorsTests : ServiceTests
 {
-    public virtual TestContext TestContext { get; set; } = null!;
-
     [TestInitialize]
-    public void Setup()
+    public void CheckSkip()
     {
         using IServiceScope scope = _services.CreateScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

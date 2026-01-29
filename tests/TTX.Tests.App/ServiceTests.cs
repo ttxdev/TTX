@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TTX.Tests.App.Factories;
-using TTX.Infrastructure.Data;
 using TTX.App;
+using TTX.App.Data;
+using TTX.App.Jobs.Streams;
 
 namespace TTX.Tests.App;
 
@@ -15,8 +16,10 @@ public class ServiceTests
     protected static PlatformUserFactory _platformUserFactory = null!;
     protected static TickerFactory _tickerFactory = null!;
 
+    public virtual TestContext TestContext { get; set; } = null!;
+
     [AssemblyInitialize]
-    public static void Setup(TestContext context)
+    public static void Setup(TestContext testContext)
     {
         IConfiguration config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
@@ -27,7 +30,8 @@ public class ServiceTests
         _services = new ServiceCollection()
             .AddTtx(config.GetSection("TTX:Core"))
             .AddTestServices()
-            .AddTestInfrastructure(config.GetSection("TTX:Infrastructure"))
+            .AddTestInfrastructure(config.GetSection("TTX:Infrastructure"), testContext)
+            .AddSingleton<StreamMonitorJob>()
             .BuildServiceProvider();
 
         _creatorFactory = _services.GetRequiredService<CreatorFactory>();

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
-using TTX.Infrastructure.Data;
+using TTX.App.Data;
 using SessionOptions = TTX.Api.Options.SessionOptions;
 
 namespace TTX.Api;

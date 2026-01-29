@@ -1,6 +1,6 @@
 using TTX.App.Dto.Portfolio;
 
-namespace TTX.Infrastructure.Data.Repositories;
+namespace TTX.App.Data.Repositories;
 
 internal static class TimeStepExtension
 {

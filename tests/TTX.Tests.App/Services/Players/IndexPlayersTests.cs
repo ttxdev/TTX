@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TTX.Infrastructure.Data;
+using TTX.App.Data;
 using TTX.App.Dto.Pagination;
 using TTX.App.Dto.Players;
 using TTX.App.Dto.Portfolio;
@@ -12,10 +12,8 @@ namespace TTX.Tests.App.Services.Players;
 [TestClass]
 public class IndexPlayersTests : ServiceTests
 {
-    public virtual TestContext TestContext { get; set; } = null!;
-
     [TestInitialize]
-    public void Setup()
+    public void CheckSkip()
     {
         using IServiceScope scope = _services.CreateScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

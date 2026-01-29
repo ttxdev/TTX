@@ -1,5 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TTX.App.Data;
+using TTX.App.Data.Repositories;
 using TTX.App.Jobs.CreatorValues;
 using TTX.App.Jobs.Portfolios;
 using TTX.App.Jobs.Streams;
@@ -26,6 +29,20 @@ public static class DependencyInjection
 
                     return new Random();
                 })
+                // Data
+                .AddDbContext<ApplicationDbContext>((opt) =>
+                {
+                    IConfiguration config = configuration.GetSection("Infrastructure");
+                    if (config.GetValue<DatabaseDriver>("Data") == DatabaseDriver.Postgres)
+                    {
+                        opt.UseNpgsql(config.GetConnectionString("Postgres")!);
+                    }
+                    else
+                    {
+                        opt.UseSqlite(config.GetConnectionString("Sqlite")!);
+                    }
+                })
+                .AddScoped<PortfolioRepository>()
             // Services
             .AddScoped<CreatorService>()
             .AddScoped<TransactionService>()

@@ -6,14 +6,12 @@ using TTX.Domain.Models;
 using TTX.App.Interfaces.Platforms;
 using TTX.Tests.App.Infrastructure.Platforms;
 using TTX.App.Events;
-using TTX.Infrastructure.Data.Repositories;
-using TTX.App.Repositories;
 using TTX.Infrastructure.Events.Memory;
 using TTX.Tests.App.Infrastructure.Streams;
 using TTX.App.Jobs.Streams;
-using TTX.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using TTX.Infrastructure.Options;
+using TTX.App.Data;
+using TTX.App.Options;
 
 namespace TTX.Tests.App;
 
@@ -32,12 +30,11 @@ public static class DependencyInjection
             .AddSingleton<PlatformUserFactory>();
     }
 
-    public static IServiceCollection AddTestInfrastructure(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddTestInfrastructure(this IServiceCollection services, IConfiguration config, TestContext ctx)
     {
         services
-            .AddDbContext<ApplicationDbContext>((opt) =>
+            .ConfigureDbContext<ApplicationDbContext>(opt =>
             {
-                opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 opt.EnableDetailedErrors(true);
                 opt.EnableSensitiveDataLogging(true);
                 if (config.GetValue<DatabaseDriver>("Data") == DatabaseDriver.Postgres)
@@ -46,13 +43,9 @@ public static class DependencyInjection
                 }
                 else
                 {
-                    opt.UseSqlite(config.GetConnectionString("Sqlite")!);
+                    opt.UseSqlite(config.GetConnectionString("Sqlite") ?? $"Data Source=ttx_test_{ctx.TestName}.db");
                 }
             })
-            .AddScoped<PortfolioRepository>()
-            .AddScoped<ICreatorRepository, CreatorRepository>()
-            .AddScoped<IPlayerRepository, PlayerRepository>()
-            .AddScoped<ITransactionRepository, TransactionRepository>()
             .AddSingleton<IEventDispatcher, MemoryEventHandler>()
             .AddSingleton<IEventReceiver, MemoryEventHandler>()
             .AddSingleton<IStreamMonitorAdapter, TestStreamMonitorAdapter>();

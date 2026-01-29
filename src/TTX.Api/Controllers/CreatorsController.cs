@@ -100,7 +100,7 @@ public class CreatorsController(CreatorService _creatorService) : ControllerBase
             return Unauthorized();
         }
 
-        Result<CreatorOptOutDto> result = await _creatorService.OptOut(slug, reason);
+        Result<CreatorOptOutDto> result = await _creatorService.OptOut(slug, reason ?? string.Empty);
         return result.ToActionResult();
     }
 }

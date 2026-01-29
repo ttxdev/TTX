@@ -4,10 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using TTX.App.Dto.Portfolio;
 using TTX.Domain.Models;
 
-namespace TTX.Infrastructure.Data.Repositories;
+namespace TTX.App.Data.Repositories;
 
-public class PortfolioRepository(ApplicationDbContext _dbContext)
+public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
 {
+    public Task StoreVote(Vote vote)
+    {
+        return _dbContext.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO votes (creator_id, value, time) VALUES ({vote.CreatorId.Value}, {vote.Value.Value}, {vote.Time})");
+    }
+
     public async Task<Dictionary<int, PortfolioSnapshot[]>> GetHistoryFor(
         IEnumerable<Player> players,
         TimeStep step,

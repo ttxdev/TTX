@@ -1,5 +1,5 @@
 ﻿using TTX.Domain.ValueObjects;
 
-namespace TTX.Infrastructure.Data.Converters;
+namespace TTX.App.Data.Converters;
 
 public class TickerConverter() : ValueObjectConverter<Ticker, string>(Ticker.Create);

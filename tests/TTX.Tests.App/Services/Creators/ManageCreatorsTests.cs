@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TTX.Infrastructure.Data;
 using TTX.App.Dto.Creators;
 using TTX.App.Interfaces.Platforms;
 using TTX.App.Services.Creators;
@@ -9,14 +8,13 @@ using TTX.Domain.Models;
 using TTX.Domain.ValueObjects;
 using TTX.Tests.App.Infrastructure.Platforms;
 using TTX.Domain.Platforms;
+using TTX.App.Data;
 
 namespace TTX.Tests.App.Services.Creators;
 
 [TestClass]
 public class ManageCreatorsTests : ServiceTests
 {
-    public virtual TestContext TestContext { get; set; } = null!;
-
     [TestMethod]
     public async Task CreatorCanOnboard()
     {

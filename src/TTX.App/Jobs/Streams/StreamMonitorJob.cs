@@ -4,7 +4,8 @@ using TTX.App.Events.Creators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TTX.App.Repositories;
+using TTX.App.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace TTX.App.Jobs.Streams;
 
@@ -20,10 +21,10 @@ public class StreamMonitorJob(
         List<Creator> creators = [];
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         {
-            ICreatorRepository repository = scope.ServiceProvider.GetRequiredService<ICreatorRepository>();
+            ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             adapters = [.. scope.ServiceProvider.GetServices<IStreamMonitorAdapter>()];
             // TODO optimize
-            await foreach (Creator creator in repository.GetAll().WithCancellation(stoppingToken))
+            await foreach (Creator creator in dbContext.Creators.AsAsyncEnumerable().WithCancellation(stoppingToken))
             {
                 creators.Add(creator);
             }
@@ -45,8 +46,8 @@ public class StreamMonitorJob(
     public async void UpdateStreamStatus(object? sender, StreamUpdateEvent @event)
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        ICreatorRepository repository = scope.ServiceProvider.GetRequiredService<ICreatorRepository>();
-        Creator? creator = await repository.Find(@event.CreatorId);
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        Creator? creator = await dbContext.Creators.FirstOrDefaultAsync(c => c.Id == @event.CreatorId);
         if (creator is null)
         {
             if (sender is IStreamMonitorAdapter adapter)
@@ -57,7 +58,6 @@ public class StreamMonitorJob(
             return;
         }
 
-        repository.Update(creator);
         if (@event.IsLive)
         {
             creator.StreamStatus.Started(@event.At);
@@ -75,7 +75,7 @@ public class StreamMonitorJob(
             }
         }
 
-        await repository.SaveChanges();
+        await dbContext.SaveChangesAsync();
         await _events.Dispatch(UpdateStreamStatusEvent.Create(creator));
     }
 }

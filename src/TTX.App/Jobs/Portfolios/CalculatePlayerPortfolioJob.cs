@@ -1,12 +1,13 @@
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TTX.App.Data;
 using TTX.App.Events;
 using TTX.App.Events.Players;
 using TTX.App.Options;
-using TTX.App.Repositories;
 using TTX.Domain.Models;
 
 namespace TTX.App.Jobs.Portfolios;
@@ -38,16 +39,19 @@ public class CalculatePlayerPortfolioJob(
     public async Task CalculateAll(CancellationToken stoppingToken)
     {
         using AsyncServiceScope scope = _services.CreateAsyncScope();
-        IPlayerRepository repository = scope.ServiceProvider.GetRequiredService<IPlayerRepository>();
-        ConfiguredCancelableAsyncEnumerable<Player> players = repository.SeekAll(stoppingToken);
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        ConfiguredCancelableAsyncEnumerable<Player> players = dbContext.Players
+            .Include(p => p.Transactions.OrderBy(t => t.CreatedAt))
+            .ThenInclude(t => t.Creator)
+            .ToAsyncEnumerable()
+            .WithCancellation(stoppingToken);
 
         await foreach (Player player in players)
         {
             PortfolioSnapshot snapshot = player.TakePortfolioSnapshot();
-            repository.Update(player);
             await _events.Dispatch(UpdatePlayerPortfolioEvent.Create(snapshot));
         }
 
-        await repository.SaveChanges();
+        await dbContext.SaveChangesAsync(stoppingToken);
     }
 }

@@ -6,13 +6,13 @@ using TTX.Domain.Exceptions;
 using TTX.App.Events.Transactions;
 using TTX.App.Events.LootBoxes;
 using TTX.App.Services.Transactions.Exceptions;
-using TTX.App.Repositories;
+using TTX.App.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace TTX.App.Services.Transactions;
 
 public class TransactionService(
-    ITransactionRepository _repository,
-    IPlayerRepository _playerRepository,
+    ApplicationDbContext _dbContext,
     IEventDispatcher _events,
     Random _random
 )
@@ -21,14 +21,16 @@ public class TransactionService(
 
     public async Task<Result<ModelId>> PlaceOrder(ModelId actorId, Slug creatorSlug, TransactionAction action, Quantity quantity)
     {
-        Player? player = await _repository.FindPlayerWithTransactions(actorId);
-
+        Player? player = await _dbContext.Players
+                    .Include(p => p.Transactions.OrderBy(t => t.CreatedAt))
+                    .ThenInclude(t => t.Creator)
+                    .FirstOrDefaultAsync(p => p.Id == actorId);
         if (player is null)
         {
             return Result<ModelId>.Err(new NotFoundException<Player>());
         }
 
-        Creator? creator = await _repository.FindCreator(creatorSlug);
+        Creator? creator = await _dbContext.Creators.FirstOrDefaultAsync(c => c.Slug == creatorSlug);
 
         if (creator is null)
         {
@@ -42,8 +44,7 @@ public class TransactionService(
             _ => throw new InvalidActionException("Invalid transaction action")
         };
 
-        _playerRepository.Update(player);
-        await _repository.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         await _events.Dispatch(CreateTransactionEvent.Create(tx));
 
         return Result<ModelId>.Ok(tx.Id);
@@ -51,7 +52,9 @@ public class TransactionService(
 
     public async Task<CreatorRarity[]> GetCreatorRarities()
     {
-        Creator[] creators = await _repository.GetCreatorsByMinValue(LootBoxMinValue);
+        Creator[] creators = await _dbContext.Creators
+            .Where(c => c.Value >= LootBoxMinValue)
+            .ToArrayAsync();
         long sum = creators.Sum(creator => creator.Value);
 
         return [.. creators.Select(creator => CreatorRarity.Create(sum, creator))];
@@ -59,7 +62,10 @@ public class TransactionService(
 
     public async Task<Result<LootBoxResultDto>> OpenLootBox(ModelId playerId, ModelId boxId)
     {
-        Player? player = await _repository.FindPlayerWithLootbox(playerId, boxId);
+        Player? player = await _dbContext.Players
+            .Where(p => p.Id == playerId)
+            .Include(p => p.LootBoxes.Where(l => l.Id == boxId))
+            .FirstOrDefaultAsync();
         if (player is null)
         {
             return Result<LootBoxResultDto>.Err(new NotFoundException<Player>());
@@ -104,7 +110,7 @@ public class TransactionService(
         lootBox.SetResult(result.Result.Creator);
         Transaction tx = player.Give(lootBox.Result!);
 
-        await _repository.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         await _events.Dispatch(CreateTransactionEvent.Create(tx));
         await _events.Dispatch(OpenLootBoxEvent.Create(result, tx.Id));
 

@@ -6,10 +6,7 @@ using TTX.App.Events;
 using TTX.App.Interfaces.Platforms;
 using TTX.App.Jobs.CreatorValues;
 using TTX.App.Jobs.Streams;
-using TTX.App.Repositories;
 using TTX.Domain.Models;
-using TTX.Infrastructure.Data;
-using TTX.Infrastructure.Data.Repositories;
 using TTX.Infrastructure.Events.Memory;
 using TTX.Infrastructure.Events.Redis;
 using TTX.Infrastructure.Options;
@@ -21,24 +18,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddTtxInfra(this IServiceCollection services, IConfiguration config)
     {
-        services
-            .AddDbContext<ApplicationDbContext>((opt) =>
-            {
-                opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                if (config.GetValue<DatabaseDriver>("Data") == DatabaseDriver.Postgres)
-                {
-                    opt.UseNpgsql(config.GetConnectionString("Postgres")!);
-                }
-                else
-                {
-                    opt.UseSqlite(config.GetConnectionString("Sqlite")!);
-                }
-            })
-            .AddScoped<PortfolioRepository>()
-            .AddScoped<ICreatorRepository, CreatorRepository>()
-            .AddScoped<IPlayerRepository, PlayerRepository>()
-            .AddScoped<ITransactionRepository, TransactionRepository>();
-
         switch (config.GetValue<EventDriver>("Events"))
         {
             case EventDriver.Redis:

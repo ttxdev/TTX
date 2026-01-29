@@ -4,7 +4,9 @@ using TTX.App.Events;
 using TTX.App.Events.Creators;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
-using TTX.App.Repositories;
+using TTX.App.Data;
+using TTX.App.Data.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace TTX.App.Jobs.CreatorValues;
 
@@ -21,9 +23,10 @@ public class CreatorValueMonitorJob(
         IChatMonitorAdapter[] chatMonitors;
         using (AsyncServiceScope scope = _services.CreateAsyncScope())
         {
-            ICreatorRepository repository = scope.ServiceProvider.GetRequiredService<ICreatorRepository>();
+            // ICreatorRepository repository = scope.ServiceProvider.GetRequiredService<ICreatorRepository>();
+            ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             // TODO optimize
-            await foreach (Creator creator in repository.GetAll().WithCancellation(stoppingToken))
+            await foreach (Creator creator in dbContext.Creators.AsAsyncEnumerable().WithCancellation(stoppingToken))
             {
                 creators.Add(creator);
             }
@@ -58,18 +61,19 @@ public class CreatorValueMonitorJob(
         }
 
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
-        ICreatorRepository repository = scope.ServiceProvider.GetRequiredService<ICreatorRepository>();
-        Creator? creator = await repository.Find(e.CreatorId);
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
+        Creator? creator = await dbContext.Creators.FirstOrDefaultAsync(c => c.Id == e.CreatorId);
         if (creator is null)
         {
             return;
         }
 
-        repository.Update(creator);
         int netChange = GetValue(e.Content);
         Vote vote = creator.ApplyNetChange(netChange);
-        await repository.StoreVote(vote);
-        await repository.SaveChanges();
+
+        await dbContext.SaveChangesAsync();
+        await portfolioRepository.StoreVote(vote);
         await _events.Dispatch(UpdateCreatorValueEvent.Create(vote));
 
         if (_logger.IsEnabled(LogLevel.Information))
