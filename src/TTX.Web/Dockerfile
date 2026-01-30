@@ -4,6 +4,8 @@ WORKDIR /opt/app
 COPY deno.json deno.lock ./
 RUN deno i
 COPY . .
+RUN deno task build
+RUN deno cache _fresh/server.js
 EXPOSE 8000
 
-CMD ["run", "-A", "main.ts"]
+CMD ["serve", "-A", "_fresh/server.js"]
