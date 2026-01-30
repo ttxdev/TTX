@@ -5,7 +5,7 @@ using TTX.Domain.Models;
 
 namespace TTX.App.Events.CreatorApplications;
 
-public class CreateCreatorApplicationEvent : IEvent
+public record CreateCreatorApplicationEvent : BaseEvent
 {
     [JsonPropertyName("application")] public required CreatorApplicationDto Application { get; init; }
 

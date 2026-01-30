@@ -4,7 +4,7 @@ using TTX.Domain.Models;
 
 namespace TTX.App.Events.Transactions;
 
-public class CreateTransactionEvent : IEvent
+public record CreateTransactionEvent : BaseEvent
 {
     [JsonPropertyName("transaction")] public required CreatorTransactionDto Transaction { get; init; }
 

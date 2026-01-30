@@ -4,7 +4,7 @@ using TTX.Domain.Models;
 
 namespace TTX.App.Events.Players;
 
-public class CreatePlayerEvent : IEvent
+public record CreatePlayerEvent : BaseEvent
 {
     [JsonPropertyName("player")] public required PlayerDto Player { get; init; }
 

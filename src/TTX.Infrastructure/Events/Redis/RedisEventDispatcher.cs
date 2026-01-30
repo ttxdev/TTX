@@ -8,7 +8,7 @@ public class RedisEventDispatcher(IConnectionMultiplexer _redis) : IEventDispatc
 {
     public static readonly RedisChannel Channel = RedisChannel.Literal("TTX.Events");
 
-    public async Task Dispatch<T>(T @event) where T : IEvent
+    public async Task Dispatch<T>(T @event) where T : BaseEvent
     {
         ISubscriber db = _redis.GetSubscriber();
         await db.PublishAsync(Channel, JsonSerializer.Serialize(@event));

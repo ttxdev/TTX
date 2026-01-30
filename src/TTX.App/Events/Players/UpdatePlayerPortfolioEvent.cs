@@ -4,7 +4,7 @@ using TTX.Domain.Models;
 
 namespace TTX.App.Events.Players;
 
-public class UpdatePlayerPortfolioEvent : IEvent
+public record UpdatePlayerPortfolioEvent : BaseEvent
 {
     [JsonPropertyName("player")] public required PlayerPartialDto Player { get; init; }
 

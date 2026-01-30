@@ -4,7 +4,7 @@ using TTX.App.Dto.Creators;
 
 namespace TTX.App.Events.Creators;
 
-public class UpdateStreamStatusEvent : IEvent
+public record UpdateStreamStatusEvent : BaseEvent
 {
     [JsonPropertyName("creator_id")] public required int CreatorId { get; init; }
     [JsonPropertyName("stream_status")] public required StreamStatusDto StreamStatus { get; init; }

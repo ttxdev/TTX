@@ -4,7 +4,7 @@ using TTX.Domain.Models;
 
 namespace TTX.App.Events.LootBoxes;
 
-public class CreateLooboxEvent : IEvent
+public record CreateLooboxEvent : BaseEvent
 {
     [JsonPropertyName("loot_box")] public required LootBoxDto LootBox { get; init; }
 

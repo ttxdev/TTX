@@ -4,7 +4,7 @@ using TTX.App.Dto.LootBoxes;
 
 namespace TTX.App.Events.LootBoxes;
 
-public class OpenLootBoxEvent : IEvent
+public record OpenLootBoxEvent : BaseEvent
 {
     [JsonPropertyName("result")] public required LootBoxResultDto Result { get; init; }
 

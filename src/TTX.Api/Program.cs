@@ -5,6 +5,7 @@ using TTX.App;
 using TTX.Api;
 using TTX.Api.Data.Seed;
 using TTX.App.Data;
+using Microsoft.Extensions.Options;
 [assembly: ApiController]
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -42,7 +43,7 @@ app.UseRateLimiter();
 app.MapControllers();
 app.MapHub<EventHub>("hubs/events");
 app.UseSession();
-app.UseWebSockets();
+app.UseWebSockets(app.Services.GetRequiredService<IOptions<WebSocketOptions>>().Value);
 if (app.Environment.IsProduction())
 {
     app.UseHttpsRedirection();

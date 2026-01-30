@@ -4,7 +4,7 @@ using TTX.App.Dto.Creators;
 
 namespace TTX.App.Events.Creators;
 
-public record CreateCreatorEvent : IEvent
+public record CreateCreatorEvent : BaseEvent
 {
     [JsonPropertyName("creator")] public required CreatorPartialDto Creator { get; init; }
 

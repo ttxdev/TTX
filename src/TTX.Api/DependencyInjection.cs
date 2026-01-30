@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using TTX.Api.Jobs;
 using TTX.App.Data;
 using SessionOptions = TTX.Api.Options.SessionOptions;
 
@@ -34,6 +35,7 @@ public static class DependencyInjection
                 options.NonNullableReferenceTypesAsRequired();
             })
             // SignalR
+            .AddHostedService<EventHubDispatcher>()
             .Configure<HubOptions>(config.GetSection("SignalR"))
             .Configure<WebSocketOptions>(config.GetSection("Websocket"))
             .AddSignalR()
@@ -44,8 +46,7 @@ public static class DependencyInjection
             {
                 options.AddPolicy("AllowCredentials", cors =>
                 {
-                    cors.WithOrigins("https://ttx.gg")
-                        .WithOrigins("http://localhost:5173")
+                    cors.WithOrigins("https://ttx.gg", "http://127.0.0.1:5173")
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();

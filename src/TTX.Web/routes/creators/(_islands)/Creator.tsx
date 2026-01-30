@@ -75,8 +75,8 @@ export default function Creator(props: CreatorProps) {
     newHub.start().then(() => hub.value = newHub);
 
     return () => {
-      newHub.off("UpdateCreatorValue", addVote);
-      newHub.stop();
+      // newHub.off("UpdateCreatorValue", addVote);
+      // newHub.stop();
     };
   });
 

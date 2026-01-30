@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using TTX.Api.Hubs;
 using TTX.App.Events;
@@ -9,12 +10,13 @@ namespace TTX.Api.Jobs;
 
 public class EventHubDispatcher(IEventReceiver _handler, IHubContext<EventHub> _hubContext) : IHostedService
 {
-    CancellationTokenSource? _cts = null;
+    private CancellationTokenSource? _cts = null;
+    private List<Task> _tasks = [];
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _cts = new CancellationTokenSource();
-        return Task.WhenAll(
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _tasks.AddRange(
             Register<CreateTransactionEvent>(_cts.Token),
             Register<UpdateCreatorValueEvent>(_cts.Token),
             Register<UpdatePlayerPortfolioEvent>(_cts.Token),
@@ -22,23 +24,27 @@ public class EventHubDispatcher(IEventReceiver _handler, IHubContext<EventHub> _
         );
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
         if (_cts is null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        return _cts.CancelAsync();
+        await _cts.CancelAsync();
+        Task timeout = Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+        Task allFinished = Task.WhenAll(_tasks);
+
+        await Task.WhenAny(allFinished, timeout);
     }
 
-    private Task Register<TEvent>(CancellationToken ct) where TEvent : IEvent
+    private Task Register<T>(CancellationToken ct) where T : BaseEvent
     {
-        return _handler.OnEventReceived<TEvent>(Dispatch, ct);
+        return _handler.OnEventReceived<T>(Dispatch, ct);
     }
 
-    private async void Dispatch<T>(T @event, CancellationToken cancellationToken = default) where T : IEvent
+    private Task Dispatch<T>(T @event, CancellationToken cancellationToken = default) where T : BaseEvent
     {
-        await _hubContext.Clients.All.SendAsync(typeof(T).Name, @event, cancellationToken);
+        return _hubContext.Clients.All.SendAsync(@event.Type, @event, cancellationToken);
     }
 }

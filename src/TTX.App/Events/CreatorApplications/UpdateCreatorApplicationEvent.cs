@@ -4,7 +4,7 @@ using TTX.App.Dto.CreatorApplications;
 
 namespace TTX.App.Events.CreatorApplications;
 
-public class UpdateCreatorApplicationEvent : IEvent
+public record UpdateCreatorApplicationEvent : BaseEvent
 {
     [JsonPropertyName("application")] public required CreatorApplicationDto Application { get; init; }
 

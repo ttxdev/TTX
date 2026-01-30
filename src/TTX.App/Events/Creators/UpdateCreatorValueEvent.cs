@@ -4,7 +4,7 @@ using TTX.App.Dto.Creators;
 
 namespace TTX.App.Events.Creators;
 
-public record UpdateCreatorValueEvent : IEvent
+public record UpdateCreatorValueEvent : BaseEvent
 {
     [JsonPropertyName("vote")] public required VoteDto Vote { get; init; }
 

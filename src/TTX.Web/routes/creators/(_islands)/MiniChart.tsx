@@ -2,10 +2,17 @@ import { Chart } from "chart.js";
 import type { VoteDto } from "@/lib/api.ts";
 import { useEffect, useRef } from "preact/hooks";
 
-export default function MiniChart({ history }: { history: VoteDto[] }) {
+export default function MiniChart(
+  { value, history }: { value: number; history: VoteDto[] },
+) {
   const canvas = useRef<HTMLCanvasElement | null>(null);
-  const isUpward = history[history.length - 1]?.value > history[0]?.value;
+  const values = history.map((v) => v.value);
+  const isUpward = values[values.length - 1] > values[0];
   const lineColor = isUpward ? "#22c55e" : "#ef4444";
+
+  if (values.length === 0) {
+    values.push(value);
+  }
 
   useEffect(() => {
     if (!canvas.current) {
@@ -51,8 +58,5 @@ export default function MiniChart({ history }: { history: VoteDto[] }) {
     };
   }, [canvas]);
 
-  return (
-    <canvas ref={canvas}>
-    </canvas>
-  );
+  return <canvas ref={canvas}></canvas>;
 }
