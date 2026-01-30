@@ -1,0 +1,21 @@
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+USER $APP_UID
+WORKDIR /opt/app
+COPY . .
+
+# This stage is used to build the service project
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /opt/app
+COPY --from=base /opt/app .
+RUN dotnet build -c $BUILD_CONFIGURATION -o /opt/app/build
+
+FROM build
+EXPOSE 8080
+EXPOSE 8081
+WORKDIR /opt/app
+COPY --from=build /opt/app/build .
+ENTRYPOINT ["dotnet", "TTX.Api.dll"]

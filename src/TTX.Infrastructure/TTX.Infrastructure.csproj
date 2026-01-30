@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\TTX.App\TTX.App.csproj" />
+    <ProjectReference Include="..\TTX.Domain\TTX.Domain.csproj" />
+    <ProjectReference Include="..\TTX.Bot\TTX.Bot.csproj" Condition="Exists('..\TTX.Bot\TTX.Bot.csproj')" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="Exists('..\TTX.Bot\TTX.Bot.csproj')">
+    <DefineConstants>$(DefineConstants);BOT_EXISTS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
+    <PackageReference Include="StackExchange.Redis" Version="2.10.1" />
+    <PackageReference Include="TwitchLib" Version="3.5.3" />
+    <PackageReference Include="TwitchLib.Api" Version="3.10.2" />
+    <PackageReference Include="TwitchLib.Client" Version="4.0.1" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

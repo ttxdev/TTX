@@ -1,29 +1,25 @@
 using System.Net.Mime;
-using System.Runtime.InteropServices;
-using MediatR;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TTX.Api.Interfaces;
-using TTX.Commands.Creators.CreatorOptOuts;
-using TTX.Commands.Creators.OnboardTwitchCreator;
-using TTX.Dto;
-using TTX.Dto.Creators;
-using TTX.Dto.Transactions;
-using TTX.Models;
-using TTX.Queries;
-using TTX.Queries.Creators.FindCreator;
-using TTX.Queries.Creators.IndexCreators;
+using TTX.Api.Converters;
+using TTX.App.Dto.Creators;
+using TTX.App.Dto.Pagination;
+using TTX.App.Dto.Portfolio;
+using TTX.App.Services.Creators;
+using TTX.Domain.Models;
+using TTX.Domain.ValueObjects;
 
 namespace TTX.Api.Controllers;
 
 [ApiController]
 [Route("creators")]
 [Produces(MediaTypeNames.Application.Json)]
-public class CreatorsController(ISender sender, ISessionService sessions) : ControllerBase
+public class CreatorsController(CreatorService _creatorService) : ControllerBase
 {
     [HttpGet]
     [EndpointName("GetCreators")]
-    public async Task<ActionResult<PaginationDto<CreatorPartialDto>>> Index(
+    public async Task<ActionResult<PaginationDto<CreatorDto>>> Index(
         [FromQuery(Name = "page")] int index = 1,
         [FromQuery] int limit = 20,
         [FromQuery] string? search = null,
@@ -31,7 +27,7 @@ public class CreatorsController(ISender sender, ISessionService sessions) : Cont
         [FromQuery] OrderDirection? orderDir = null
     )
     {
-        var page = await sender.Send(new IndexCreatorsQuery
+        PaginationDto<CreatorDto> page = await _creatorService.Index(new IndexCreatorsRequest
         {
             Page = index,
             Limit = limit,
@@ -55,77 +51,56 @@ public class CreatorsController(ISender sender, ISessionService sessions) : Cont
 
     [HttpGet("{slug}")]
     [EndpointName("GetCreator")]
-    public async Task<ActionResult<CreatorDto>> Show(string slug, [FromQuery] TimeStep step = TimeStep.FiveMinute,
+    public async Task<ActionResult<CreatorDto>> Show(
+        string slug,
+        [FromQuery] TimeStep step = TimeStep.FiveMinute,
         [FromQuery] DateTimeOffset? after = null)
     {
-        var creator = await sender.Send(new FindCreatorQuery
+        CreatorDto? creator = await _creatorService.Find(slug, new HistoryParams
         {
-            Slug = slug,
-            HistoryParams = new HistoryParams
-            {
-                Step = step,
-                After = after ?? DateTimeOffset.UtcNow.AddDays(-1)
-            }
+            Step = step,
+            After = after ?? DateTimeOffset.UtcNow.AddDays(-1)
         });
 
         if (creator is null)
+        {
             return NotFound();
+        }
 
         return Ok(creator);
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = nameof(PlayerType.Admin))]
     [EndpointName("CreateCreator")]
-    public async Task<ActionResult<CreatorDto>> Create([FromQuery] string username, [FromQuery] string ticker)
+    public async Task<ActionResult<ModelId>> Create([FromQuery] string username, [FromQuery] string ticker)
     {
-        var creator = await sender.Send(new OnboardTwitchCreatorCommand
+        Result<ModelId> result = await _creatorService.Onboard(new OnboardRequest
         {
             Ticker = ticker,
-            Username = username
+            Username = username,
+            Platform = Platform.Twitch
         });
 
-        return Ok(creator);
+        return result.ToActionResult();
     }
 
-    [HttpGet("{creatorSlug}/transactions")]
-    [EndpointName("GetCreatorTransactions")]
-    public async Task<ActionResult<PlayerTransactionDto[]>> IndexCreatorTransactions(string slug)
-    {
-        var creator = await sender.Send(new FindCreatorQuery
-        {
-            Slug = slug,
-            HistoryParams = new HistoryParams
-            {
-                Step = TimeStep.Minute,
-                After = DateTimeOffset.UtcNow
-            }
-        });
-
-        if (creator is null)
-            return NotFound();
-
-        return Ok(creator);
-    }
-
-    [HttpDelete("{creatorSlug}")]
-    [EndpointName("CreatorOptOut")]
-    public async Task<ActionResult<CreatorOptOutDto>> CreatorOptOut(
-        string creatorSlug
+    [Authorize]
+    [HttpDelete("{slug}")]
+    [EndpointName("OptOutCreator")]
+    public async Task<ActionResult<CreatorOptOutDto>> OptOut(
+        string slug,
+        [FromQuery] string? reason = null
     )
     {
-        var curUser = sessions.GetCurrentUserSlug();
-
-        if (curUser is null || curUser.Value != creatorSlug)
+        ModelId playerId = ModelId.Create(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        PlayerType role = Enum.Parse<PlayerType>(User.FindFirstValue(ClaimTypes.GroupSid)!);
+        if (role != PlayerType.Admin && !await _creatorService.IsPlayer(slug, playerId))
         {
-            return Unauthorized("Current user is not the creator");
+            return Unauthorized();
         }
 
-        var res = await sender.Send(new CreatorOptOutCommand
-        {
-            Username = creatorSlug
-        });
-
-        return Ok(res);
+        Result<CreatorOptOutDto> result = await _creatorService.OptOut(slug, reason ?? string.Empty);
+        return result.ToActionResult();
     }
 }

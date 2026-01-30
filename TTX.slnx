@@ -1,0 +1,17 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/TTX.Api/TTX.Api.csproj" />
+    <Project Path="src/TTX.App/TTX.App.csproj" />
+    <Project Path="src/TTX.Domain/TTX.Domain.csproj" />
+    <Project Path="src/TTX.Infrastructure/TTX.Infrastructure.csproj" />
+    <Project Path="src/TTX.Jobs/TTX.Jobs.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TTX.Tests.App/TTX.Tests.App.csproj" />
+  </Folder>
+</Solution>
