@@ -4,7 +4,7 @@ namespace TTX.App.Jobs.CreatorValues;
 
 public interface IChatMonitorAdapter
 {
-    event EventHandler<MessageEvent>? OnMessage;
+    event EventHandler<NetChangeEvent>? OnNetChange;
 
     public Task Start(CancellationToken cancellationToken = default);
     public void SetCreators(IEnumerable<Creator> creators);

@@ -2,10 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
+using TTX.App.Data;
 using TTX.App.Events;
 using TTX.App.Interfaces.Platforms;
 using TTX.App.Jobs.CreatorValues;
 using TTX.App.Jobs.Streams;
+#if BOT_EXISTS
+using TTX.Bot;
+#endif
 using TTX.Domain.Models;
 using TTX.Infrastructure.Events.Memory;
 using TTX.Infrastructure.Events.Redis;
@@ -18,6 +22,18 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddTtxInfra(this IServiceCollection services, IConfiguration config)
     {
+        services.ConfigureDbContext<ApplicationDbContext>((opt) =>
+            {
+                if (config.GetValue<DatabaseDriver>("Data") == DatabaseDriver.Postgres)
+                {
+                    opt.UseNpgsql(config.GetConnectionString("Postgres")!);
+                }
+                else
+                {
+                    opt.UseSqlite(config.GetConnectionString("Sqlite")!);
+                }
+            });
+
         switch (config.GetValue<EventDriver>("Events"))
         {
             case EventDriver.Redis:
@@ -32,6 +48,7 @@ public static class DependencyInjection
                 break;
         }
 
+
         services
             .AddOptions<TwitchOAuthOptions>()
             .Bind(config.GetSection("Twitch:OAuth"))
@@ -39,12 +56,17 @@ public static class DependencyInjection
             .AddOptions<TwitchStreamMonitorOptions>()
             .Bind(config.GetSection("Twitch:Streams"))
             .Services
-            .AddOptions<TwitchChatMonitorOptions>()
+            .AddKeyedSingleton<IPlatformUserService, TwitchUserService>(Platform.Twitch)
+            .AddKeyedSingleton<IStreamMonitorAdapter, TwitchStreamMonitorAdapter>(Platform.Twitch);
+
+#if BOT_EXISTS
+        services.AddValueMonitor();
+#else
+        services.AddOptions<TwitchChatMonitorOptions>()
             .Bind(config.GetSection("Twitch:Chat"))
             .Services
-            .AddKeyedSingleton<IPlatformUserService, TwitchUserService>(Platform.Twitch)
-            .AddSingleton<IChatMonitorAdapter, TwitchChatMonitor>()
-            .AddKeyedSingleton<IStreamMonitorAdapter, TwitchStreamMonitorAdapter>(Platform.Twitch);
+            .AddSingleton<IChatMonitorAdapter, SimpleTwitchChatMonitor>();
+#endif
 
         return services;
     }

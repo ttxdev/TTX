@@ -16,6 +16,8 @@ public class CreatorValueMonitorJob(
     ILogger<CreatorValueMonitorJob> _logger
 ) : BackgroundService
 {
+    private readonly Queue<NetChangeEvent> _queue = new();
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         List<Creator> creators = [];
@@ -35,7 +37,7 @@ public class CreatorValueMonitorJob(
 
         foreach (IChatMonitorAdapter chatMonitor in chatMonitors)
         {
-            chatMonitor.OnMessage += OnMessageReceived;
+            chatMonitor.OnNetChange += OnNetChangeReceived;
             chatMonitor.SetCreators(creators);
             tasks.Add(chatMonitor.Start(stoppingToken));
         }
@@ -52,14 +54,8 @@ public class CreatorValueMonitorJob(
         await Task.WhenAll(tasks);
     }
 
-    public async void OnMessageReceived(object? _, MessageEvent e)
+    public async void OnNetChangeReceived(object? _, NetChangeEvent e)
     {
-        int value = GetValue(e.Content);
-        if (value == 0)
-        {
-            return;
-        }
-
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
@@ -69,31 +65,14 @@ public class CreatorValueMonitorJob(
             return;
         }
 
-        int netChange = GetValue(e.Content);
-        Vote vote = creator.ApplyNetChange(netChange);
-
+        Vote vote = creator.ApplyNetChange(e.NetChange);
         await dbContext.SaveChangesAsync();
         await portfolioRepository.StoreVote(vote);
         await _events.Dispatch(UpdateCreatorValueEvent.Create(vote));
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
-            _logger.LogInformation("{creatorSlug} {diff} {value}", creator.Slug, value > 0 ? "gained" : "lost", value);
+            _logger.LogInformation("{creatorSlug} {diff} {value}", creator.Slug, e.NetChange > 0 ? "gained" : "lost", e.NetChange);
         }
-    }
-
-    private static int GetValue(string content)
-    {
-        if (content.Contains("+2"))
-        {
-            return 2;
-        }
-
-        if (content.Contains("-2"))
-        {
-            return -2;
-        }
-
-        return 0;
     }
 }

@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,18 +30,7 @@ public static class DependencyInjection
                     return new Random();
                 })
                 // Data
-                .AddDbContext<ApplicationDbContext>((opt) =>
-                {
-                    IConfiguration config = configuration.GetSection("Infrastructure");
-                    if (config.GetValue<DatabaseDriver>("Data") == DatabaseDriver.Postgres)
-                    {
-                        opt.UseNpgsql(config.GetConnectionString("Postgres")!);
-                    }
-                    else
-                    {
-                        opt.UseSqlite(config.GetConnectionString("Sqlite")!);
-                    }
-                })
+                .AddDbContext<ApplicationDbContext>()
                 .AddScoped<PortfolioRepository>()
             // Services
             .AddScoped<CreatorService>()
@@ -52,11 +40,26 @@ public static class DependencyInjection
 
     public static IServiceCollection AddTtxJobs(this IServiceCollection services, IConfiguration configuration)
     {
-        return services
-            .AddOptions<CalculatePlayerPortfolioOptions>().Bind(configuration.GetSection("PlayerPortfolio"))
-            .Services
-            .AddHostedService<CalculatePlayerPortfolioJob>()
-            .AddHostedService<CreatorValueMonitorJob>()
-            .AddHostedService<StreamMonitorJob>();
+        string[] disabled = configuration.GetValue<string[]>("Disabled") ?? [];
+
+        if (!disabled.Contains(nameof(CalculatePlayerPortfolioJob)))
+        {
+            services
+                .AddOptions<CalculatePlayerPortfolioOptions>().Bind(configuration.GetSection("PlayerPortfolio"))
+                .Services
+                .AddHostedService<CalculatePlayerPortfolioJob>();
+        }
+
+        if (!disabled.Contains(nameof(CreatorValueMonitorJob)))
+        {
+            services.AddHostedService<CreatorValueMonitorJob>();
+        }
+
+        if (!disabled.Contains(nameof(StreamMonitorJob)))
+        {
+            services.AddHostedService<StreamMonitorJob>();
+        }
+
+        return services;
     }
 }

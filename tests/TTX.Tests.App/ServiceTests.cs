@@ -5,6 +5,7 @@ using TTX.App;
 using TTX.App.Data;
 using TTX.App.Jobs.Streams;
 using Microsoft.EntityFrameworkCore;
+using TTX.Infrastructure.Options;
 
 namespace TTX.Tests.App;
 
@@ -31,7 +32,7 @@ public class ServiceTests
         _services = new ServiceCollection()
             .AddTtx(config.GetSection("TTX"))
             .AddTestServices()
-            .AddTestInfrastructure(config.GetSection("TTX:Infrastructure"), testContext)
+            .AddTestInfrastructure(config.GetSection("TTX:Infrastructure"))
             .AddSingleton<StreamMonitorJob>()
             .BuildServiceProvider();
 

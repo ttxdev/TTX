@@ -1,6 +1,10 @@
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using TTX.App;
 using TTX.App.Jobs.CreatorValues;
 using TTX.Infrastructure;
+#if BOT_EXISTS
+using TTX.Bot;
+#endif
 
 IConfiguration configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
