@@ -1,21 +1,22 @@
-Running tests
+# TTX.Tests.App
 
-```sh
-dotnet test
-```
+These tests are for the `TTX.App` package.
 
-- By default the database we test against is SQLite which may result in some
-  tests being skipped because the PortfolioService has a hard requirement on
-  Timescale DB.
+**Configuration**
 
-## Testing against Timescale
-
-To test against Timescale, we'll set some user secrets while in the
-`TTX.Tests.App` directory via the dotnet CLI.
+By default the database we test against is SQLite. If you need to test with
+time series data, like creator votes or player portfolios, then you can setup
+postgres:
 
 ```sh
 dotnet user-secrets set "TTX:Infrastructure:Data" "Postgres"
 # If you're using the container compose file the default appsettings postgres credentials should be sufficient. 
 # Otherwise you can set the credentials as needed
 dotnet user-secrets set "TTX:Infrastructure:ConnectionStrings:Postgres" "Host=localhost;Port=5432;Database=ttx;Username=postgres;Password=postgres"
+```
+
+**Test**
+
+```sh
+dotnet test
 ```

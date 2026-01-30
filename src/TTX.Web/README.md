@@ -1,17 +1,22 @@
-# Fresh project
+# TTX.Web
 
-Your new Fresh project is ready to go. You can follow the Fresh "Getting
-Started" guide here: https://fresh.deno.dev/docs/getting-started
+## Development Setup
 
-### Usage
+**Requirements**
 
-Make sure to install Deno:
-https://docs.deno.com/runtime/getting_started/installation
+- [Deno](https://deno.com/)
+- [Docker](https://www.docker.com/)
 
-Then start the project in development mode:
+**Configure**
 
+Setup the `.env` file.
+
+```sh
+cp .env.example .env
 ```
-deno task dev
-```
 
-This will watch the project directory and restart as necessary.
+**Start**
+
+```sh
+deno run dev
+```
