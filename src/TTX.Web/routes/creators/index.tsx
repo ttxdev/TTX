@@ -281,7 +281,10 @@ function CreatorTable(props: {
                       aria-label="View Chart"
                     >
                       <div class="h-16 w-32">
-                        <MiniChart history={creator.history} />
+                        <MiniChart
+                          value={creator.value}
+                          history={creator.history}
+                        />
                       </div>
                     </a>
                   </td>

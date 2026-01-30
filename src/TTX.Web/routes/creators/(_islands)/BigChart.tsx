@@ -1,38 +1,44 @@
 // deno-lint-ignore-file no-explicit-any
 import { Chart } from "chart.js";
-import { useEffect, useMemo, useRef, useState } from "preact/hooks";
-import { VoteDto } from "../../../lib/api.ts";
-import { formatValue } from "../../../lib/formatting.ts";
+import { VoteDto } from "@/lib/api.ts";
+import { formatValue } from "@/lib/formatting.ts";
+import {
+  Signal,
+  useComputed,
+  useSignal,
+  useSignalEffect,
+} from "@preact/signals";
+import { useSignalRef } from "@preact/signals/utils";
 
-export default function BigChart({ history }: { history: VoteDto[] }) {
-  const canvas = useRef<HTMLCanvasElement | null>(null);
-  const [chart, setChart] = useState<Chart | null>(null);
-  const chartData = useMemo(() => history.map((v) => v.value), [history]);
-  const chartLabels = useMemo(() => history.map((v) => v.time), [history]);
+export default function BigChart({ history }: { history: Signal<VoteDto[]> }) {
+  const canvas = useSignalRef<HTMLCanvasElement | null>(null);
+  const chart = useSignal<Chart | null>(null);
+  const chartData = useComputed(() => history.value.map((v) => v.value));
+  const chartLabels = useComputed(() => history.value.map((v) => v.time));
 
-  useEffect(() => {
-    if (!chart) {
+  useSignalEffect(() => {
+    if (!chart.value) {
       return;
     }
 
-    chart.data.labels = chartLabels;
-    chart.data.datasets[0].data = chartData;
-    // chart.update();
-  }, [chartLabels, chartData]);
+    chart.value.data.labels = chartLabels.value;
+    chart.value.data.datasets[0].data = chartData.value;
+    chart.value.update();
+  });
 
-  useEffect(() => {
+  useSignalEffect(() => {
     if (!canvas.current) {
       return;
     }
 
-    const chart = new Chart(canvas.current, {
+    chart.value = new Chart(canvas.current, {
       type: "line",
       data: {
-        labels: chartLabels,
+        labels: chartLabels.value,
         datasets: [
           {
             label: "Price",
-            data: chartData,
+            data: chartData.value,
             segment: {
               borderColor: (ctx) => {
                 const difference = ctx.p0DataIndex > 0
@@ -142,13 +148,11 @@ export default function BigChart({ history }: { history: VoteDto[] }) {
       },
     });
 
-    setChart(chart);
-
     return () => {
-      setChart(null);
-      chart.destroy();
+      chart.value?.destroy();
+      chart.value = null;
     };
-  }, [chart, canvas]);
+  });
 
   return <canvas ref={canvas}></canvas>;
 }

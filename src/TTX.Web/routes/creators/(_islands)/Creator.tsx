@@ -57,9 +57,9 @@ export default function Creator(props: CreatorProps) {
     TransactionAction | null
   >(null);
   const hub = useSignal<HubConnection | null>(null);
-  const history = useSignal(props.creator.history);
   const shares = useSignal(props.shares);
   const transactions = useSignal(props.creator.transactions);
+  const history = useSignal<VoteDto[]>(props.creator.history);
 
   const addVote = ({ vote }: { vote: VoteDto }) => {
     history.value = [...history.value, vote];
@@ -116,7 +116,11 @@ export default function Creator(props: CreatorProps) {
               <IntervalSelector interval={props.interval} />
             </div>
           </div>
-          <CreatorCard state={props.state} creator={props.creator} />
+          <CreatorCard
+            state={props.state}
+            creator={props.creator}
+            history={history}
+          />
           <div class="flex justify-end">
             {props.currentUserIsCreator && (
               <button

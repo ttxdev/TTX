@@ -1,12 +1,17 @@
-import { CreatorDto } from "../../../lib/api.ts";
+import { CreatorDto, VoteDto } from "../../../lib/api.ts";
 import ExternalLink from "@/components/ExternalLink.tsx";
 import { formatTicker } from "../../../lib/formatting.ts";
 import CurrentValue from "../(_islands)/CurrentValue.tsx";
 import BigChart from "../(_islands)/BigChart.tsx";
 import { State } from "../../../utils.ts";
+import { Signal } from "@preact/signals";
 
 export default function CreatorCard(
-  { state, creator }: { state: State; creator: CreatorDto },
+  { state, creator, history }: {
+    state: State;
+    creator: CreatorDto;
+    history: Signal<VoteDto[]>;
+  },
 ) {
   const currentValue = creator.history[creator.history.length - 1]?.value ??
     creator.value;
@@ -61,7 +66,7 @@ export default function CreatorCard(
       </div>
       <div class="relative min-h-[400px] w-full">
         <div class="absolute h-3/4 w-full rounded-lg border border-gray-200/15 p-4">
-          <BigChart history={creator.history} />
+          <BigChart history={history} />
         </div>
       </div>
     </div>
