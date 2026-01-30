@@ -29,16 +29,6 @@ public sealed class SimpleTwitchChatMonitor : IChatMonitorAdapter
         _twitch.OnError += OnError;
     }
 
-    private Task OnLog(object? sender, OnLogArgs e)
-    {
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Twitch: {data}", e.Data);
-        }
-
-        return Task.CompletedTask;
-    }
-
     private Task OnError(object? sender, OnErrorEventArgs e)
     {
         _logger.LogError(e.Exception, "Twitch error");
