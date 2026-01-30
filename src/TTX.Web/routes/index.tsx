@@ -9,7 +9,7 @@ import FeaturedChart from "./(_islands)/FeaturedChart.tsx";
 export const handler = define.handlers({
   async GET(ctx) {
     const client = getApiClient(ctx.state.token);
-    const featuredCreator = await client.getCreator("dougdoug");
+    const featuredCreator = await client.getCreator("atrioc");
     const featuredCreators = await client
       .getCreators(
         1,
