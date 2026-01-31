@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -37,25 +38,41 @@ public class CalculatePlayerPortfolioJob(
         }
     }
 
+    // TODO(dylhack): implement shares to further optimize seeking through transactions
     public async Task CalculateAll(CancellationToken stoppingToken)
     {
-        using AsyncServiceScope scope = _services.CreateAsyncScope();
+        await using AsyncServiceScope scope = _services.CreateAsyncScope();
+        List<PortfolioSnapshot> snapshots = [];
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
-        ConfiguredCancelableAsyncEnumerable<Player> players = dbContext.Players
-            .Include(p => p.Transactions.OrderBy(t => t.CreatedAt))
-            .ThenInclude(t => t.Creator)
-            .ToAsyncEnumerable()
-            .WithCancellation(stoppingToken);
 
-        await foreach (Player player in players)
+        await using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync(stoppingToken);
+        try
         {
-            PortfolioSnapshot snapshot = player.TakePortfolioSnapshot();
-            // TODO: this should be a bulk operation
-            await portfolioRepository.StoreSnapshot(snapshot);
-            await _events.Dispatch(UpdatePlayerPortfolioEvent.Create(snapshot));
-        }
+            ConfiguredCancelableAsyncEnumerable<Player> players = dbContext.Players
+                    .Include(p => p.Transactions.OrderBy(t => t.CreatedAt))
+                    .ThenInclude(t => t.Creator)
+                    .ToAsyncEnumerable()
+                    .WithCancellation(stoppingToken);
 
-        await dbContext.SaveChangesAsync(stoppingToken);
+            await foreach (Player player in players)
+            {
+                PortfolioSnapshot snapshot = player.TakePortfolioSnapshot();
+                snapshots.Add(snapshot);
+            }
+
+            foreach (PortfolioSnapshot snapshot in snapshots)
+            {
+                await portfolioRepository.StoreSnapshot(snapshot);
+            }
+            await dbContext.SaveChangesAsync(stoppingToken);
+            await transaction.CommitAsync(stoppingToken);
+            await Task.WhenAll(snapshots.Select(s => _events.Dispatch(UpdatePlayerPortfolioEvent.Create(s))));
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(stoppingToken);
+            throw;
+        }
     }
 }
