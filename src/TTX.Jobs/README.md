@@ -7,12 +7,12 @@ Separate executable for processing jobs.
 If you're working on the backend you only need to run the TTX.Api project, 
 this project is only for deployment.
 
-**Requirements**
+### Requirements
 
-- [Download dotnet](https://dotnet.microsoft.com/en-us/)
+- [.NET 10](https://dotnet.microsoft.com/en-us/)
 - [Docker](https://www.docker.com/)
 
-**Configure**
+### Configure
 
 Make sure postgres and redis are running. There is a compose file at the root 
 of this monorepo.
@@ -21,7 +21,7 @@ of this monorepo.
 docker compose up -d postgres redis
 ```
 
-**Start**
+### Start
 
 ```sh
 dotnet run

@@ -40,7 +40,7 @@ independent partner
 
 ## Discord
 
-[Join here](https://discord.com/invite/DEn7sAcDE6)
+- [Join here](https://discord.com/invite/DEn7sAcDE6)
 
 ## Community Projects
 

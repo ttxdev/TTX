@@ -2,12 +2,12 @@
 
 ## Development Setup
 
-**Requirements**
+### Requirements
 
 - [Deno](https://deno.com/)
 - [Docker](https://www.docker.com/)
 
-**Configure**
+### Configure
 
 Setup the `.env` file.
 
@@ -15,7 +15,7 @@ Setup the `.env` file.
 cp .env.example .env
 ```
 
-**Start**
+### Start
 
 ```sh
 deno run dev
