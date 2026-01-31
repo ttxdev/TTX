@@ -86,6 +86,7 @@ export default define.page<typeof handler>((ctx) => {
                     type="text"
                     class=" focus:outline-none"
                     placeholder="Search by Channel Name"
+                    name="search"
                   />
                 </label>
                 <button
@@ -97,7 +98,7 @@ export default define.page<typeof handler>((ctx) => {
               </form>
             </search>
             <span class="w-full text-right text-xs opacity-50">
-              {ctx.data.page.total}
+              {ctx.data.page.total}{"  "}
               {ctx.data.page.total === 1 ? "Creator" : "Creators"}
             </span>
           </div>

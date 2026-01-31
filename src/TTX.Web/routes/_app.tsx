@@ -8,7 +8,7 @@ export default define.page((ctx) => {
     <html lang="en">
       <head>
         <meta charset="utf-8" />
-        <link rel="icon" href="%sveltekit.assets%/favicon.png" />
+        <link rel="icon" href="/favicon.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
           rel="apple-touch-icon"
