@@ -1,5 +1,5 @@
 import { getApiClient } from "../index.ts";
-import { parseUserToken, UserData } from "./jwt.ts";
+import { parseJwt, parseUserToken, UserData } from "./jwt.ts";
 import { deleteCookie, getCookies, setCookie } from "@std/http/cookie";
 
 export type SessionData = {
@@ -45,7 +45,8 @@ export function setSession(
   headers: Headers,
   token: string,
 ) {
-  const jwtData = parseUserToken(token);
+  const jwtData = parseJwt(token);
+
   setCookie(headers, {
     name: COOKIE_KEY,
     path: "/",
@@ -63,18 +64,21 @@ export function removeSession(headers: Headers) {
   });
 }
 
-export function getSession(headers: Headers): SessionData | null {
+export function getToken(headers: Headers): string | null {
   const data = getCookies(headers)[COOKIE_KEY];
   if (!data) return null;
 
   const { token } = JSON.parse(atob(data));
-  const user = parseUserToken(token);
-  return {
-    token,
-    user,
-  };
+
+  return token;
 }
 
-export function getToken(headers: Headers): string | null {
-  return getSession(headers)?.token ?? null;
+export function getSession(headers: Headers): SessionData | null {
+  const token = getToken(headers);
+  if (!token) return null;
+
+  return {
+    token,
+    user: parseUserToken(token),
+  };
 }
