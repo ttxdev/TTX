@@ -28,7 +28,10 @@ export default function LatestTransactions(
                   class="flex flex-row justify-between rounded-md p-2 py-1"
                 >
                   <td class="flex items-center justify-center gap-3">
-                    <a href="/creators/{tx.creator.slug}" class="flex flex-col">
+                    <a
+                      href={`/creators/${tx.creator.slug}`}
+                      class="flex flex-col"
+                    >
                       <img
                         alt={tx.creator.name}
                         src={tx.creator.avatar_url}
@@ -40,7 +43,7 @@ export default function LatestTransactions(
                         {formatTxAction(tx.action)}
                       </span>
                       <a
-                        href="/creators/{tx.creator.slug}"
+                        href={`/creators/${tx.creator.slug}`}
                         class="text-sm text-violet-500 hover:underline"
                       >
                         {formatCreatorString(tx.creator.name)}
