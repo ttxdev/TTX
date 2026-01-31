@@ -70,7 +70,7 @@ export default function PlayerCard(
         )}
       </div>
       <div class="chart-container relative mb-3 h-36 w-full sm:mb-4 sm:h-48">
-        <BigChart history={history.value} />
+        <BigChart value={value.value} history={history.value} />
       </div>
 
       <div class="flex items-center justify-between px-1 sm:px-2">

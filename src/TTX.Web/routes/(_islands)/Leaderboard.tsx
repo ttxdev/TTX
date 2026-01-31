@@ -1,27 +1,27 @@
 import { useEffect, useRef } from "preact/hooks";
 import { CreatorPartialDto } from "../../lib/api.ts";
 import { Chart } from "chart.js";
+import { formatToChart } from "../../lib/formatting.ts";
 
 function LeaderboardItem({ creator }: { creator: CreatorPartialDto }) {
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const href = `/creators/${creator.slug}`;
+  const data = formatToChart(creator.value, creator.history);
+  const isUpward = data.values[data.values.length - 1] > data.values[0];
+  const lineColor = isUpward ? "#22c55e" : "#ef4444"; // green-500 or red-500
 
   useEffect(() => {
     if (!canvas.current) {
       return;
     }
 
-    const values = creator.history.map((d) => d.value);
-    const isUpward = values[values.length - 1] > values[0];
-    const lineColor = isUpward ? "#22c55e" : "#ef4444"; // green-500 or red-500
-
     const chart = new Chart(canvas.current, {
       type: "line",
       data: {
-        labels: Array(values.length).fill(""), // Create empty labels for history points
+        labels: Array(data.labels.length).fill(""), // Create empty labels for history points
         datasets: [
           {
-            data: values,
+            data: data.values,
             borderColor: lineColor,
             borderWidth: 2,
             fill: false,

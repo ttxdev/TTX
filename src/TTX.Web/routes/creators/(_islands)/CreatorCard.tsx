@@ -61,7 +61,7 @@ export default function CreatorCard({ state, creator, value, history }: {
       </div>
       <div class="relative min-h-[400px] w-full">
         <div class="absolute h-3/4 w-full rounded-lg border border-gray-200/15 p-4">
-          <BigChart history={history} />
+          <BigChart value={value} history={history} />
         </div>
       </div>
     </div>

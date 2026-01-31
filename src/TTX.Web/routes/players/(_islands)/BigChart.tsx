@@ -1,27 +1,27 @@
 // deno-lint-ignore-file no-explicit-any
 import { PortfolioSnapshotDto } from "@/lib/api.ts";
-import { formatValue } from "@/lib/formatting.ts";
+import { formatToChart, formatValue } from "@/lib/formatting.ts";
 import { useSignalRef } from "@preact/signals/utils";
 import { Chart } from "chart.js";
 import { useEffect, useMemo, useRef } from "preact/hooks";
 
 export default function BigChart(
-  { history }: {
+  { value, history }: {
+    value: number;
     history: PortfolioSnapshotDto[];
   },
 ) {
   const canvas = useSignalRef<HTMLCanvasElement | null>(null);
   const chart = useRef<Chart | null>(null);
-  const chartData = useMemo(() => history.map((v) => v.value), [history]);
-  const chartLabels = useMemo(() => history.map((v) => v.time), [history]);
+  const data = useMemo(() => formatToChart(value, history), [history]);
 
   useEffect(() => {
     if (!chart.current) {
       return;
     }
 
-    chart.current.data.labels = chartLabels;
-    chart.current.data.datasets[0].data = chartData;
+    chart.current.data.labels = data.labels;
+    chart.current.data.datasets[0].data = data.values;
     chart.current.update();
   }, [chart, history]);
 
@@ -33,11 +33,11 @@ export default function BigChart(
     chart.current = new Chart(canvas.current, {
       type: "line",
       data: {
-        labels: chartLabels,
+        labels: data.labels,
         datasets: [
           {
             label: "Value",
-            data: chartData,
+            data: data.values,
             segment: {
               borderColor: (ctx) => {
                 const difference = ctx.p0DataIndex > 0

@@ -1,23 +1,24 @@
 // deno-lint-ignore-file no-explicit-any
 import { Chart } from "chart.js";
 import { VoteDto } from "@/lib/api.ts";
-import { formatValue } from "@/lib/formatting.ts";
+import { formatToChart, formatValue } from "@/lib/formatting.ts";
 import { useSignalRef } from "@preact/signals/utils";
 import { useEffect, useMemo, useRef } from "preact/hooks";
 
-export default function BigChart({ history }: { history: VoteDto[] }) {
+export default function BigChart(
+  { value, history }: { value: number; history: VoteDto[] },
+) {
   const canvas = useSignalRef<HTMLCanvasElement | null>(null);
+  const data = useMemo(() => formatToChart(value, history), [history]);
   const chart = useRef<Chart | null>(null);
-  const chartData = useMemo(() => history.map((v) => v.value), [history]);
-  const chartLabels = useMemo(() => history.map((v) => v.time), [history]);
 
   useEffect(() => {
     if (!chart.current) {
       return;
     }
 
-    chart.current.data.labels = chartLabels;
-    chart.current.data.datasets[0].data = chartData;
+    chart.current.data.labels = data.labels;
+    chart.current.data.datasets[0].data = data.values;
     chart.current.update();
   }, [chart, history]);
 
@@ -29,11 +30,11 @@ export default function BigChart({ history }: { history: VoteDto[] }) {
     chart.current = new Chart(canvas.current, {
       type: "line",
       data: {
-        labels: chartLabels,
+        labels: data.labels,
         datasets: [
           {
             label: "Price",
-            data: chartData,
+            data: data.values,
             segment: {
               borderColor: (ctx) => {
                 const difference = ctx.p0DataIndex > 0
