@@ -46,7 +46,7 @@ public static class DependencyInjection
             {
                 options.AddPolicy("AllowCredentials", cors =>
                 {
-                    cors.WithOrigins("https://ttx.gg", "http://127.0.0.1:5173")
+                    cors.WithOrigins("https://ttx.gg", "http://localhost:5173", "http://127.0.0.1:5173")
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
