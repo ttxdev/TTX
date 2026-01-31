@@ -18,6 +18,7 @@ export async function requestLogin(redir = "/") {
     name: REDIR_KEY,
     value: redir,
     path: "/",
+    sameSite: "Strict",
     expires: new Date(Date.now() + 1000 * 60 * 5),
   });
 
@@ -49,6 +50,7 @@ export function setSession(
     name: COOKIE_KEY,
     path: "/",
     expires: new Date(jwtData.exp * 1000),
+    sameSite: "Strict",
     value: btoa(JSON.stringify({
       token,
       user: {

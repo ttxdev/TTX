@@ -1,5 +1,6 @@
-import Search from "../(_islands)/Search.tsx";
-import { State } from "../../utils.ts";
+import Search from "./Search.tsx";
+import { State } from "@/utils.ts";
+import { motion } from "motion/react";
 
 export default function Nav({ url, state }: { url: URL; state: State }) {
   const from = encodeURIComponent(url.pathname);
@@ -41,16 +42,34 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
             >
             </div>
 
-            {urls.map(({ url, label }) => (
-              <li>
-                <a
-                  href={url}
-                  class="relative z-10 hover:bg-transparent"
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
+            {urls.map(({ url: u, label }) => {
+              const isActive = u === "/"
+                ? url.pathname == u
+                : url.pathname.startsWith(u);
+
+              return (
+                <li key={u} className="relative">
+                  <a
+                    href={u}
+                    class="relative z-10 hover:bg-transparent"
+                  >
+                    {label}
+                  </a>
+
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-pill"
+                      className="absolute inset-0 z-0 rounded-2xl bg-purple-400/20"
+                      transition={{
+                        type: "spring",
+                        stiffness: 350,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+                </li>
+              );
+            })}
 
             <li>
               <Search state={state} />

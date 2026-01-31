@@ -1,9 +1,16 @@
-import { useSignal, useSignalEffect } from "@preact/signals";
-import { HubConnectionBuilder } from "@microsoft/signalr";
+import { HubConnectionBuilder, MessageHeaders } from "@microsoft/signalr";
 
-export function createHub(hub: string) {
+export function createHub(hub: string, token?: string) {
+  const headers: MessageHeaders = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   return new HubConnectionBuilder()
-    .withUrl(`${Deno.env.get("FRESH_PUBLIC_API_BASE_URL")!}/hubs/${hub}`)
+    .withUrl(`${Deno.env.get("FRESH_PUBLIC_API_BASE_URL")!}/hubs/${hub}`, {
+      headers,
+      withCredentials: false,
+    })
     .withAutomaticReconnect()
     .build();
 }

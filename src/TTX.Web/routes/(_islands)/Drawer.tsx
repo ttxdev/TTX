@@ -37,8 +37,6 @@ export default function Drawer({ state }: { state: State }) {
     apiClient.getSelf().then((u) => {
       self.value = u;
     });
-
-    return () => self.value = null;
   });
 
   return (

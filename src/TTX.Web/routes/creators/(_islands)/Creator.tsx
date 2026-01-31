@@ -13,10 +13,13 @@ import { State } from "../../../utils.ts";
 import { useSignal, useSignalEffect } from "@preact/signals";
 import { HubConnection } from "@microsoft/signalr";
 import { createHub } from "../../../lib/signalr.ts";
+import { toast } from "../../../lib/toast.ts";
+import { getApiClient } from "../../../lib/index.ts";
 
 export type Interval = "24h" | "12h" | "6h" | "1h";
 export type CreatorProps = {
   state: State;
+  url: URL;
   creator: CreatorDto;
   shares: CreatorShareDto[];
   transactions: CreatorTransactionDto[];
@@ -61,6 +64,7 @@ export default function Creator(props: CreatorProps) {
   const transactions = useSignal(props.creator.transactions);
   const value = useSignal(props.creator.value);
   const history = useSignal<VoteDto[]>(props.creator.history);
+  const client = getApiClient(props.state.token);
 
   const addVote = ({ vote }: { vote: VoteDto }) => {
     value.value = vote.value;
@@ -72,20 +76,46 @@ export default function Creator(props: CreatorProps) {
       return;
     }
 
-    const newHub = createHub("events");
-    newHub.on("UpdateCreatorValue", addVote);
-    newHub.start().then(() => hub.value = newHub);
+    const newHub = createHub("votes", props.state.token);
+    newHub.on("UpdateCreatorValueEvent", addVote);
+    newHub.start()
+      .then(() => {
+        hub.value = newHub;
+        return hub.value.invoke("SetCreator", props.creator.id);
+      }).catch(console.error);
 
-    return () => {
-      // newHub.off("UpdateCreatorValue", addVote);
-      // newHub.stop();
-    };
+    // return () => {
+    //   newHub.off("UpdateCreatorValueEvent", addVote);
+    //   newHub.stop();
+    // };
   });
+
+  function setOrderModal(action: TransactionAction | null) {
+    if (!props.state.token) {
+      toast.error("Please login to place an order.");
+      return;
+    }
+
+    showOrderModal.value = action;
+  }
+
+  async function optOut() {
+    await client.optOutCreator(props.creator.slug);
+    toast.success("Creator removed.");
+    globalThis.location.replace("/");
+  }
 
   return (
     <div>
       {showOrderModal.value && (
-        <OrderModal show type={showOrderModal.value} creator={props.creator} />
+        <OrderModal
+          show
+          type={showOrderModal.value}
+          creator={props.creator}
+          state={props.state}
+          price={value.value}
+          onClose={() => setOrderModal(null)}
+        />
       )}
 
       <div>
@@ -127,7 +157,7 @@ export default function Creator(props: CreatorProps) {
           <div class="flex justify-end">
             {props.currentUserIsCreator && (
               <button
-                onClick={() => {/* TODO */}}
+                onClick={() => optOut()}
                 type="button"
                 class="inline-flex cursor-pointer items-center gap-1 rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600 sm:text-sm"
               >
@@ -146,8 +176,8 @@ export default function Creator(props: CreatorProps) {
                 <p>Opt out of TTX</p>
               </button>
             )}
-            {!props.currentUserIsCreator && (
-              <div class="flex items-center gap-2 text-sm text-gray-500">
+            {!props.currentUserIsCreator && !props.state.token && (
+              <div class="flex flex-row gap-2 text-sm text-gray-500 items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4"
@@ -160,13 +190,22 @@ export default function Creator(props: CreatorProps) {
                     clip-rule="evenodd"
                   />
                 </svg>
-                <p>
-                  Are you {props.creator.name}?
-                  <a href="/login" class="text-violet-400 hover:underline">
-                    Log in
-                  </a>{" "}
-                  to see more options
-                </p>
+                <div class="flex flex-col text-center">
+                  <p>
+                    Are you {props.creator.name}?
+                  </p>
+                  <p>
+                    <a
+                      href={`/login?from=${
+                        encodeURIComponent(props.url.pathname)
+                      }`}
+                      class="text-violet-400 hover:underline"
+                    >
+                      Log in
+                    </a>{" "}
+                    to opt out of TTX.
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -177,14 +216,14 @@ export default function Creator(props: CreatorProps) {
                 <button
                   class="btn btn-lg h-10 rounded-l-2xl border-2 p-4 text-green-400"
                   type="button"
-                  onClick={() => showOrderModal.value = TransactionAction.Buy}
+                  onClick={() => setOrderModal(TransactionAction.Buy)}
                 >
                   Buy
                 </button>
                 <button
                   class="btn btn-lg h-10 rounded-r-2xl p-4 text-red-400"
                   type="button"
-                  onClick={() => showOrderModal.value = TransactionAction.Sell}
+                  onClick={() => setOrderModal(TransactionAction.Sell)}
                 >
                   Sell
                 </button>

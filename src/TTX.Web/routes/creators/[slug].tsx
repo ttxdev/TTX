@@ -7,6 +7,7 @@ import {
 import { getApiClient } from "@/lib/index.ts";
 import { define } from "@/utils.ts";
 import Creator, { CreatorProps, Interval } from "./(_islands)/Creator.tsx";
+import { Head } from "fresh/runtime";
 
 export const handler = define.handlers({
   async GET(ctx): Promise<{ data: CreatorProps | null }> {
@@ -52,6 +53,7 @@ export const handler = define.handlers({
 
       return {
         data: {
+          url: ctx.url,
           state: ctx.state,
           creator: creator.toJSON() as CreatorDto,
           shares: creator.shares.map<CreatorShareDto>((d) => d.toJSON()),
@@ -75,5 +77,12 @@ export default define.page<typeof handler>((ctx) => {
     return <div>creator not found</div>;
   }
 
-  return <Creator {...ctx.data} />;
+  return (
+    <>
+      <Head>
+        <title>{`TTX - ${ctx.data.creator.name}`}</title>
+      </Head>
+      <Creator {...ctx.data} />
+    </>
+  );
 });

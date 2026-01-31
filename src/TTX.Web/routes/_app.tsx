@@ -1,7 +1,8 @@
 import { define } from "@/utils.ts";
 import ExternalLink from "@/components/ExternalLink.tsx";
-import Nav from "./(_components)/Nav.tsx";
+import Nav from "./(_islands)/Nav.tsx";
 import Drawer from "./(_islands)/Drawer.tsx";
+import ToastContainer from "../islands/ToastContainer.tsx";
 
 export default define.page((ctx) => {
   return (
@@ -47,6 +48,7 @@ export default define.page((ctx) => {
           <ctx.Component />
         </main>
 
+        <ToastContainer />
         <Drawer state={ctx.state} />
         <footer class="footer sm:footer-horizontal footer-center text-base-content bg-transparent p-4">
           <aside>
