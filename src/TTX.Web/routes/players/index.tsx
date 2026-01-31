@@ -66,7 +66,54 @@ export default define.page<typeof handler>((ctx) => {
           content="Check out the top players ranked by their portfolio value on the leaderboard."
         />
       </Head>
-      <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm dark:border-gray-800">
+
+      <div class="mx-auto flex w-full max-w-250 flex-col space-y-12 p-4 max-md:my-2 max-md:space-y-6">
+        <div class="flex items-center justify-between gap-4 max-md:flex-col max-md:gap-2">
+          <p class="font-display self-start text-center text-5xl max-md:text-3xl">
+            Players
+          </p>
+          <div class="flex flex-col gap-2 max-md:flex-col max-md:items-start max-md:justify-start">
+            <search>
+              <form method="get" class="join max-w-md">
+                <label class="input-bordered input flex-1 rounded-l-2xl border-purple-400 focus:outline-none">
+                  <svg
+                    class="h-[1em] opacity-50"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                  >
+                    <g
+                      stroke-linejoin="round"
+                      stroke-linecap="round"
+                      stroke-width="2.5"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <path d="m21 21-4.3-4.3"></path>
+                    </g>
+                  </svg>
+                  <input
+                    type="text"
+                    class=" focus:outline-none"
+                    placeholder="Search by Player Name"
+                    name="search"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  class="btn rounded-r-2xl border-purple-400 bg-purple-400 text-white"
+                >
+                  Search
+                </button>
+              </form>
+            </search>
+            <span class="w-full text-right text-xs opacity-50">
+              {ctx.data.total}{"  "}
+              {ctx.data.total === 1 ? "Player" : "Players"}
+            </span>
+          </div>
+        </div>
+
         <PlayerTable
           players={ctx.data.players}
           pageIndex={ctx.data.index}
@@ -191,7 +238,7 @@ function PlayerTable(
                         )}
                       </div>
                     </div>
-                    <div class="flex min-w-0 flex-col">
+                    <a href={href} class="flex min-w-0 flex-col">
                       <span class="max-md:text-base max-md:font-semibold">
                         {player.name}
                       </span>
@@ -208,17 +255,19 @@ function PlayerTable(
                         {change < 0 && ("↘")}
                         {change.toFixed(2)}%
                       </span>
-                    </div>
+                    </a>
                   </div>
                 </div>
               </td>
               <td class="py-6 text-center max-md:px-4 max-md:text-base max-md:font-semibold">
-                {formatValue(player.portfolio)}
+                <a href={href}>
+                  {formatValue(player.portfolio)}
+                </a>
               </td>
               <td class="flex items-center justify-center py-6 text-center max-md:hidden max-md:px-4">
-                <div class="h-16 w-32">
+                <a href={href} class="h-16 w-32">
                   <MiniChart history={player.history} />
-                </div>
+                </a>
               </td>
               <td class="py-6 text-center max-md:hidden max-md:px-4">
                 <a

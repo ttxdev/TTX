@@ -65,9 +65,9 @@ function LeaderboardItem({ creator }: { creator: CreatorPartialDto }) {
       </div>
       <div class="flex-1">
         <div class="flex-1 max-md:mt-4 max-md:w-full">
-          <div class="h-[40px] w-full">
+          <a href={href} class="h-[40px] w-full">
             <canvas ref={canvas}></canvas>
-          </div>
+          </a>
         </div>
       </div>
     </li>
