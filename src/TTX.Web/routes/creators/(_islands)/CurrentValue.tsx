@@ -1,4 +1,6 @@
-export default function CurrentValue({ value }: { value: number }) {
+import { Signal } from "@preact/signals";
+
+export default function CurrentValue({ value }: { value: Signal<number> }) {
   return <span>TODO {value}</span>;
 }
 

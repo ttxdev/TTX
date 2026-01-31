@@ -59,9 +59,11 @@ export default function Creator(props: CreatorProps) {
   const hub = useSignal<HubConnection | null>(null);
   const shares = useSignal(props.shares);
   const transactions = useSignal(props.creator.transactions);
+  const value = useSignal(props.creator.value);
   const history = useSignal<VoteDto[]>(props.creator.history);
 
   const addVote = ({ vote }: { vote: VoteDto }) => {
+    value.value = vote.value;
     history.value = [...history.value, vote];
   };
 
@@ -119,6 +121,7 @@ export default function Creator(props: CreatorProps) {
           <CreatorCard
             state={props.state}
             creator={props.creator}
+            value={value}
             history={history}
           />
           <div class="flex justify-end">

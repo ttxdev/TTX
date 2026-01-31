@@ -6,16 +6,12 @@ import BigChart from "../(_islands)/BigChart.tsx";
 import { State } from "../../../utils.ts";
 import { Signal } from "@preact/signals";
 
-export default function CreatorCard(
-  { state, creator, history }: {
-    state: State;
-    creator: CreatorDto;
-    history: Signal<VoteDto[]>;
-  },
-) {
-  const currentValue = creator.history[creator.history.length - 1]?.value ??
-    creator.value;
-
+export default function CreatorCard({ state, creator, value, history }: {
+  state: State;
+  creator: CreatorDto;
+  value: Signal<number>;
+  history: Signal<VoteDto[]>;
+}) {
   return (
     <div class="bg-base-200/50 w-full rounded-lg bg-clip-padding p-4 shadow-md backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
       <div class="mb-4 flex flex-col items-center justify-between sm:flex-row">
@@ -59,7 +55,7 @@ export default function CreatorCard(
             </div>
           </div>
           <div class="relative flex flex-col text-center">
-            <CurrentValue value={currentValue} />
+            <CurrentValue value={value} />
             <p class="w-24 text-sm">Current Price</p>
           </div>
         </div>
