@@ -69,20 +69,20 @@ export default function FeaturedChart({ creator }: { creator: CreatorDto }) {
   });
 
   return (
-    <div class="relative flex h-full min-h-100 w-full items-center justify-center">
+    <a
+      href={`/creators/${creator.slug}`}
+      class="relative flex h-full min-h-100 w-full items-center justify-center"
+    >
       <div class="absolute h-3/4 w-full rounded-lg border border-gray-200/30 bg-gray-500/20 p-4">
         <canvas ref={canvas}></canvas>
       </div>
-      <a
-        href={`/creators/${creator.slug}`}
-        class="absolute top-4 -left-8 h-16 w-16"
-      >
+      <div class="absolute top-4 -left-8 h-16 w-16">
         <img
           src={creator.avatar_url}
           alt={creator.name}
           class="h-full w-full rounded-full border-2 border-white shadow-lg"
         />
-      </a>
-    </div>
+      </div>
+    </a>
   );
 }
