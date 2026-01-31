@@ -43,6 +43,7 @@ app.UseRateLimiter();
 app.MapControllers();
 app.MapHub<EventHub>("hubs/events");
 app.MapHub<VoteHub>("hubs/votes");
+app.MapHub<PortfolioHub>("hubs/portfolios");
 app.UseSession();
 app.UseWebSockets(app.Services.GetRequiredService<IOptions<WebSocketOptions>>().Value);
 if (app.Environment.IsProduction())

@@ -48,10 +48,13 @@ public class EventHubDispatcher(
 
     private Task Dispatch<T>(T @event, CancellationToken cancellationToken = default) where T : BaseEvent
     {
-        return @event switch
+        IClientProxy proxy = @event switch
         {
-            UpdateCreatorValueEvent cvEvent => _voteHubCtx.Clients.Group($"creator-{cvEvent.Vote.CreatorId}").SendAsync(cvEvent.Type, cvEvent, cancellationToken),
-            _ => _eventHubCtx.Clients.All.SendAsync(@event.Type, @event, cancellationToken)
+            UpdateCreatorValueEvent e => _voteHubCtx.Clients.Group($"creator-{e.Vote.CreatorId}"),
+            UpdatePlayerPortfolioEvent e => _voteHubCtx.Clients.Group($"creator-{e.Player.Id}"),
+            _ => _eventHubCtx.Clients.All
         };
+
+        return proxy.SendAsync(@event.Type, @event, cancellationToken);
     }
 }
