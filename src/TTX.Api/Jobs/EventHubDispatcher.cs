@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using TTX.Api.Hubs;
 using TTX.App.Events;
@@ -8,7 +7,11 @@ using TTX.App.Events.Transactions;
 
 namespace TTX.Api.Jobs;
 
-public class EventHubDispatcher(IEventReceiver _handler, IHubContext<EventHub> _hubContext) : IHostedService
+public class EventHubDispatcher(
+    IEventReceiver _handler,
+    IHubContext<EventHub> _eventHubCtx,
+    IHubContext<VoteHub> _voteHubCtx
+) : IHostedService
 {
     private CancellationTokenSource? _cts = null;
     private List<Task> _tasks = [];
@@ -45,6 +48,10 @@ public class EventHubDispatcher(IEventReceiver _handler, IHubContext<EventHub> _
 
     private Task Dispatch<T>(T @event, CancellationToken cancellationToken = default) where T : BaseEvent
     {
-        return _hubContext.Clients.All.SendAsync(@event.Type, @event, cancellationToken);
+        return @event switch
+        {
+            UpdateCreatorValueEvent cvEvent => _voteHubCtx.Clients.Group($"creator-{cvEvent.Vote.CreatorId}").SendAsync(cvEvent.Type, cvEvent, cancellationToken),
+            _ => _eventHubCtx.Clients.All.SendAsync(@event.Type, @event, cancellationToken)
+        };
     }
 }
