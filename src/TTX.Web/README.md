@@ -9,11 +9,13 @@
 
 ### Configure
 
-Setup the `.env` file.
+Setup the `.env` file and install dependencies.
 
 ```sh
 cp .env.example .env
+deno i
 ```
+
 
 ### Start
 
