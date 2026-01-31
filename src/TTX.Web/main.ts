@@ -8,7 +8,7 @@ app.use(staticFiles());
 
 app.use(async (ctx) => {
   const session = getSession(ctx.req.headers);
-  const clientId = Deno.env.get("FRESH_PUBLIC_DISCORD_CLIENT_ID")!;
+  const clientId = Deno.env.get("FRESH_PUBLIC_DISCORD_CLIENT_ID") ?? "";
   ctx.state.token = session?.token ?? "";
   ctx.state.user = session?.user;
   ctx.state.discordId = ctx.url.host == `${clientId}.discordsays.com`

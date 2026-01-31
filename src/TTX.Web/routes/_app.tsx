@@ -56,7 +56,7 @@ export default define.page((ctx) => {
             <div class="flex flex-row gap-4">
               <ExternalLink
                 clientId={ctx.state.discordId}
-                href={Deno.env.get("FRESH_PUBLIC_DISCORD_INVITE_URL")!}
+                href={Deno.env.get("FRESH_PUBLIC_DISCORD_URL")!}
                 target="_blank"
                 class="w-fit text-purple-500 hover:underline"
               >
