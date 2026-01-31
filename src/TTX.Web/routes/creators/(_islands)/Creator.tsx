@@ -6,7 +6,7 @@ import {
   VoteDto,
 } from "@/lib/api.ts";
 import OrderModal from "./OrderModal.tsx";
-import CreatorCard from "../(_components)/CreatorCard.tsx";
+import CreatorCard from "./CreatorCard.tsx";
 import LatestTransactions from "../(_components)/LatestTransactions.tsx";
 import Shares from "../(_components)/Shares.tsx";
 import { State } from "../../../utils.ts";
@@ -83,11 +83,6 @@ export default function Creator(props: CreatorProps) {
         hub.value = newHub;
         return hub.value.invoke("SetCreator", props.creator.id);
       }).catch(console.error);
-
-    // return () => {
-    //   newHub.off("UpdateCreatorValueEvent", addVote);
-    //   newHub.stop();
-    // };
   });
 
   function setOrderModal(action: TransactionAction | null) {
@@ -151,8 +146,8 @@ export default function Creator(props: CreatorProps) {
           <CreatorCard
             state={props.state}
             creator={props.creator}
-            value={value}
-            history={history}
+            value={value.value}
+            history={history.value}
           />
           <div class="flex justify-end">
             {props.currentUserIsCreator && (

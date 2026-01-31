@@ -1,16 +1,15 @@
 import { CreatorDto, VoteDto } from "../../../lib/api.ts";
 import ExternalLink from "@/components/ExternalLink.tsx";
 import { formatTicker } from "../../../lib/formatting.ts";
-import CurrentValue from "../(_islands)/CurrentValue.tsx";
+import CurrentValue from "@/islands/CurrentValue.tsx";
 import BigChart from "../(_islands)/BigChart.tsx";
 import { State } from "../../../utils.ts";
-import { Signal } from "@preact/signals";
 
 export default function CreatorCard({ state, creator, value, history }: {
   state: State;
   creator: CreatorDto;
-  value: Signal<number>;
-  history: Signal<VoteDto[]>;
+  value: number;
+  history: VoteDto[];
 }) {
   return (
     <div class="bg-base-200/50 w-full rounded-lg bg-clip-padding p-4 shadow-md backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">

@@ -2,43 +2,38 @@
 import { Chart } from "chart.js";
 import { VoteDto } from "@/lib/api.ts";
 import { formatValue } from "@/lib/formatting.ts";
-import {
-  Signal,
-  useComputed,
-  useSignal,
-  useSignalEffect,
-} from "@preact/signals";
 import { useSignalRef } from "@preact/signals/utils";
+import { useEffect, useMemo, useRef } from "preact/hooks";
 
-export default function BigChart({ history }: { history: Signal<VoteDto[]> }) {
+export default function BigChart({ history }: { history: VoteDto[] }) {
   const canvas = useSignalRef<HTMLCanvasElement | null>(null);
-  const chart = useSignal<Chart | null>(null);
-  const chartData = useComputed(() => history.value.map((v) => v.value));
-  const chartLabels = useComputed(() => history.value.map((v) => v.time));
+  const chart = useRef<Chart | null>(null);
+  const chartData = useMemo(() => history.map((v) => v.value), [history]);
+  const chartLabels = useMemo(() => history.map((v) => v.time), [history]);
 
-  useSignalEffect(() => {
-    if (!chart.value) {
+  useEffect(() => {
+    if (!chart.current) {
       return;
     }
 
-    chart.value.data.labels = chartLabels.value;
-    chart.value.data.datasets[0].data = chartData.value;
-    chart.value.update();
-  });
+    chart.current.data.labels = chartLabels;
+    chart.current.data.datasets[0].data = chartData;
+    chart.current.update();
+  }, [chart, history]);
 
-  useSignalEffect(() => {
+  useEffect(() => {
     if (!canvas.current) {
       return;
     }
 
-    chart.value = new Chart(canvas.current, {
+    chart.current = new Chart(canvas.current, {
       type: "line",
       data: {
-        labels: chartLabels.value,
+        labels: chartLabels,
         datasets: [
           {
             label: "Price",
-            data: chartData.value,
+            data: chartData,
             segment: {
               borderColor: (ctx) => {
                 const difference = ctx.p0DataIndex > 0
@@ -149,10 +144,10 @@ export default function BigChart({ history }: { history: Signal<VoteDto[]> }) {
     });
 
     return () => {
-      chart.value?.destroy();
-      chart.value = null;
+      chart.current?.destroy();
+      chart.current = null;
     };
-  });
+  }, [chart]);
 
   return <canvas ref={canvas}></canvas>;
 }
