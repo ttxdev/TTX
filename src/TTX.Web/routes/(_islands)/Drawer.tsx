@@ -30,13 +30,15 @@ export default function Drawer({ state }: { state: State }) {
   });
 
   useSignalEffect(() => {
-    if (!state.token) {
+    if (!state.token || self.value) {
       return;
     }
 
     apiClient.getSelf().then((u) => {
       self.value = u;
     });
+
+    return () => self.value = null;
   });
 
   return (
