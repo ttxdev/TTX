@@ -9,7 +9,7 @@ export default function Modal(
   },
 ) {
   const dialog = useSignalRef<HTMLDialogElement | null>(null);
-  const className = isOpen ? "modal modal-open z-100" : "";
+  const className = isOpen ? "modal modal-open z-100 w-[100vw] h-[100vh] flex items-center justify-center" : "hidden";
 
   return (
     <dialog

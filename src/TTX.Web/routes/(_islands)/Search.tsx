@@ -132,10 +132,10 @@ export default function Search({ state }: { state: State }) {
         </svg>
       </button>
       <Modal isOpen={isSearchOpen.value}>
-        <button type="button" onClick={close} aria-label="close">
+        <button type="button" onClick={close} aria-label="close" className="modal-backdrop size-full absolute">
           <div class="fixed inset-0 bg-black/10 backdrop-blur-sm"></div>
         </button>
-        <div class="modal-box bg-base-200/50 relative z-10 flex h-[28rem] w-full max-w-md flex-col rounded-xl p-6 shadow-2xl shadow-purple-500/20">
+        <div class="modal-box bg-base-200 cursor-default z-10 flex h-[28rem] w-full max-w-md flex-col rounded-xl p-6 shadow-2xl shadow-purple-500/20">
           <div class="join flex">
             <input
               type="text"
@@ -186,7 +186,7 @@ export default function Search({ state }: { state: State }) {
                         class={`w-full rounded-md transition-all duration-200 ${
                           index === selectedIndex.value
                             ? "border-l-4 border-purple-500 bg-gradient-to-r from-purple-500/10 to-purple-500/5"
-                            : "hover:bg-base-200/30"
+                            : "hover:bg-base-100/30"
                         }`}
                         key={`search-${item.type}-${item.id}`}
                       >
