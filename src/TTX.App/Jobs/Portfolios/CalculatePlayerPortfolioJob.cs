@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TTX.App.Data;
+using TTX.App.Data.Repositories;
 using TTX.App.Events;
 using TTX.App.Events.Players;
 using TTX.App.Options;
@@ -40,6 +41,7 @@ public class CalculatePlayerPortfolioJob(
     {
         using AsyncServiceScope scope = _services.CreateAsyncScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
         ConfiguredCancelableAsyncEnumerable<Player> players = dbContext.Players
             .Include(p => p.Transactions.OrderBy(t => t.CreatedAt))
             .ThenInclude(t => t.Creator)
@@ -49,6 +51,8 @@ public class CalculatePlayerPortfolioJob(
         await foreach (Player player in players)
         {
             PortfolioSnapshot snapshot = player.TakePortfolioSnapshot();
+            // TODO: this should be a bulk operation
+            await portfolioRepository.StoreSnapshot(snapshot);
             await _events.Dispatch(UpdatePlayerPortfolioEvent.Create(snapshot));
         }
 
