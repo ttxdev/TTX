@@ -53,12 +53,6 @@ export function setSession(
     sameSite: "Strict",
     value: btoa(JSON.stringify({
       token,
-      user: {
-        userId: jwtData.userId,
-        name: jwtData.name,
-        avatarUrl: jwtData.avatarUrl,
-        role: jwtData.role,
-      },
     })),
   });
 }
@@ -73,7 +67,12 @@ export function getSession(headers: Headers): SessionData | null {
   const data = getCookies(headers)[COOKIE_KEY];
   if (!data) return null;
 
-  return JSON.parse(atob(data));
+  const { token } = JSON.parse(atob(data));
+  const user = parseUserToken(token);
+  return {
+    token,
+    user,
+  };
 }
 
 export function getToken(headers: Headers): string | null {
