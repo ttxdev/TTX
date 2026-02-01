@@ -53,7 +53,7 @@ function LeaderboardItem({ creator }: { creator: CreatorPartialDto }) {
   }, [canvas]);
 
   return (
-    <li class="list-row flex items-center max-md:flex-col max-md:p-4">
+    <li class="list-row flex items-center max-lg:flex-col max-md:p-4">
       <div class="flex w-1/4 flex-col items-center justify-center gap-2 max-md:w-full">
         <a href={href}>
           <img src={creator.avatar_url} alt="" class="size-16 rounded-full" />
