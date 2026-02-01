@@ -15,7 +15,7 @@ spec:
         app: ttx-api
     spec:
       volumes:
-        - name: dataprotection
+        - name: ttx-dataprotection
           persistentVolumeClaim:
             claimName: ttx-dataprotection
       imagePullSecrets:
