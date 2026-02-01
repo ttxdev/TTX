@@ -7,7 +7,7 @@ export type SessionData = {
   user: UserData;
 };
 
-const COOKIE_KEY = "session";
+const COOKIE_KEY = "token";
 const REDIR_KEY = "redirect";
 
 export async function requestLogin(redir = "/") {
@@ -18,7 +18,6 @@ export async function requestLogin(redir = "/") {
     name: REDIR_KEY,
     value: redir,
     path: "/",
-    sameSite: "Strict",
     expires: new Date(Date.now() + 1000 * 60 * 5),
   });
 
@@ -36,9 +35,7 @@ export function getRedir(headers: Headers) {
 }
 
 export function removeRedir(headers: Headers) {
-  deleteCookie(headers, REDIR_KEY, {
-    path: "/",
-  });
+  deleteCookie(headers, REDIR_KEY);
 }
 
 export function setSession(
@@ -51,10 +48,7 @@ export function setSession(
     name: COOKIE_KEY,
     path: "/",
     expires: new Date(jwtData.exp * 1000),
-    sameSite: "Strict",
-    value: btoa(JSON.stringify({
-      token,
-    })),
+    value: token,
   });
 }
 
@@ -65,12 +59,7 @@ export function removeSession(headers: Headers) {
 }
 
 export function getToken(headers: Headers): string | null {
-  const data = getCookies(headers)[COOKIE_KEY];
-  if (!data) return null;
-
-  const { token } = JSON.parse(atob(data));
-
-  return token;
+  return getCookies(headers)[COOKIE_KEY] ?? null;
 }
 
 export function getSession(headers: Headers): SessionData | null {
