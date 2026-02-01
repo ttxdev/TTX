@@ -1,4 +1,4 @@
-name: Docker Publish TTX
+name: Docker Publish Jobs
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ttxdev/ttx
+  IMAGE_NAME: ttxdev/ttx.jobs
 
 jobs:
   build:
@@ -53,6 +53,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          target: jobs
           secrets: |
             "github_token=${{ secrets.NUGET_TOKEN }}"
           cache-from: type=gha

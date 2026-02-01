@@ -22,7 +22,7 @@ spec:
         - name: ttx-regcreds
       containers:
         - name: api
-          image: ghcr.io/ttxdev/ttx:main
+          image: ghcr.io/ttxdev/ttx.api:main
           imagePullPolicy: Always
           resources:
             limits:
@@ -59,7 +59,6 @@ spec:
         - name: jobs
           image: ghcr.io/ttxdev/ttx.private:main
           imagePullPolicy: Always
-          command: ["dotnet", "TTX.Jobs.dll"]
           envFrom:
             - secretRef:
                 name: ttx-config
