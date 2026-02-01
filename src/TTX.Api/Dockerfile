@@ -14,12 +14,7 @@ COPY --from=base /opt/app .
 RUN dotnet build src/TTX.Api -c $BUILD_CONFIGURATION -o /opt/app/build/api
 RUN dotnet build src/TTX.Jobs -c $BUILD_CONFIGURATION -o /opt/app/build/jobs
 
-FROM mcr.microsoft.com/dotnet/runtime:10.0 AS jobs
-WORKDIR /opt/app
-COPY --from=build /opt/app/build/jobs .
-CMD ["dotnet", "TTX.Jobs.dll"]
-
-FROM mcr.microsoft.com/dotnet/runtime:10.0 AS api
+FROM build AS api
 EXPOSE 8080
 EXPOSE 8081
 WORKDIR /opt/app
