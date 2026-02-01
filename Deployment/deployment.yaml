@@ -41,6 +41,33 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: ttx-jobs
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-jobs
+  replicas: 1 # jobs is not scalable :(
+  template:
+    metadata:
+      labels:
+        app: ttx-jobs
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+        - name: jobs
+          image: ghcr.io/ttxdev/ttx:main
+          imagePullPolicy: Always
+          command: ["dotnet", "TTX.Jobs.dll"]
+          envFrom:
+            - secretRef:
+                name: ttx-config
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: ttx-web
   namespace: ttx
 spec:
