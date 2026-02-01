@@ -1,30 +1,43 @@
 // deno-lint-ignore-file no-explicit-any
-import { useSignalRef } from "@preact/signals/utils";
 import { PortfolioSnapshotDto } from "@/lib/api.ts";
-import { useSignalEffect } from "@preact/signals";
+import { formatToChart, formatValue } from "@/lib/formatting.ts";
+import { useSignalRef } from "@preact/signals/utils";
 import { Chart } from "chart.js";
-import { formatValue } from "@/lib/formatting.ts";
+import { useEffect, useMemo, useRef } from "preact/hooks";
 
 export default function BigChart(
-  { history }: {
+  { value, history }: {
+    value: number;
     history: PortfolioSnapshotDto[];
   },
 ) {
   const canvas = useSignalRef<HTMLCanvasElement | null>(null);
+  const chart = useRef<Chart | null>(null);
+  const data = useMemo(() => formatToChart(value, history), [history]);
 
-  useSignalEffect(() => {
+  useEffect(() => {
+    if (!chart.current) {
+      return;
+    }
+
+    chart.current.data.labels = data.labels;
+    chart.current.data.datasets[0].data = data.values;
+    chart.current.update();
+  }, [chart, history]);
+
+  useEffect(() => {
     if (!canvas.current) {
       return;
     }
 
-    const chart = new Chart(canvas.current, {
+    chart.current = new Chart(canvas.current, {
       type: "line",
       data: {
-        labels: history.map((d) => d.time),
+        labels: data.labels,
         datasets: [
           {
-            label: "Price",
-            data: history.map((d) => d.value),
+            label: "Value",
+            data: data.values,
             segment: {
               borderColor: (ctx) => {
                 const difference = ctx.p0DataIndex > 0
@@ -133,8 +146,11 @@ export default function BigChart(
       },
     });
 
-    return () => chart.destroy();
-  });
+    return () => {
+      chart.current?.destroy();
+      chart.current = null;
+    };
+  }, [chart]);
 
   return <canvas ref={canvas}></canvas>;
 }

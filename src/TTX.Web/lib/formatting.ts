@@ -1,4 +1,26 @@
-import { TransactionAction } from "./api.ts";
+import { PortfolioSnapshotDto, TransactionAction, VoteDto } from "./api.ts";
+
+export function formatToChart(
+  value: number,
+  history: VoteDto[] | PortfolioSnapshotDto[],
+) {
+  const labels: string[] = [];
+  const values: number[] = [];
+  history.forEach((item) => {
+    labels.push(item.time.toString());
+    values.push(item.value);
+  });
+
+  if (history.length === 0) {
+    const now = new Date().toString();
+    values.push(value);
+    labels.push(now);
+    values.push(value);
+    labels.push(now);
+  }
+
+  return { labels, values };
+}
 
 export function formatValue(value: number) {
   if (Math.abs(value) >= 1_000_000_000_000) {

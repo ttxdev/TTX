@@ -1,17 +1,46 @@
 import PlayerPlacement, {
   Placement,
 } from "../(_components)/PlayerPlacement.tsx";
-import { PlayerDto } from "@/lib/api.ts";
+import { PlayerDto, PortfolioSnapshotDto } from "@/lib/api.ts";
 import { formatValue } from "@/lib/formatting.ts";
-import BigChart from "../(_islands)/BigChart.tsx";
+import BigChart from "./BigChart.tsx";
+import { useSignal, useSignalEffect } from "@preact/signals";
+import { createHub } from "@/lib/signalr.ts";
+import CurrentValue from "@/islands/CurrentValue.tsx";
+import { State } from "@/utils.ts";
+import { HubConnection } from "@microsoft/signalr";
 
 export default function PlayerCard(
-  { player, placement, isStreamer }: {
+  { player, placement, isStreamer, state }: {
     placement: Placement;
     player: PlayerDto;
     isStreamer: boolean;
+    state: State;
   },
 ) {
+  const hub = useSignal<HubConnection | null>(null);
+  const value = useSignal(player.value);
+  const history = useSignal<PortfolioSnapshotDto[]>(player.history);
+
+  const addSnapshot = (snapshot: PortfolioSnapshotDto) => {
+    value.value = snapshot.value;
+    history.value = [...history.value, snapshot];
+  };
+
+  useSignalEffect(() => {
+    if (hub.value !== null) {
+      return;
+    }
+
+    const newHub = createHub("portfolios", state.token);
+    newHub.on("UpdatePlayerPortfolioEvent", addSnapshot);
+    newHub.start()
+      .then(() => {
+        hub.value = newHub;
+        return hub.value.invoke("SetPlayer", player.id);
+      }).catch(console.error);
+  });
+
   return (
     <div class="player-card bg-base-200/50 w-full rounded-lg p-2 shadow-md backdrop-blur
              backdrop-contrast-100 backdrop-saturate-100 sm:p-4">
@@ -41,7 +70,7 @@ export default function PlayerCard(
         )}
       </div>
       <div class="chart-container relative mb-3 h-36 w-full sm:mb-4 sm:h-48">
-        <BigChart history={player.history} />
+        <BigChart value={value.value} history={history.value} />
       </div>
 
       <div class="flex items-center justify-between px-1 sm:px-2">
@@ -63,9 +92,7 @@ export default function PlayerCard(
 
         <div class="flex flex-row gap-8 text-right">
           <div class="flex flex-col text-center">
-            <h1 class="text-xl font-bold">
-              {formatValue(player.portfolio)}
-            </h1>
+            <CurrentValue value={value.value} />
             <p class="text-sm">Portfolio Value</p>
           </div>
           <div class="flex flex-col text-center">

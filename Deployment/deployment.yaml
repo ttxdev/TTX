@@ -8,21 +8,21 @@ spec:
   selector:
     matchLabels:
       app: ttx-api
-  replicas: 3
+  replicas: 4
   template:
     metadata:
       labels:
         app: ttx-api
     spec:
       volumes:
-        - name: dataprotection
+        - name: ttx-dataprotection
           persistentVolumeClaim:
             claimName: ttx-dataprotection
       imagePullSecrets:
         - name: ttx-regcreds
       containers:
         - name: api
-          image: ghcr.io/ttxdev/ttx:main
+          image: ghcr.io/ttxdev/ttx.api:main
           imagePullPolicy: Always
           resources:
             limits:
@@ -41,13 +41,39 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: ttx-jobs
+  namespace: ttx
+spec:
+  selector:
+    matchLabels:
+      app: ttx-jobs
+  replicas: 1 # jobs is not scalable :(
+  template:
+    metadata:
+      labels:
+        app: ttx-jobs
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
+        - name: jobs
+          image: ghcr.io/ttxdev/ttx.private:main
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: ttx-config
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: ttx-web
   namespace: ttx
 spec:
   selector:
     matchLabels:
       app: ttx-web
-  replicas: 4
+  replicas: 3
   template:
     metadata:
       labels:
@@ -64,33 +90,7 @@ spec:
               memory: "128Mi"
               cpu: "500m"
           ports:
-            - containerPort: 3000
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ttx-bot
-  namespace: ttx
-spec:
-  selector:
-    matchLabels:
-      app: ttx-bot
-  template:
-    metadata:
-      labels:
-        app: ttx-bot
-    spec:
-      imagePullSecrets:
-        - name: ttx-regcreds
-      containers:
-        - name: bot
-          image: ghcr.io/ttxdev/ttx.bot:main
-          imagePullPolicy: Always
-          resources:
-          envFrom:
-            - secretRef:
-                name: ttx-config
+            - containerPort: 8000
 
 ---
 apiVersion: apps/v1

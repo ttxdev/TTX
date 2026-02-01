@@ -2,7 +2,7 @@ import { Head } from "fresh/runtime";
 import { PlayerDto, PlayerShareDto, PlayerTransactionDto } from "@/lib/api.ts";
 import { getApiClient } from "@/lib/index.ts";
 import { define } from "@/utils.ts";
-import PlayerCard from "./(_components)/PlayerCard.tsx";
+import PlayerCard from "./(_islands)/PlayerCard.tsx";
 import Shares from "./(_islands)/Shares.tsx";
 import LatestTransactions from "./(_components)/LatestTransactions.tsx";
 
@@ -49,6 +49,7 @@ export default define.page<typeof handler>((ctx) => {
       <div class="relative mx-auto w-full max-w-[1000px]">
         <div class="mx-2 my-5">
           <PlayerCard
+            state={ctx.state}
             player={ctx.data.player}
             placement={1}
             isStreamer={ctx.data.isStreamer}

@@ -23,7 +23,7 @@ export default function Shares(props: { shares: PlayerShareDto[] }) {
                 >
                   <td class="flex items-center justify-center gap-3">
                     <a
-                      href="/creators/{share.creator.slug}"
+                      href={`/creators/${share.creator.slug}`}
                       class="flex flex-col"
                     >
                       <img
@@ -34,7 +34,7 @@ export default function Shares(props: { shares: PlayerShareDto[] }) {
                     </a>
                     <div class="flex flex-col">
                       <a
-                        href="/creators/{share.creator.slug}"
+                        href={`/creators/${share.creator.slug}`}
                         class="text-lg font-semibold text-violet-500 hover:underline"
                       >
                         {formatCreatorString(share.creator.name)}

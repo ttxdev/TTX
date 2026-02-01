@@ -33,8 +33,8 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
   };
 
   return (
-    <header class="size-full">
-      <div class="navbar fixed left-1/2 z-20 mx-auto mt-4 w-[95%] -translate-x-1/2 rounded-xl bg-clip-padding md:p-4 lg:p-6 shadow-sm backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
+    <header>
+      <div class="navbar fixed left-1/2 z-20 mx-auto w-full mt-4 w-[95%] -translate-x-1/2 rounded-xl bg-clip-padding p-6 shadow-sm backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
         <div class="navbar-start">
           <a href="/" class="btn btn-ghost rounded-2xl text-xl">
             <img class="w-4 lg:w-8" src="/ttx-logo-only.png" alt="TTX Logo" />

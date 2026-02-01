@@ -30,7 +30,7 @@ spec:
     app: ttx-web
   ports:
     - port: 3031
-      targetPort: 3000
+      targetPort: 8000
 
 ---
 apiVersion: v1

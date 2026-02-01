@@ -1,4 +1,4 @@
-name: Docker Publish TTX
+name: Docker Publish API
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ttxdev/ttx
+  IMAGE_NAME: ttxdev/ttx.api
 
 jobs:
   build:
@@ -50,10 +50,9 @@ jobs:
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09
         with:
           context: .
+          file: src/TTX.Api/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          secrets: |
-            "github_token=${{ secrets.NUGET_TOKEN }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max

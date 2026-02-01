@@ -8,10 +8,6 @@ import {
 } from "motion/react";
 import { formatValue } from "@/lib/formatting.ts";
 
-type Props = {
-  value: number;
-};
-
 const AnimatedNumber = ({ mv }: { mv: any }) => {
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -29,7 +25,7 @@ const AnimatedNumber = ({ mv }: { mv: any }) => {
 const customEase = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-export default function CurrentValue({ value }: Props) {
+export default function CurrentValue({ value }: { value: number }) {
   const [showDiff, setShowDiff] = useState(false);
   const [displayedDiff, setDisplayedDiff] = useState(0);
   const [direction, setDirection] = useState<"up" | "down" | "none">("none");

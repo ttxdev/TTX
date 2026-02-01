@@ -2,19 +2,15 @@ import { Chart } from "chart.js";
 import type { VoteDto } from "@/lib/api.ts";
 import { useSignalEffect } from "@preact/signals";
 import { useSignalRef } from "@preact/signals/utils";
+import { formatToChart } from "../../../lib/formatting.ts";
 
 export default function MiniChart(
   { value, history }: { value: number; history: VoteDto[] },
 ) {
   const canvas = useSignalRef<HTMLCanvasElement | null>(null);
-  const values = history.map((v) => v.value);
-  const isUpward = values[values.length - 1] > values[0];
+  const data = formatToChart(value, history);
+  const isUpward = data.values[data.values.length - 1] > data.values[0];
   const lineColor = isUpward ? "#22c55e" : "#ef4444";
-
-  if (values.length === 0) {
-    values.push(value);
-    values.push(value);
-  }
 
   useSignalEffect(() => {
     if (!canvas.current) {
@@ -24,10 +20,10 @@ export default function MiniChart(
     const chart = new Chart(canvas.current, {
       type: "line",
       data: {
-        labels: Array(history.length).fill(""), // Create empty labels
+        labels: Array(data.labels.length).fill(""), // Create empty labels
         datasets: [
           {
-            data: values,
+            data: data.values,
             borderColor: lineColor,
             borderWidth: 3,
             fill: false,

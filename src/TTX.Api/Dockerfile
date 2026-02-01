@@ -11,11 +11,12 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /opt/app
 COPY --from=base /opt/app .
-RUN dotnet build -c $BUILD_CONFIGURATION -o /opt/app/build
+RUN dotnet build src/TTX.Api -c $BUILD_CONFIGURATION -o /opt/app/build/api
+RUN dotnet build src/TTX.Jobs -c $BUILD_CONFIGURATION -o /opt/app/build/jobs
 
-FROM build
+FROM build AS api
 EXPOSE 8080
 EXPOSE 8081
 WORKDIR /opt/app
-COPY --from=build /opt/app/build .
-ENTRYPOINT ["dotnet", "TTX.Api.dll"]
+COPY --from=build /opt/app/build/api .
+CMD ["dotnet", "TTX.Api.dll"]

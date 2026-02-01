@@ -1,5 +1,5 @@
 import { getApiClient } from "../index.ts";
-import { parseUserToken, UserData } from "./jwt.ts";
+import { parseJwt, parseUserToken, UserData } from "./jwt.ts";
 import { deleteCookie, getCookies, setCookie } from "@std/http/cookie";
 
 export type SessionData = {
@@ -7,7 +7,7 @@ export type SessionData = {
   user: UserData;
 };
 
-const COOKIE_KEY = "session";
+const COOKIE_KEY = "token";
 const REDIR_KEY = "redirect";
 
 export async function requestLogin(redir = "/") {
@@ -18,7 +18,6 @@ export async function requestLogin(redir = "/") {
     name: REDIR_KEY,
     value: redir,
     path: "/",
-    sameSite: "Strict",
     expires: new Date(Date.now() + 1000 * 60 * 5),
   });
 
@@ -36,30 +35,20 @@ export function getRedir(headers: Headers) {
 }
 
 export function removeRedir(headers: Headers) {
-  deleteCookie(headers, REDIR_KEY, {
-    path: "/",
-  });
+  deleteCookie(headers, REDIR_KEY);
 }
 
 export function setSession(
   headers: Headers,
   token: string,
 ) {
-  const jwtData = parseUserToken(token);
+  const jwtData = parseJwt(token);
+
   setCookie(headers, {
     name: COOKIE_KEY,
     path: "/",
     expires: new Date(jwtData.exp * 1000),
-    sameSite: "Strict",
-    value: btoa(JSON.stringify({
-      token,
-      user: {
-        userId: jwtData.userId,
-        name: jwtData.name,
-        avatarUrl: jwtData.avatarUrl,
-        role: jwtData.role,
-      },
-    })),
+    value: token,
   });
 }
 
@@ -69,13 +58,16 @@ export function removeSession(headers: Headers) {
   });
 }
 
-export function getSession(headers: Headers): SessionData | null {
-  const data = getCookies(headers)[COOKIE_KEY];
-  if (!data) return null;
-
-  return JSON.parse(atob(data));
+export function getToken(headers: Headers): string | null {
+  return getCookies(headers)[COOKIE_KEY] ?? null;
 }
 
-export function getToken(headers: Headers): string | null {
-  return getSession(headers)?.token ?? null;
+export function getSession(headers: Headers): SessionData | null {
+  const token = getToken(headers);
+  if (!token) return null;
+
+  return {
+    token,
+    user: parseUserToken(token),
+  };
 }

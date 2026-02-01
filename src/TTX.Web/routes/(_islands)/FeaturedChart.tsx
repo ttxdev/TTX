@@ -2,8 +2,10 @@ import { CreatorDto } from "../../lib/api.ts";
 import { Chart } from "chart.js";
 import { useSignalRef } from "@preact/signals/utils";
 import { useSignalEffect } from "@preact/signals";
+import { formatToChart } from "../../lib/formatting.ts";
 
 export default function FeaturedChart({ creator }: { creator: CreatorDto }) {
+  const data = formatToChart(creator.value, creator.history);
   const canvas = useSignalRef<HTMLCanvasElement | null>(null);
   const isPositiveTrend = creator.history[creator.history.length - 1]?.value >
     creator.history[0]?.value;
@@ -16,11 +18,11 @@ export default function FeaturedChart({ creator }: { creator: CreatorDto }) {
     const chart = new Chart(canvas.current, {
       type: "line",
       data: {
-        labels: Array(creator.history.length).fill(""), // Empty labels since we don't have time data
+        labels: Array(data.labels.length).fill(""),
         datasets: [
           {
             label: "Price",
-            data: creator.history.map((d) => d.value), // Direct array of values
+            data: data.values,
             borderColor: isPositiveTrend ? "#22c55e" : "#ef4444",
             tension: 0,
             fill: false,
