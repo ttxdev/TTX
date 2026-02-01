@@ -1,3 +1,3 @@
 [submodule "src/TTX.Bot"]
 	path = src/TTX.Bot
-	url = github.com/ttxdev/TTX.Bot.git
+	url = https://github.com/ttxdev/TTX.Bot.git
