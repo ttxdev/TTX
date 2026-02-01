@@ -54,7 +54,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           target: jobs
-          secrets: |
-            "github_token=${{ secrets.NUGET_TOKEN }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
