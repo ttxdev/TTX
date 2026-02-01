@@ -30,6 +30,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(p => p.Slug)
                 .HasConversion(new SlugConverter())
                 .HasColumnName("slug");
+            entity.Property(p => p.Platform)
+                .HasConversion(
+                    t => t.ToString(),
+                    t => Enum.Parse<Platform>(t)
+                )
+                .HasColumnName("platform");
             entity.Property(p => p.PlatformId)
                 .HasConversion(new PlatformIdConverter())
                 .HasColumnName("platform_id");
@@ -92,6 +98,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(c => c.Ticker)
                 .HasConversion(new TickerConverter())
                 .HasColumnName("ticker");
+            entity.Property(p => p.Platform)
+                .HasConversion(
+                    t => t.ToString(),
+                    t => Enum.Parse<Platform>(t)
+                )
+                .HasColumnName("platform");
             entity.Property(c => c.PlatformId)
                 .HasConversion(new PlatformIdConverter())
                 .HasColumnName("platform_id");
