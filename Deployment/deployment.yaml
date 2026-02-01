@@ -57,7 +57,7 @@ spec:
         - name: ttx-regcreds
       containers:
         - name: jobs
-          image: ghcr.io/ttxdev/ttx:main
+          image: ghcr.io/ttxdev/ttx.private:main
           imagePullPolicy: Always
           command: ["dotnet", "TTX.Jobs.dll"]
           envFrom:
