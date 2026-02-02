@@ -6,9 +6,9 @@ export default function MobileNav(
     urls: readonly { url: string; label: string }[];
     state: State;
     url: URL;
-    isSearchOpen: Signal<boolean>,
-    isMobileMenuOpen: Signal<boolean>
-    toggleMobileMenu: () => void
+    isSearchOpen: Signal<boolean>;
+    isMobileMenuOpen: Signal<boolean>;
+    toggleMobileMenu: () => void;
   },
 ) {
   const from = encodeURIComponent(url.pathname);
@@ -76,7 +76,7 @@ export default function MobileNav(
                       onClick={() => {
                         isSearchOpen.value = true;
                       }}
-                      class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100 flex items-center justify-center gap-2"
+                      class="block rounded-lg px-4 py-2 text-lg font-medium underline-offset-2 hover:bg-gray-100 flex items-center justify-center gap-2 cursor-pointer"
                     >
                       Search
                       <svg
