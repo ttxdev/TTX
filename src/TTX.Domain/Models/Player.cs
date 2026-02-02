@@ -22,17 +22,17 @@ public class Player : User
 
     public Share[] GetShares()
     {
-        Dictionary<Creator, Share> shares = [];
+        Dictionary<ModelId, Share> shares = [];
 
         foreach (Transaction tx in Transactions)
         {
             Share share = shares.GetValueOrDefault(
-                tx.Creator,
+                tx.CreatorId,
                 new Share { Creator = tx.Creator, Player = this }
             );
 
             share.Count(tx);
-            shares[tx.Creator] = share;
+            shares[tx.Creator.Id] = share;
         }
 
         return [.. shares.Values.Where(share => share.Quantity > 0)];
