@@ -15,32 +15,43 @@ public class StreamMonitorJob(
     IEventDispatcher _events
 ) : BackgroundService
 {
+    private IStreamMonitorAdapter[] _adapters = [];
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        IStreamMonitorAdapter[] adapters = [];
-        List<Creator> creators = [];
+        Creator[] creators = [];
+        List<Task> tasks = [];
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         {
             ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            adapters = [.. scope.ServiceProvider.GetServices<IStreamMonitorAdapter>()];
             // TODO optimize
-            await foreach (Creator creator in dbContext.Creators.AsAsyncEnumerable().WithCancellation(stoppingToken))
-            {
-                creators.Add(creator);
-            }
+            creators = await dbContext.Creators.ToArrayAsync(cancellationToken: stoppingToken);
+            _adapters = [.. scope.ServiceProvider.GetServices<IStreamMonitorAdapter>().Select(adapter =>
+                {
+                    adapter.SetCreators(creators);
+                    adapter.StreamStatusUpdated += UpdateStreamStatus;
+                    tasks.Add(adapter.Start(stoppingToken));
+                    return adapter;
+                })];
         }
 
-        foreach (IStreamMonitorAdapter adapter in adapters)
-        {
-            adapter.SetCreators(creators);
-            adapter.StreamStatusUpdated += UpdateStreamStatus;
-        }
-
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (_adapters.Length > 0 && _logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation("Monitoring {creators}", string.Join(' ', creators.Select(c => c.Name)));
         }
-        await Task.WhenAll(adapters.Select(a => a.Start()));
+        else if (_adapters.Length == 0)
+        {
+            _logger.LogWarning("No stream monitor adapters found");
+        }
+
+        try
+        {
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to get streams");
+        }
     }
 
     public async void UpdateStreamStatus(object? sender, StreamUpdateEvent @event)

@@ -5,16 +5,15 @@ using StackExchange.Redis;
 using TTX.App.Data;
 using TTX.App.Events;
 using TTX.App.Interfaces.Platforms;
-using TTX.App.Jobs.CreatorValues;
 using TTX.App.Jobs.Streams;
-#if BOT_EXISTS
-using TTX.Bot;
-#endif
 using TTX.Domain.Models;
 using TTX.Infrastructure.Events.Memory;
 using TTX.Infrastructure.Events.Redis;
 using TTX.Infrastructure.Options;
 using TTX.Infrastructure.Twitch;
+#if BOT_EXISTS
+using TTX.Bot;
+#endif
 
 namespace TTX.Infrastructure;
 
@@ -57,7 +56,7 @@ public static class DependencyInjection
             .Bind(config.GetSection("Twitch:Streams"))
             .Services
             .AddKeyedSingleton<IPlatformUserService, TwitchUserService>(Platform.Twitch)
-            .AddKeyedSingleton<IStreamMonitorAdapter, TwitchStreamMonitorAdapter>(Platform.Twitch);
+            .AddSingleton<IStreamMonitorAdapter, TwitchStreamMonitorAdapter>();
 
 #if BOT_EXISTS
         services.AddValueMonitor();

@@ -14,35 +14,30 @@ public class CreatorValueMonitorJob(
     IServiceProvider _services,
     IEventDispatcher _events,
     ILogger<CreatorValueMonitorJob> _logger
-) : BackgroundService
+) : IHostedService
 {
     private readonly Queue<NetChangeEvent> _queue = new();
+    private IChatMonitorAdapter[] _chatMonitors = [];
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task StartAsync(CancellationToken stoppingToken)
     {
         List<Creator> creators = [];
         List<Task> tasks = [];
-        IChatMonitorAdapter[] chatMonitors;
         using (AsyncServiceScope scope = _services.CreateAsyncScope())
         {
-            // ICreatorRepository repository = scope.ServiceProvider.GetRequiredService<ICreatorRepository>();
             ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             // TODO optimize
-            await foreach (Creator creator in dbContext.Creators.AsAsyncEnumerable().WithCancellation(stoppingToken))
-            {
-                creators.Add(creator);
-            }
-            chatMonitors = [.. scope.ServiceProvider.GetServices<IChatMonitorAdapter>()];
+            creators = await dbContext.Creators.ToListAsync(stoppingToken);
+            _chatMonitors = [.. scope.ServiceProvider.GetServices<IChatMonitorAdapter>().Select(chatMonitor =>
+                    {
+                        chatMonitor.OnNetChange += OnNetChangeReceived;
+                        chatMonitor.SetCreators(creators);
+                        tasks.Add(chatMonitor.Start(stoppingToken));
+                        return chatMonitor;
+                    })];
         }
 
-        foreach (IChatMonitorAdapter chatMonitor in chatMonitors)
-        {
-            chatMonitor.OnNetChange += OnNetChangeReceived;
-            chatMonitor.SetCreators(creators);
-            tasks.Add(chatMonitor.Start(stoppingToken));
-        }
-
-        if (chatMonitors.Length == 0)
+        if (_chatMonitors.Length == 0)
         {
             _logger.LogWarning("No chat monitors configured");
         }
@@ -52,9 +47,26 @@ public class CreatorValueMonitorJob(
         }
 
         await Task.WhenAll(tasks);
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            if (_queue.TryDequeue(out NetChangeEvent? e))
+            {
+                await Digest(e!);
+            }
+        }
     }
 
-    public async void OnNetChangeReceived(object? _, NetChangeEvent e)
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.WhenAll(_chatMonitors.Select(c => c.Stop(cancellationToken)));
+    }
+
+    private void OnNetChangeReceived(object? _, NetChangeEvent e)
+    {
+        _queue.Enqueue(e);
+    }
+
+    private async Task Digest(NetChangeEvent e)
     {
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

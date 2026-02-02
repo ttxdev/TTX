@@ -35,17 +35,16 @@ public sealed class SimpleTwitchChatMonitor : IChatMonitorAdapter
         return Task.CompletedTask;
     }
 
-    public async Task Start(CancellationToken stoppingToken)
+    public async Task Start(CancellationToken stoppingToken = default)
     {
         await _twitch.ConnectAsync();
         _logger.LogInformation("Started.");
-        TaskCompletionSource<object?> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        using (stoppingToken.Register(() => tcs.TrySetResult(null)))
-        {
-            await tcs.Task.ConfigureAwait(false);
-        }
+    }
 
+    public async Task Stop(CancellationToken _ = default)
+    {
         await _twitch.DisconnectAsync();
+        _logger.LogInformation("Stopped.");
     }
 
     public void SetCreators(IEnumerable<Creator> creators)
