@@ -40,6 +40,7 @@ public static class DependencyInjection
             .Configure<WebSocketOptions>(config.GetSection("Websocket"))
             .AddSignalR()
             .AddJsonProtocol(o => o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+            .AddStackExchangeRedis()
             .Services
             // Cors
             .AddCors(options =>
