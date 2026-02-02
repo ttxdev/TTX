@@ -50,9 +50,9 @@ export default function LatestTransactions(
                       </a>
                     </div>
                   </td>
-                  <td class="flex flex-col items-center justify-end p-2 text-right font-bold">
-                    <span class="text-md md:text-xl">
-                      {formatShareAmount(tx.quantity)} @ {formatValue(tx.value)}
+                  <td class="flex flex-col items-center justify-center p-2 font-bold">
+                    <span class="w-full text-right text-lg opacity-55">
+                      {formatShareAmount(tx.quantity)} / {formatValue(tx.value)}
                     </span>
                     <div class="w-full text-right opacity-55">
                       <TimeStamp date={tx.created_at.toString()} />
