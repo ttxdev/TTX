@@ -25,9 +25,9 @@ export default function LatestTransactions(
               return (
                 <tr
                   key={`transaction-${tx.id}`}
-                  class="flex flex-row justify-between rounded-md p-2 py-1"
+                  class="flex flex-row justify-between rounded-md py-1"
                 >
-                  <td class="flex items-center justify-center gap-3">
+                  <td class="flex items-center justify-center gap-3 p-0 py-3">
                     <a
                       href={`/creators/${tx.creator.slug}`}
                       class="flex flex-col"
