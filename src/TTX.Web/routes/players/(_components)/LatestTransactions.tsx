@@ -25,9 +25,9 @@ export default function LatestTransactions(
               return (
                 <tr
                   key={`transaction-${tx.id}`}
-                  class="flex flex-row justify-between rounded-md p-2 py-1"
+                  class="flex flex-row justify-between rounded-md py-1"
                 >
-                  <td class="flex items-center justify-center gap-3">
+                  <td class="flex items-center justify-center gap-3 p-0 py-3">
                     <a
                       href={`/creators/${tx.creator.slug}`}
                       class="flex flex-col"
@@ -50,9 +50,9 @@ export default function LatestTransactions(
                       </a>
                     </div>
                   </td>
-                  <td class="flex flex-col items-center justify-end p-2 text-right font-bold">
-                    <span class="text-md md:text-xl">
-                      {formatShareAmount(tx.quantity)} @ {formatValue(tx.value)}
+                  <td class="flex flex-col items-center justify-center p-2 font-bold">
+                    <span class="w-full text-right text-lg opacity-55">
+                      {formatShareAmount(tx.quantity)} / {formatValue(tx.value)}
                     </span>
                     <div class="w-full text-right opacity-55">
                       <TimeStamp date={tx.created_at.toString()} />

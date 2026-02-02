@@ -19,9 +19,9 @@ export default function Shares(props: { shares: PlayerShareDto[] }) {
               return (
                 <tr
                   key={`share-${share.creator.id}`}
-                  class="flex flex-row justify-between rounded-md py-1 md:p-2"
+                  class="flex flex-row justify-between rounded-md py-1"
                 >
-                  <td class="flex items-center justify-center gap-3">
+                  <td class="flex items-center justify-center gap-3 p-0 py-3">
                     <a
                       href={`/creators/${share.creator.slug}`}
                       class="flex flex-col"
