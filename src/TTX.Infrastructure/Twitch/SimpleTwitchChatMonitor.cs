@@ -39,12 +39,7 @@ public sealed class SimpleTwitchChatMonitor : IChatMonitorAdapter
     {
         await _twitch.ConnectAsync();
         _logger.LogInformation("Started.");
-    }
-
-    public async Task Stop(CancellationToken _ = default)
-    {
-        await _twitch.DisconnectAsync();
-        _logger.LogInformation("Stopped.");
+        await Task.Delay(-1, stoppingToken);
     }
 
     public void SetCreators(IEnumerable<Creator> creators)

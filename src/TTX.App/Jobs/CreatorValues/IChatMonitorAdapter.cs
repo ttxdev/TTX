@@ -7,6 +7,5 @@ public interface IChatMonitorAdapter
     event EventHandler<NetChangeEvent>? OnNetChange;
 
     public Task Start(CancellationToken stoppingToken = default);
-    public Task Stop(CancellationToken stoppingToken = default);
     public void SetCreators(IEnumerable<Creator> creators);
 }

@@ -14,15 +14,15 @@ public class CreatorValueMonitorJob(
     IServiceProvider _services,
     IEventDispatcher _events,
     ILogger<CreatorValueMonitorJob> _logger
-) : IHostedService
+) : BackgroundService
 {
     private readonly Queue<NetChangeEvent> _queue = new();
+    private readonly List<Task> _tasks = [];
     private IChatMonitorAdapter[] _chatMonitors = [];
 
-    public async Task StartAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         List<Creator> creators = [];
-        List<Task> tasks = [];
         using (AsyncServiceScope scope = _services.CreateAsyncScope())
         {
             ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -32,7 +32,7 @@ public class CreatorValueMonitorJob(
                     {
                         chatMonitor.OnNetChange += OnNetChangeReceived;
                         chatMonitor.SetCreators(creators);
-                        tasks.Add(chatMonitor.Start(stoppingToken));
+                        _tasks.Add(chatMonitor.Start(stoppingToken));
                         return chatMonitor;
                     })];
         }
@@ -46,19 +46,18 @@ public class CreatorValueMonitorJob(
             _logger.LogInformation("Watching {creatorNames}", string.Join(" ", creators.Select(c => c.Name)));
         }
 
-        await Task.WhenAll(tasks);
-        while (!stoppingToken.IsCancellationRequested)
+        _tasks.Add(Task.Run(async () =>
         {
-            if (_queue.TryDequeue(out NetChangeEvent? e))
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await Digest(e!);
+                if (_queue.TryDequeue(out NetChangeEvent? e))
+                {
+                    await Digest(e!);
+                }
             }
-        }
-    }
+        }, stoppingToken));
 
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.WhenAll(_chatMonitors.Select(c => c.Stop(cancellationToken)));
+        await Task.WhenAll(_tasks);
     }
 
     private void OnNetChangeReceived(object? _, NetChangeEvent e)
