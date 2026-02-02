@@ -1,6 +1,9 @@
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
+metadata:
+  namespace: ttx
+  name: ttx-api-scaler
 spec:
   maxReplicas: 5
   minReplicas: 1
@@ -12,6 +15,9 @@ spec:
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
+metadata:
+  namespace: ttx
+  name: ttx-web-scaler
 spec:
   maxReplicas: 3
   minReplicas: 2
