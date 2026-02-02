@@ -5,6 +5,7 @@ using StackExchange.Redis;
 using TTX.App.Data;
 using TTX.App.Events;
 using TTX.App.Interfaces.Platforms;
+using TTX.App.Jobs.CreatorValues;
 using TTX.App.Jobs.Streams;
 using TTX.Domain.Models;
 using TTX.Infrastructure.Events.Memory;
