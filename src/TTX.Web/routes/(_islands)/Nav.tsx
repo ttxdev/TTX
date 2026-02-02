@@ -1,9 +1,13 @@
-import Search from "./Search.tsx";
+import SearchModal from "./Search.tsx";
 import { State } from "@/utils.ts";
 import { motion } from "motion/react";
+import { useSignal } from "@preact/signals";
+import MobileNav from "./MobileNav.tsx";
 
 export default function Nav({ url, state }: { url: URL; state: State }) {
   const from = encodeURIComponent(url.pathname);
+  const isSearchOpen = useSignal(false);
+  const isMobileMenuOpen = useSignal(false);
   const user = state.user;
   const urls = Object.freeze([
     {
@@ -24,17 +28,21 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
     },
   ]);
 
+  const toggleMobileMenu = () => {
+    isMobileMenuOpen.value = !isMobileMenuOpen.value;
+  };
+
   return (
     <header>
-      <div class="navbar fixed left-1/2 z-20 mx-auto w-full -translate-x-1/2 rounded-xl bg-clip-padding p-6 shadow-sm backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
+      <div class="navbar fixed left-1/2 z-20 mx-auto w-full mt-4 w-[95%] -translate-x-1/2 rounded-xl bg-clip-padding p-6 shadow-sm backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
         <div class="navbar-start">
           <a href="/" class="btn btn-ghost rounded-2xl text-xl">
-            <img class="w-8" src="/ttx-logo-only.png" alt="TTX Logo" />
+            <img class="w-4 lg:w-8" src="/ttx-logo-only.png" alt="TTX Logo" />
           </a>
           <div class="badge badge-ghost rounded-xl">BETA</div>
         </div>
 
-        <nav class="navbar-center hidden lg:flex">
+        <nav class="navbar-center hidden md:flex">
           <ul class="menu menu-horizontal relative px-1">
             <div
               class="absolute rounded-2xl bg-purple-400/20 duration-100 animate-all"
@@ -72,12 +80,58 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
             })}
 
             <li>
-              <Search state={state} />
+              <button
+                type="button"
+                onClick={() => {
+                  isSearchOpen.value = true;
+                }}
+                class="relative z-10 rounded-2xl"
+              >
+                Search
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                  />
+                </svg>
+              </button>
             </li>
           </ul>
         </nav>
+        
+        <nav class={`navbar-end md:hidden`}>
+          <button
+            onClick={toggleMobileMenu}
+            type="button"
+            aria-label="Toggle menu"
+            class="btn btn-ghost lg:hidden"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h8m-8 6h16"
+              />
+            </svg>
+          </button>
+        </nav>
 
-        <div class="navbar-end">
+        <div class="navbar-end hidden md:flex">
           <div class="flex gap-2">
             {user && (
               <div class="join">
@@ -107,7 +161,7 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
                         clip-rule="evenodd"
                       />
                     </svg>
-                    <span>Logout</span>
+                    <span class="hidden lg:flex">Logout</span>
                   </div>
                 </a>
               </div>
@@ -136,6 +190,8 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
           </div>
         </div>
       </div>
-    </header>
+      <SearchModal state={state} isSearchOpen={isSearchOpen} />
+      <MobileNav urls={urls} state={state} url={url} isSearchOpen={isSearchOpen} isMobileMenuOpen={isMobileMenuOpen} toggleMobileMenu={toggleMobileMenu}  />
+      </header>
   );
 }
