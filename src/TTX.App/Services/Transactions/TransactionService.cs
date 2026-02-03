@@ -37,6 +37,11 @@ public class TransactionService(
             return Result<ModelId>.Err(new NotFoundException<Creator>());
         }
 
+        if (!creator.StreamStatus.IsLive)
+        {
+            return Result<ModelId>.Err(new MarketClosedException());
+        }
+
         Transaction tx = action switch
         {
             TransactionAction.Buy => player.Buy(creator, quantity),
