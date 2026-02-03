@@ -3,9 +3,10 @@ import { CreatorPartialDto, PlayerDto } from "../../lib/api.ts";
 import { motion } from "motion/react";
 import { State } from "../../utils.ts";
 import { getApiClient } from "../../lib/index.ts";
+import { formatValue } from "../../lib/formatting.ts";
 
 export default function Drawer({ state }: { state: State }) {
-  const showDrawer = useSignal(false);
+  const showDrawer = useSignal(true);
   const self = useSignal<PlayerDto | null>(null);
   const apiClient = getApiClient(state.token);
   const shares = useComputed(() => {
@@ -73,7 +74,15 @@ export default function Drawer({ state }: { state: State }) {
         <motion.div class="fixed right-0 bottom-0 z-50 h-[85vh] w-full max-w-md overflow-hidden rounded-tl-2xl bg-white/80 shadow-2xl backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter md:h-[50vh] dark:bg-black/80">
           <div class="flex h-full flex-col">
             <div class="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
+              <div class="flex-col items-center justify-center gap-2">
               <h2 class="text-xl font-semibold">Your Holdings</h2>
+              <div class="flex items-center justify-center gap-1">
+                <h2 class="text-md text-gray-500 font-semibold">Available Balance: </h2>
+                {
+                  self.value !== null ? <h2 className="text-md text-gray-500 font-semibold">{formatValue(self.value?.credits)}</h2> : <h2><span className="loading loading-spinner text-gray-500"></span></h2> 
+                }
+              </div>
+              </div>
               <button
                 class="rounded-full p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
                 type="button"
