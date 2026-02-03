@@ -6,7 +6,7 @@ import { getApiClient } from "../../lib/index.ts";
 import { formatValue } from "../../lib/formatting.ts";
 
 export default function Drawer({ state }: { state: State }) {
-  const showDrawer = useSignal(true);
+  const showDrawer = useSignal(false);
   const self = useSignal<PlayerDto | null>(null);
   const apiClient = getApiClient(state.token);
   const shares = useComputed(() => {
