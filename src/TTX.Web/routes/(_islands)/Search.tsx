@@ -115,11 +115,10 @@ export default function SearchModal({ state, isSearchOpen }: { state: State, isS
           <div class="join flex">
             <input
               type="text"
-              ref={(el) => {
-                if (el) {
+              ref={(self) => {
+                if (self) {
                   requestAnimationFrame(() => {
-                    console.log("hi");
-                    el.focus();
+                    self.focus();
                   });
                 }
               }}
