@@ -115,6 +115,14 @@ export default function SearchModal({ state, isSearchOpen }: { state: State, isS
           <div class="join flex">
             <input
               type="text"
+              ref={(self) => {
+                if (self) {
+                  requestAnimationFrame(() => {
+                    self.focus();
+                  });
+                }
+              }}
+              autoFocus
               placeholder="Search users and creators..."
               class="input-bordered input custom-number-input flex-1 rounded-l-2xl rounded-r-none border-purple-400 focus:outline-none"
               onInput={(e) => {
