@@ -1,6 +1,6 @@
 import { useComputed, useSignal, useSignalEffect } from "@preact/signals";
 import { CreatorPartialDto, PlayerDto } from "../../lib/api.ts";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, scale } from "motion/react";
 import { State } from "../../utils.ts";
 import { getApiClient } from "../../lib/index.ts";
 import { formatValue } from "../../lib/formatting.ts";
@@ -42,34 +42,41 @@ export default function Drawer({ state }: { state: State }) {
 
   return (
     <>
-      <button
-        class="fixed right-4 bottom-4 cursor-pointer rounded-full bg-purple-600 p-4 text-white shadow-lg transition-colors hover:bg-purple-700"
-        type="button"
-        onClick={() => showDrawer.value = true}
-        aria-label="Open Drawer"
-      >
-        <div class="relative">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+      <AnimatePresence>
+        {!showDrawer.value && 
+        <motion.button
+            class="fixed right-4 bottom-4 cursor-pointer rounded-full bg-purple-600 p-4 text-white shadow-lg transition-colors hover:bg-purple-700"
+            type="button"
+            onClick={() => showDrawer.value = true}
+            aria-label="Open Drawer"
+            initial={{scale: 0}}
+            animate={{scale: 1}}
+            exit={{scale: 0}}
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 15l7-7 7 7"
-            />
-          </svg>
-          {self.value && shares.value.online.length >= 1 && (
-            <span class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold">
-              {shares.value.offline.length + self.value.loot_boxes.length}
-            </span>
-          )}
-        </div>
-      </button>
+            <div class="relative">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 15l7-7 7 7"
+                />
+              </svg>
+              {self.value && shares.value.online.length >= 1 && (
+                <span class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold">
+                  {shares.value.offline.length + self.value.loot_boxes.length}
+                </span>
+              )}
+            </div>
+          </motion.button>
+        }
+      </AnimatePresence>
       <AnimatePresence>
         {showDrawer.value && (
           <motion.div initial={{y: 500 }} animate={{ y: 0  }} transition={{duration: .25}} exit={{y:500}} class="fixed right-0 bottom-0 z-50 h-[85vh] w-full max-w-md overflow-hidden rounded-tl-2xl bg-white/80 shadow-2xl backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter md:h-[50vh] dark:bg-black/80">
