@@ -7,12 +7,12 @@ namespace TTX.Domain.Models;
 public class Player : User
 {
     public const int MaxShares = 1_000;
-    public const int MinCredits = 0;
-    public const int MinPortfolio = 0;
-    public const int StarterCredits = 100;
+    public const double MinCredits = 0;
+    public const double MinPortfolio = 0;
+    public const double StarterCredits = 100;
 
     public Credits Credits { get; set; } = StarterCredits;
-    public long Portfolio { get; private set; } = MinPortfolio;
+    public Credits Portfolio { get; private set; } = MinPortfolio;
     public Credits Value => Credits + Portfolio;
     public PlayerType Type { get; init; } = PlayerType.User;
 
@@ -48,7 +48,7 @@ public class Player : User
 
     public Transaction Buy(Creator creator, Quantity amount)
     {
-        long value = creator.Value * amount;
+        double value = creator.Value * amount;
         if (Credits < value)
         {
             throw new InvalidActionException("Insufficient funds.");
@@ -85,7 +85,7 @@ public class Player : User
             throw new InvalidActionException("Insufficient shares.");
         }
 
-        long value = creator.Value * amount;
+        double value = creator.Value * amount;
         Credits += value;
 
         Transaction tx = Transaction.CreateSell(this, creator, amount);
@@ -96,7 +96,7 @@ public class Player : User
 
     public PortfolioSnapshot TakePortfolioSnapshot()
     {
-        Portfolio = GetShares().Aggregate(0L, (acc, share) => acc + (share.Creator.Value * share.Quantity.Value));
+        Portfolio = GetShares().Aggregate(0D, (acc, share) => acc + (share.Creator.Value * share.Quantity.Value));
         return new() { PlayerId = Id, Value = Portfolio, Player = this };
     }
 
