@@ -7,7 +7,7 @@ public class CreatorPartialDto : UserDto
 {
     [JsonPropertyName("ticker")] public required string Ticker { get; init; }
 
-    [JsonPropertyName("value")] public required long Value { get; init; }
+    [JsonPropertyName("value")] public required double Value { get; init; }
 
     [JsonPropertyName("stream_status")] public required StreamStatusDto StreamStatus { get; init; }
 

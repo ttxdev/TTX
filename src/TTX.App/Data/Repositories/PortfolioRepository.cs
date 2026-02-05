@@ -1,7 +1,6 @@
 using System.Data;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
 using TTX.App.Dto.Portfolio;
 using TTX.Domain.Models;
@@ -80,7 +79,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         {
             int playerId = rows.GetInt32(0);
             DateTime bucketTime = rows.GetDateTime(1);
-            long value = rows.IsDBNull(2) ? Player.MinPortfolio : rows.GetInt64(2);
+            double value = rows.IsDBNull(2) ? Player.MinPortfolio : rows.GetDouble(2);
 
             if (!playerLookup.TryGetValue(playerId, out var player)) continue;
 
@@ -165,7 +164,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         {
             int creatorId = rows.GetInt32(0);
             DateTime bucketTime = rows.GetDateTime(1);
-            long value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetInt64(2);
+            double value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetDouble(2);
 
             if (!creatorLookup.TryGetValue(creatorId, out var creator)) continue;
 

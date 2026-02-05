@@ -7,7 +7,7 @@ public class TransactionDto : BaseDto
 {
     [JsonPropertyName("quantity")] public required int Quantity { get; init; }
 
-    [JsonPropertyName("value")] public required long Value { get; init; }
+    [JsonPropertyName("value")] public required double Value { get; init; }
 
     [JsonPropertyName("action")] public required TransactionAction Action { get; init; }
 

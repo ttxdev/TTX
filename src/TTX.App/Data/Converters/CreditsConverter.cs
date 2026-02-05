@@ -2,4 +2,4 @@
 
 namespace TTX.App.Data.Converters;
 
-public class CreditsConverter() : ValueObjectConverter<Credits, long>(Credits.Create);
+public class CreditsConverter() : ValueObjectConverter<Credits, double>(Credits.Create);

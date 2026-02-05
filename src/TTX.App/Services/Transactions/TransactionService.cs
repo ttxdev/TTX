@@ -60,7 +60,7 @@ public class TransactionService(
         Creator[] creators = await _dbContext.Creators
             .Where(c => c.Value >= LootBoxMinValue)
             .ToArrayAsync();
-        long sum = creators.Sum(creator => creator.Value);
+        double sum = creators.Sum(creator => creator.Value);
 
         return [.. creators.Select(creator => CreatorRarity.Create(sum, creator))];
     }
