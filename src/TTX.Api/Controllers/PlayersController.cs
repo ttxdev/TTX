@@ -52,13 +52,19 @@ public class PlayersController(PlayerService playerService, TransactionService _
 
     [HttpGet("{username}")]
     [EndpointName("GetPlayer")]
-    public async Task<ActionResult<PlayerDto>> Show(string username, [FromQuery] TimeStep step = TimeStep.FiveMinute,
-        [FromQuery] TimeSpan? before = null)
+    public async Task<ActionResult<PlayerDto>> Show(string username, [FromQuery] TimeSpan? before = null)
     {
+        before ??= TimeSpan.FromDays(1);
         PlayerDto? player = await playerService.Find(username, new HistoryParams
         {
-            Step = step,
-            Before = before ?? TimeSpan.FromDays(-1)
+            Before = before.Value,
+            Step = before.Value.Days switch
+                    {
+                        >= 30 => TimeStep.Month,
+                        >= 7 => TimeStep.Week,
+                        >= 1 => TimeStep.Day,
+                        _ => before.Value.TotalHours >= 1 ? TimeStep.Hour : TimeStep.Minute
+                    }
         });
 
         if (player is null)
@@ -76,7 +82,7 @@ public class PlayersController(PlayerService playerService, TransactionService _
     {
         PlayerDto? player = await playerService.Find(User.FindFirstValue(ClaimTypes.Name)!, new HistoryParams
         {
-            Step = TimeStep.Minute,
+            Step = TimeStep.ThirtyMinute,
             Before = TimeSpan.FromDays(1)
         });
 

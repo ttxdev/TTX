@@ -53,13 +53,20 @@ public class CreatorsController(CreatorService _creatorService) : ControllerBase
     [EndpointName("GetCreator")]
     public async Task<ActionResult<CreatorDto>> Show(
         string slug,
-        [FromQuery] TimeStep step = TimeStep.FiveMinute,
         [FromQuery] TimeSpan? before = null)
     {
+        before ??= TimeSpan.FromDays(1);
+
         CreatorDto? creator = await _creatorService.Find(slug, new HistoryParams
         {
-            Step = step,
-            Before = before ?? TimeSpan.FromDays(1)
+            Before = before.Value,
+            Step = before.Value.Days switch
+                {
+                    >= 30 => TimeStep.Month,
+                    >= 7 => TimeStep.Week,
+                    >= 1 => TimeStep.Day,
+                    _ => before.Value.TotalHours >= 1 ? TimeStep.Hour : TimeStep.Minute
+                }
         });
 
         if (creator is null)
