@@ -29,3 +29,10 @@ dotnet user-secrets set "TTX:Infrastructure:Twitch:OAuth:RedirectUri" "<REDIRECT
 ```sh
 dotnet run
 ```
+
+### Seeding
+
+```sh
+# do this once
+dotnet run seed
+```

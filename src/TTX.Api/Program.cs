@@ -6,6 +6,7 @@ using TTX.Api;
 using TTX.Api.Data.Seed;
 using TTX.App.Data;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 [assembly: ApiController]
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -14,7 +15,7 @@ builder.Services
         {
             opt.UseAsyncSeeding(async (dbContext, seed, cancellationToken) =>
             {
-                if (!seed || !builder.Environment.IsDevelopment())
+                if (args.FirstOrDefault() != "seed" || (!seed && !builder.Environment.IsDevelopment()))
                 {
                     return;
                 }
@@ -58,7 +59,7 @@ else
 await using (AsyncServiceScope scope = app.Services.CreateAsyncScope())
 {
     ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await dbContext.Database.EnsureCreatedAsync();
+    await dbContext.Database.MigrateAsync();
 }
 
 app.Run();
