@@ -1,6 +1,4 @@
-import PlayerPlacement, {
-  Placement,
-} from "../(_components)/PlayerPlacement.tsx";
+import { Placement } from "../(_components)/PlayerPlacement.tsx";
 import { PlayerDto, PortfolioSnapshotDto } from "@/lib/api.ts";
 import { formatValue } from "@/lib/formatting.ts";
 import BigChart from "./BigChart.tsx";
@@ -84,9 +82,6 @@ export default function PlayerCard(
             <span class="text-sm font-semibold sm:text-lg">
               {player.name}
             </span>
-            <div class="flex">
-              <PlayerPlacement place={placement} />
-            </div>
           </div>
         </div>
 
