@@ -206,17 +206,25 @@ export default function Creator(props: CreatorProps) {
           </div>
           <div class="flex flex-col gap-4 md:flex-row">
             <div class="divider divider-vertical md:hidden"></div>
-            <div class="join flex w-full flex-col items-center justify-center md:flex-row">
+            <div class="join flex w-full flex-col items-center justify-center gap-2">
+              {!props.creator.stream_status.is_live &&
+                <div class="flex flex-col justify-center items-center gap-2">
+                  <h1 class="text-2xl font-bold">{props.creator.name} is offline</h1>
+                  <h2 class="text-sm text-center max-w-3/4">You cannot buy or sell a creators stock when they are offline.</h2>
+                </div> 
+              }
               <div class="join mt-2 md:mt-0">
                 <button
-                  class="btn btn-lg h-10 rounded-l-2xl border-2 p-4 text-green-400"
+                  disabled={!props.creator.stream_status.is_live}
+                  class={`btn btn-lg h-10 rounded-l-2xl border-2 p-4 ${!props.creator.stream_status.is_live ? "text-gray-500" : "text-green-500"}`}
                   type="button"
                   onClick={() => setOrderModal(TransactionAction.Buy)}
                 >
                   Buy
                 </button>
                 <button
-                  class="btn btn-lg h-10 rounded-r-2xl p-4 text-red-400"
+                  disabled={!props.creator.stream_status.is_live}
+                  class={`btn btn-lg h-10 rounded-r-2xl p-4 ${!props.creator.stream_status.is_live ? "text-gray-500" : "text-red-500"}`}
                   type="button"
                   onClick={() => setOrderModal(TransactionAction.Sell)}
                 >

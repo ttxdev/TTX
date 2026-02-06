@@ -21,6 +21,7 @@ public class TransactionTests : ServiceTests
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         Player player = _playerFactory.Create(credits: wallet);
         Creator creator = _creatorFactory.Create(value: wallet);
+        creator.StreamStatus.Started(DateTime.UtcNow);
         dbContext.Players.Add(player);
         dbContext.Creators.Add(creator);
         await dbContext.SaveChangesAsync(TestContext.CancellationToken);
@@ -47,6 +48,7 @@ public class TransactionTests : ServiceTests
         TransactionService txService = scope.ServiceProvider.GetRequiredService<TransactionService>();
         Player player = _playerFactory.Create(credits: 0);
         Creator creator = _creatorFactory.Create(value: creatorValue);
+        creator.StreamStatus.Started(DateTime.UtcNow);
         dbContext.Players.Add(player);
         dbContext.Creators.Add(creator);
         player.Give(creator);
@@ -63,6 +65,32 @@ public class TransactionTests : ServiceTests
         Transaction? tx = await dbContext.Transactions.FirstOrDefaultAsync(tx => tx.Id == result.Value, TestContext.CancellationToken);
         Assert.IsNotNull(tx);
         Assert.AreEqual(creatorValue, player.Credits);
+    }
+
+
+    [TestMethod]
+    public async Task PlayerCantBuyOfflineCreator()
+    {
+        const int creatorValue = 200;
+        await using AsyncServiceScope scope = _services.CreateAsyncScope();
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        TransactionService txService = scope.ServiceProvider.GetRequiredService<TransactionService>();
+        Player player = _playerFactory.Create(credits: 0);
+        Creator creator = _creatorFactory.Create(value: creatorValue);
+        dbContext.Players.Add(player);
+        dbContext.Creators.Add(creator);
+        player.Give(creator);
+        await dbContext.SaveChangesAsync(TestContext.CancellationToken);
+
+        Result<ModelId> result = await txService.PlaceOrder(
+            action: TransactionAction.Sell,
+            quantity: 1,
+            actorId: player.Id,
+            creatorSlug: creator.Slug
+        );
+
+        Assert.IsNull(result.Value);
+        Assert.IsInstanceOfType<MarketClosedException>(result.Error);
     }
 
     [TestMethod]

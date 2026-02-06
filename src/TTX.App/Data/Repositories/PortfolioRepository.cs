@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Npgsql;
 using TTX.App.Dto.Portfolio;
 using TTX.Domain.Models;
 
@@ -22,7 +23,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
     public async Task<Dictionary<int, PortfolioSnapshot[]>> GetHistoryFor(
         IEnumerable<Player> players,
         TimeStep step,
-        DateTimeOffset after
+        TimeSpan before
     )
     {
         if (!players.Any())
@@ -35,6 +36,8 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
             throw new NotSupportedException("Only PostgreSQL is supported");
         }
 
+        DateTimeOffset endTime = DateTimeOffset.UtcNow;
+        DateTimeOffset startTime = endTime - before;
         string interval = step.ToTimescaleString();
         int[] playerIds = [.. players.Select(c => c.Id.Value)];
         string playerIdsStr = string.Join(", ", playerIds);
@@ -45,8 +48,8 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
                 time_bucket_gapfill(
                     '{interval}',
                     player_portfolios.time,
-                    '{after.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
-                    now()
+                    '{startTime.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
+                    '{endTime.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz
                 ) AS ""Bucket"",
                 locf (last (player_portfolios.value, player_portfolios.time)) AS ""Value""
             FROM player_portfolios
@@ -72,7 +75,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
 
             // TODO(dylhack): update the query so we don't have to check out of window timestamps
             DateTime time = rows.GetDateTime(1); // Maps "Bucket" to "Time"
-            if (time < after)
+            if (time < endTime)
             {
                 continue;
             }
@@ -90,7 +93,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
     public async Task<Dictionary<int, Vote[]>> GetHistoryFor(
         IEnumerable<Creator> creators,
         TimeStep step,
-        DateTimeOffset after
+        TimeSpan before
     )
     {
         if (!creators.Any())
@@ -103,27 +106,39 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
             throw new NotSupportedException("Only PostgreSQL is supported");
         }
 
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        Dictionary<int, Creator> creatorLookup = creators.ToDictionary(c => c.Id.Value);
+        int[] creatorIds = [.. creatorLookup.Keys];
         string interval = step.ToTimescaleString();
 
-        int[] creatorIds = [.. creators.Select(c => c.Id.Value)];
-        string creatorIdsStr = string.Join(", ", creatorIds);
+        DateTimeOffset globalEndTime = creators.Max(c =>
+            c.StreamStatus.IsLive ? now : (c.StreamStatus.EndedAt ?? now));
+        DateTimeOffset globalStartTime = globalEndTime - before;
+
         string sql = $@"
-            SELECT
-                votes.creator_id AS ""CreatorId"",
-                time_bucket_gapfill(
-                    '{interval}',
-                    votes.time,
-                    '{after.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
-                    now()
-                ) AS ""Bucket"",
-                locf (last (votes.value, votes.time)) AS ""Value""
-            FROM votes
-            WHERE votes.creator_id IN ({creatorIdsStr})
-            GROUP BY ""CreatorId"", ""Bucket""
-            ORDER BY ""Bucket"" ASC";
+                SELECT
+                    v.creator_id AS ""CreatorId"",
+                    time_bucket_gapfill(
+                        @interval::interval,
+                        v.time,
+                        @start_time,
+                        @end_time
+                    ) AS ""Bucket"",
+                    locf(last(v.value, v.time)) AS ""Value""
+                FROM votes v
+                WHERE v.creator_id = ANY(@ids)
+                    AND v.time >= @start_time
+                    AND v.time <= @end_time
+                GROUP BY ""CreatorId"", ""Bucket""
+                ORDER BY ""Bucket"" ASC";
 
         using DbCommand command = _dbContext.Database.GetDbConnection().CreateCommand();
         command.CommandText = sql;
+
+        command.Parameters.Add(new NpgsqlParameter("ids", creatorIds));
+        command.Parameters.Add(new NpgsqlParameter("interval", interval));
+        command.Parameters.Add(new NpgsqlParameter("start_time", globalStartTime));
+        command.Parameters.Add(new NpgsqlParameter("end_time", globalEndTime));
 
         if (command.Connection!.State != ConnectionState.Open)
         {
@@ -136,22 +151,31 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         while (await rows.ReadAsync())
         {
             int creatorId = rows.GetInt32(0);
-            if (!result.ContainsKey(creatorId))
-            {
-                result[creatorId] = [];
-            }
+            DateTime bucketTime = rows.GetDateTime(1);
+            long value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetInt64(2);
 
-            // TODO(dylhack): update the query so we don't have to check out of window timestamps
-            DateTime time = rows.GetDateTime(1); // Maps "Bucket" to "Time"
-            if (time < after)
+            if (!creatorLookup.TryGetValue(creatorId, out var creator)) continue;
+
+            if (!creator.StreamStatus.IsLive &&
+                creator.StreamStatus.EndedAt.HasValue &&
+                bucketTime > creator.StreamStatus.EndedAt.Value.UtcDateTime)
             {
                 continue;
             }
 
-            long value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetInt64(2);
-            Creator creator = creators.First(c => c.Id.Value == creatorId);
-            result[creatorId]
-                .Add(new Vote { Creator = creator, CreatorId = creator.Id, Time = time, Value = value });
+            if (!result.TryGetValue(creatorId, out var list))
+            {
+                list = [];
+                result[creatorId] = list;
+            }
+
+            list.Add(new Vote
+            {
+                Creator = creator,
+                CreatorId = creator.Id,
+                Time = bucketTime,
+                Value = value
+            });
         }
 
         return result.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray());

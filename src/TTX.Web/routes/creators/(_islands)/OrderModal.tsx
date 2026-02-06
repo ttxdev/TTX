@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import {
   animate,
   AnimatePresence,
@@ -54,7 +54,7 @@ export default function OrderModal(
     amount: 0,
   });
 
-  // --- Motion Values (Svelte Tween equivalents) ---
+  // --- Motion Values ---
   const mPrice = useMotionValue(props.price);
   const mCost = useMotionValue(0);
   const mFee = useMotionValue(0);
@@ -70,7 +70,6 @@ export default function OrderModal(
     const init = async () => {
       setIsLoading(true);
       try {
-        // client.current = getApiClient(props.state.token);
         const user = await client.getSelf();
         const balance = user.credits;
         const owns = user.shares.find((s) =>
@@ -91,13 +90,12 @@ export default function OrderModal(
     init();
   }, []);
 
-  // Handle priceProp updates
-
+  // Update motion price
   useEffect(() => {
     animate(mPrice, props.price, { duration: 0.3 });
   }, [props.price]);
 
-  // Effect: Calculate derived animations (Svelte $effect equivalent)
+  // Handle derived animations
   useEffect(() => {
     const amt = amount ?? 0;
     const currentPrice = props.price;
@@ -114,32 +112,44 @@ export default function OrderModal(
     }
   }, [amount, props.type, props.price]);
 
-  // Derived Logic
+  // Logic: Calculate maximum shares allowed
+  const getMaxPossible = useCallback(() => {
+    if (props.type === TransactionAction.Buy) {
+      return Math.max(
+        0,
+        Math.min(
+          Math.floor(userBalance / (props.price * (1 + FEE_RATE))),
+          BUY_LIMIT - userOwns,
+        ),
+      );
+    }
+    return userOwns;
+  }, [props.type, props.price, userBalance, userOwns]);
+
+  // Handler: Standardized input with clamping
+  const handleAmountUpdate = useCallback((val: number | undefined) => {
+    if (val === undefined || isNaN(val)) {
+      setAmount(undefined);
+      return;
+    }
+    const max = getMaxPossible();
+    const clamped = Math.max(0, Math.min(val, max));
+    setAmount(clamped);
+  }, [getMaxPossible]);
+
+  // Effect: Update Clamp when price changes
+  useEffect(() => {
+    if (amount !== undefined) {
+      handleAmountUpdate(amount);
+    }
+  }, [props.price, handleAmountUpdate]);
+
   const cannotAfford = amount === undefined
     ? true
     : props.type === TransactionAction.Buy
     ? (amount * props.price * (1 + FEE_RATE) > userBalance ||
       userOwns + amount > BUY_LIMIT)
     : amount > userOwns;
-
-  const setAmountPercentage = (p: "max" | "half" | "quarter") => {
-    const max = props.type === TransactionAction.Buy
-      ? Math.max(
-        0,
-        Math.min(
-          Math.floor(userBalance / (props.price * (1 + FEE_RATE))),
-          BUY_LIMIT - userOwns,
-        ),
-      )
-      : userOwns;
-
-    const val = p === "max"
-      ? max
-      : p === "half"
-      ? Math.floor(max / 2)
-      : Math.floor(max / 4);
-    setAmount(val < 1 && max >= 1 ? 1 : val);
-  };
 
   const handleTransaction = async () => {
     if (!amount) return;
@@ -265,30 +275,40 @@ export default function OrderModal(
                   <div className="join w-full">
                     <input
                       type="number"
-                      className="input input-bordered join-item flex-1 border-purple-400 focus:outline-none"
+                      className="input input-bordered join-item flex-1 border-purple-400 focus:outline-none rounded-l-2xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       value={amount ?? ""}
                       onInput={(e) =>
-                        setAmount(parseInt(e.currentTarget.value) || undefined)}
-                      placeholder="Amount"
+                        handleAmountUpdate(parseInt(e.currentTarget.value))}
+                      placeholder="0"
+                      min="0"
                     />
+
+                    {/* Decrement Button with high-contrast divider */}
                     <button
-                      className="btn join-item bg-purple-400 text-white"
+                      className="btn join-item bg-purple-400 text-white border-none border-l-2 border-purple-600 disabled:bg-purple-900 disabled:text-white/40"
                       type="button"
-                      onClick={() => setAmountPercentage("quarter")}
+                      onClick={() => handleAmountUpdate((amount ?? 0) - 1)}
+                      disabled={!amount || amount <= 0}
                     >
-                      ¼
+                      −
                     </button>
+
+                    {/* Increment Button with high-contrast divider */}
                     <button
-                      className="btn join-item bg-purple-400 text-white"
+                      className="btn join-item bg-purple-400 text-white border-none border-l-2 border-purple-600 disabled:bg-purple-900 disabled:text-white/40"
                       type="button"
-                      onClick={() => setAmountPercentage("half")}
+                      onClick={() => handleAmountUpdate((amount ?? 0) + 1)}
+                      disabled={amount !== undefined &&
+                        amount >= getMaxPossible()}
                     >
-                      ½
+                      +
                     </button>
+
+                    {/* Max Button with high-contrast divider */}
                     <button
-                      className="btn join-item bg-purple-400 text-white rounded-r-2xl"
+                      className="btn join-item bg-purple-400 text-white border-none border-l-2 border-purple-600 rounded-r-2xl"
                       type="button"
-                      onClick={() => setAmountPercentage("max")}
+                      onClick={() => handleAmountUpdate(getMaxPossible())}
                     >
                       Max
                     </button>
@@ -319,7 +339,7 @@ export default function OrderModal(
 
                   <button
                     type="button"
-                    className="btn w-full rounded-2xl bg-purple-400 text-white font-black"
+                    className="btn w-full rounded-2xl bg-purple-400 text-white font-black border-none"
                     disabled={isLoading || cannotAfford || !amount ||
                       amount < 1}
                     onClick={handleTransaction}
