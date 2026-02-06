@@ -35,7 +35,7 @@ export const handler = define.handlers({
       const creator = await client.getCreator(
         slug,
         TimeStep.Minute,
-        new Date(Date.now() - hours * 60 * 60 * 1000),
+        `${hours}:00:00`
       );
 
       let isPlayer, currentUserIsCreator;

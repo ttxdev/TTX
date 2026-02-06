@@ -84,7 +84,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -146,7 +148,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -172,13 +176,13 @@ export class TTXClient {
 
   /**
    * @param step (optional)
-   * @param after (optional)
+   * @param before (optional)
    * @return OK
    */
   getCreator(
     slug: string,
     step?: TimeStep | undefined,
-    after?: Date | undefined,
+    before?: string | undefined,
   ): Promise<CreatorDto> {
     let url_ = this.baseUrl + "/creators/{slug}?";
     if (slug === undefined || slug === null) {
@@ -190,11 +194,10 @@ export class TTXClient {
     } else if (step !== undefined) {
       url_ += "step=" + encodeURIComponent("" + step) + "&";
     }
-    if (after === null) {
-      throw new globalThis.Error("The parameter 'after' cannot be null.");
-    } else if (after !== undefined) {
-      url_ += "after=" +
-        encodeURIComponent(after ? "" + after.toISOString() : "") + "&";
+    if (before === null) {
+      throw new globalThis.Error("The parameter 'before' cannot be null.");
+    } else if (before !== undefined) {
+      url_ += "before=" + encodeURIComponent("" + before) + "&";
     }
     url_ = url_.replace(/[?&]$/, "");
 
@@ -214,7 +217,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -276,7 +281,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -361,7 +368,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -387,13 +396,13 @@ export class TTXClient {
 
   /**
    * @param step (optional)
-   * @param after (optional)
+   * @param before (optional)
    * @return OK
    */
   getPlayer(
     username: string,
     step?: TimeStep | undefined,
-    after?: Date | undefined,
+    before?: string | undefined,
   ): Promise<PlayerDto> {
     let url_ = this.baseUrl + "/players/{username}?";
     if (username === undefined || username === null) {
@@ -405,11 +414,10 @@ export class TTXClient {
     } else if (step !== undefined) {
       url_ += "step=" + encodeURIComponent("" + step) + "&";
     }
-    if (after === null) {
-      throw new globalThis.Error("The parameter 'after' cannot be null.");
-    } else if (after !== undefined) {
-      url_ += "after=" +
-        encodeURIComponent(after ? "" + after.toISOString() : "") + "&";
+    if (before === null) {
+      throw new globalThis.Error("The parameter 'before' cannot be null.");
+    } else if (before !== undefined) {
+      url_ += "before=" + encodeURIComponent("" + before) + "&";
     }
     url_ = url_.replace(/[?&]$/, "");
 
@@ -429,7 +437,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -476,7 +486,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -527,7 +539,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -574,7 +588,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -637,7 +653,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
@@ -689,7 +707,9 @@ export class TTXClient {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
-      response.headers.forEach((v: any, k: any) => _headers[k] = v);
+      response.headers.forEach((v: any, k: any) =>
+        _headers[k] = v
+      );
     }
     if (status === 200) {
       return response.text().then((_responseText) => {
