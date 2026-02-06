@@ -69,7 +69,7 @@ export function Podium({
               <span class="indicator-item indicator-center badge font-semibold text-[#FFD700]">
                 1st
               </span>
-              <div class="h-64 relative w-full rounded-t-lg bg-[#FFD700]/10`">
+              <div class="h-64 relative w-full rounded-t-lg bg-[#FFD700]/10">
                 <div class="absolute inset-x-0 bottom-4 flex flex-col items-center max-md:inset-x-2">
                   <a
                     href={first.href}
