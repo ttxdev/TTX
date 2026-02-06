@@ -3,7 +3,7 @@ import { CreatorOrderBy, OrderDirection, PlayerOrderBy } from "../lib/api.ts";
 import { getApiClient } from "../lib/index.ts";
 import { Placement, Podium } from "../components/Podium.tsx";
 import ExternalLink from "@/components/ExternalLink.tsx";
-import Leaderboard from "./(_islands)/Leaderboard.tsx";
+import SmallCreatorList from "./(_islands)/SmallCreatorList.tsx";
 import FeaturedChart from "./(_islands)/FeaturedChart.tsx";
 
 export const handler = define.handlers({
@@ -109,7 +109,7 @@ export default define.page<typeof handler>((ctx) => {
           </div>
         </div>
         <div class="flex w-1/2 flex-col items-center justify-center max-md:w-full">
-          <Leaderboard creators={ctx.data.featuredCreators.data} />
+          <SmallCreatorList creators={ctx.data.featuredCreators.data} />
           <a
             class="mt-2 hover:underline hover:decoration-purple-500 font-black text-purple-500"
             href="/creators"

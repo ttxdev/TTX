@@ -3,7 +3,7 @@ import { CreatorPartialDto } from "../../lib/api.ts";
 import { Chart } from "chart.js";
 import { formatToChart } from "../../lib/formatting.ts";
 
-function LeaderboardItem({ creator }: { creator: CreatorPartialDto }) {
+function Item({ creator }: { creator: CreatorPartialDto }) {
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const href = `/creators/${creator.slug}`;
   const data = formatToChart(creator.value, creator.history);
@@ -74,13 +74,13 @@ function LeaderboardItem({ creator }: { creator: CreatorPartialDto }) {
   );
 }
 
-export default function Leaderboard(
+export default function SmallCreatorList(
   { creators }: { creators: CreatorPartialDto[] },
 ) {
   return (
     <ul class="list rounded-box rounded-xl bg-gray-100/10 shadow-md">
       {creators.map((creator) => (
-        <LeaderboardItem key={`leaderboard-${creator.id}`} creator={creator} />
+        <Item key={`leaderboard-${creator.id}`} creator={creator} />
       ))}
     </ul>
   );
