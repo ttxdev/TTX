@@ -55,7 +55,7 @@ public class PlayerService(
         Dictionary<int, PortfolioSnapshot[]> history = await _portfolioRepository.GetHistoryFor(
             players,
             request.HistoryParams.Step,
-            request.HistoryParams.After
+            request.HistoryParams.Before
         );
 
         return new PaginationDto<PlayerDto>()
@@ -91,7 +91,7 @@ public class PlayerService(
         }
 
         Dictionary<int, PortfolioSnapshot[]> history =
-            await _portfolioRepository.GetHistoryFor([player], historyParams.Step, historyParams.After);
+            await _portfolioRepository.GetHistoryFor([player], historyParams.Step, historyParams.Before);
 
         if (history.TryGetValue(player.Id, out PortfolioSnapshot[]? portfolio))
         {

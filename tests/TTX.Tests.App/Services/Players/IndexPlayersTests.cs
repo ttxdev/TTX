@@ -48,7 +48,7 @@ public class IndexPlayersTests : ServiceTests
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.ThirtyMinute,
-                After = DateTime.UtcNow.AddDays(-1)
+                Before = TimeSpan.FromDays(1)
             },
         });
 
@@ -74,8 +74,8 @@ public class IndexPlayersTests : ServiceTests
             Limit = total,
             HistoryParams = new HistoryParams
             {
-                After = DateTimeOffset.Now,
-                Step = TimeStep.Day
+                Step = TimeStep.Day,
+                Before = TimeSpan.FromDays(1)
             },
             Order = new Order<PlayerOrderBy>
             {
@@ -112,7 +112,7 @@ page.Data[i - 1].Credits, $"Player at index {i - 1} has fewer credits than playe
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.ThirtyMinute,
-                After = DateTime.UtcNow.AddDays(-1)
+                Before = TimeSpan.FromDays(1)
             },
             Order = new Order<PlayerOrderBy>
             {
@@ -149,7 +149,7 @@ page.Data[i - 1].Credits, $"Player at index {i - 1} has fewer credits than playe
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.ThirtyMinute,
-                After = DateTime.UtcNow.AddDays(-1)
+                Before = TimeSpan.FromDays(1)
             },
             Limit = total,
             Search = player.Name
@@ -171,7 +171,7 @@ page.Data[i - 1].Credits, $"Player at index {i - 1} has fewer credits than playe
         PlayerDto? player = await playerService.Find(target.Slug, new HistoryParams
         {
             Step = TimeStep.ThirtyMinute,
-            After = DateTime.UtcNow.AddDays(-1)
+            Before = TimeSpan.FromDays(1)
         });
 
         Assert.IsNotNull(player);
@@ -196,7 +196,7 @@ page.Data[i - 1].Credits, $"Player at index {i - 1} has fewer credits than playe
         PlayerDto? player = await playerService.Find(target.Slug, new HistoryParams
         {
             Step = TimeStep.Minute,
-            After = DateTime.UtcNow.AddMinutes(-1)
+            Before = TimeSpan.FromMinutes(1)
         });
 
         Assert.IsNotNull(player);

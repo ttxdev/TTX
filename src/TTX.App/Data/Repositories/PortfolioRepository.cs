@@ -23,7 +23,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
     public async Task<Dictionary<int, PortfolioSnapshot[]>> GetHistoryFor(
         IEnumerable<Player> players,
         TimeStep step,
-        DateTimeOffset after
+        TimeSpan before
     )
     {
         if (!players.Any())
@@ -36,6 +36,8 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
             throw new NotSupportedException("Only PostgreSQL is supported");
         }
 
+        DateTimeOffset endTime = DateTimeOffset.UtcNow;
+        DateTimeOffset startTime = endTime - before;
         string interval = step.ToTimescaleString();
         int[] playerIds = [.. players.Select(c => c.Id.Value)];
         string playerIdsStr = string.Join(", ", playerIds);
@@ -46,8 +48,8 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
                 time_bucket_gapfill(
                     '{interval}',
                     player_portfolios.time,
-                    '{after.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
-                    now()
+                    '{startTime.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
+                    '{endTime.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz
                 ) AS ""Bucket"",
                 locf (last (player_portfolios.value, player_portfolios.time)) AS ""Value""
             FROM player_portfolios
@@ -73,7 +75,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
 
             // TODO(dylhack): update the query so we don't have to check out of window timestamps
             DateTime time = rows.GetDateTime(1); // Maps "Bucket" to "Time"
-            if (time < after)
+            if (time < endTime)
             {
                 continue;
             }
@@ -91,7 +93,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
     public async Task<Dictionary<int, Vote[]>> GetHistoryFor(
         IEnumerable<Creator> creators,
         TimeStep step,
-        DateTimeOffset after
+        TimeSpan before
     )
     {
         if (!creators.Any())
@@ -111,6 +113,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
 
         DateTimeOffset globalEndTime = creators.Max(c =>
             c.StreamStatus.IsLive ? now : (c.StreamStatus.EndedAt ?? now));
+        DateTimeOffset globalStartTime = globalEndTime - before;
 
         string sql = $@"
                 SELECT
@@ -134,7 +137,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
 
         command.Parameters.Add(new NpgsqlParameter("ids", creatorIds));
         command.Parameters.Add(new NpgsqlParameter("interval", interval));
-        command.Parameters.Add(new NpgsqlParameter("start_time", after));
+        command.Parameters.Add(new NpgsqlParameter("start_time", globalStartTime));
         command.Parameters.Add(new NpgsqlParameter("end_time", globalEndTime));
 
         if (command.Connection!.State != ConnectionState.Open)

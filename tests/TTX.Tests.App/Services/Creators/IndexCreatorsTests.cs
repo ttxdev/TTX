@@ -47,7 +47,7 @@ public class IndexCreatorsTests : ServiceTests
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.ThirtyMinute,
-                After = DateTime.UtcNow.AddDays(-1)
+                Before = TimeSpan.FromDays(1)
             }
         });
 
@@ -74,7 +74,7 @@ public class IndexCreatorsTests : ServiceTests
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.ThirtyMinute,
-                After = DateTime.UtcNow.AddDays(-1)
+                Before = TimeSpan.FromDays(1)
             },
             Order = new Order<CreatorOrderBy>
             {
@@ -111,7 +111,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.ThirtyMinute,
-                After = DateTime.UtcNow.AddDays(-1)
+                Before = TimeSpan.FromDays(1)
             },
             Order = new Order<CreatorOrderBy>
             {
@@ -149,7 +149,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.ThirtyMinute,
-                After = DateTime.UtcNow.AddDays(-1)
+                Before = TimeSpan.FromDays(1)
             },
             Search = creator.Name
         });
@@ -186,7 +186,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.Minute,
-                After = DateTime.UtcNow.AddMinutes(-1)
+                Before = TimeSpan.FromMinutes(1)
             },
         });
 
@@ -206,7 +206,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
         CreatorDto? creator = await creatorService.Find(target.Slug, new HistoryParams
         {
             Step = TimeStep.ThirtyMinute,
-            After = DateTime.UtcNow.AddDays(-1)
+            Before = TimeSpan.FromDays(1)
         });
 
         Assert.IsNotNull(creator);
@@ -231,7 +231,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
         CreatorDto? creator = await creatorService.Find(target.Slug, new HistoryParams
         {
             Step = TimeStep.Minute,
-            After = DateTime.UtcNow.AddMinutes(-1)
+            Before = TimeSpan.FromMinutes(1)
         });
 
         Assert.IsNotNull(creator);
