@@ -1,4 +1,4 @@
-import { formatShareAmount, formatValue } from "@/lib/formatting.ts";
+import { formatName, formatShareAmount, formatValue } from "@/lib/formatting.ts";
 import Card from "../../../components/Card.tsx";
 import PlayerPlacement, {
   Placement,
@@ -8,11 +8,6 @@ import { ICreatorShareDto } from "../../../lib/api.ts";
 export default function Shares(
   { shares, price }: { shares: ICreatorShareDto[]; price: number },
 ) {
-  const total = Object.fromEntries(
-    shares.map((
-      holder,
-    ) => [holder.player.name, formatValue(holder.quantity * price)]),
-  );
   const sortedHolders = shares.toSorted((a, b) => b.quantity - a.quantity);
 
   return (
@@ -40,21 +35,18 @@ export default function Shares(
                         class="size-10 rounded-full"
                       />
                     </a>
-                    <div class="flex flex-col">
-                      <div class="flex scale-90">
-                        <PlayerPlacement place={(index + 1) as Placement} />
-                      </div>
+                    <div class="flex flex-col items-start">
                       <a
-                        href={href}
-                        class="text-sm text-violet-500 hover:underline"
+                        href={`/players/${holder.player.slug}`}
+                        class="text-lg font-semibold text-violet-500 hover:underline"
                       >
-                        {holder.player.name}
+                        {formatName(holder.player.name)}
                       </a>
                     </div>
                   </td>
                   <td class="flex flex-col items-center justify-center p-2 text-right font-bold">
                     <span class="text-md md:text-xl">
-                      {total[holder.player.name]}
+                      {formatValue(holder.quantity * price)}
                     </span>
                     <div class="w-full text-right opacity-55">
                       {formatShareAmount(holder.quantity)} shares
