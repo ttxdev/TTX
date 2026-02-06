@@ -1,5 +1,6 @@
 import { Signal } from "@preact/signals";
 import { State } from "../../utils.ts";
+import { AnimatePresence, motion } from "motion/react";
 
 export default function MobileNav(
   { urls, state, url, isSearchOpen, isMobileMenuOpen, toggleMobileMenu }: {
@@ -16,16 +17,14 @@ export default function MobileNav(
 
   return (
     <>
+    <AnimatePresence>
       {isMobileMenuOpen.value && (
-        <>
-          <button
-            class="opaci fixed inset-0 z-50 bg-black transition-opacity duration-300"
-            onClick={toggleMobileMenu}
-            type="button"
-            aria-label="Close menu"
-          >
-          </button>
-          <div class="fixed left-0 top-0 z-50 h-screen w-full bg-white shadow-lg backdrop-blur backdrop-contrast-100 backdrop-saturate-200 backdrop-filter transition-all duration-500 ease-in-out lg:hidden dark:bg-black">
+          <motion.div 
+            initial={{scale: .1, x: 135, y: -280 }} 
+            animate={{scale: 1,  x: 0, y: 0}} 
+            transition={{duration: .20}} 
+            exit={{scale: .1, x: 135, y: -280 }} 
+            class="fixed left-0 top-0 z-50 h-screen w-full bg-white shadow-lg backdrop-blur backdrop-contrast-100 backdrop-saturate-200 backdrop-filter lg:hidden dark:bg-black">
             <div class="mt-4 flex h-full flex-col">
               <div class="flex items-center justify-between p-4">
                 <a
@@ -154,9 +153,9 @@ export default function MobileNav(
                 )}
               </div>
             </div>
-          </div>
-        </>
+          </motion.div>
       )}
+    </AnimatePresence>
     </>
   );
 }
