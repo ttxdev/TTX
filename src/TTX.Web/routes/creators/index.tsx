@@ -278,15 +278,13 @@ function CreatorTable(props: {
                     <a
                       href={creatorHref}
                       rel="noopener noreferrer"
-                      class="block"
+                      class="block h-16 w-32"
                       aria-label="View Chart"
                     >
-                      <div class="h-16 w-32">
-                        <MiniChart
-                          value={creator.value}
-                          history={creator.history}
-                        />
-                      </div>
+                      <MiniChart
+                        value={creator.value}
+                        history={creator.history}
+                      />
                     </a>
                   </td>
                   <td class="py-4 text-center max-md:px-2">
