@@ -1,6 +1,6 @@
 import { useComputed, useSignal, useSignalEffect } from "@preact/signals";
 import { CreatorPartialDto, PlayerDto } from "../../lib/api.ts";
-import { AnimatePresence, motion, scale } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { State } from "../../utils.ts";
 import { getApiClient } from "../../lib/index.ts";
 import { formatValue } from "../../lib/formatting.ts";
