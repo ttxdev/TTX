@@ -175,25 +175,15 @@ export class TTXClient {
   }
 
   /**
-   * @param step (optional)
    * @param before (optional)
    * @return OK
    */
-  getCreator(
-    slug: string,
-    step?: TimeStep | undefined,
-    before?: string | undefined,
-  ): Promise<CreatorDto> {
+  getCreator(slug: string, before?: string | undefined): Promise<CreatorDto> {
     let url_ = this.baseUrl + "/creators/{slug}?";
     if (slug === undefined || slug === null) {
       throw new globalThis.Error("The parameter 'slug' must be defined.");
     }
     url_ = url_.replace("{slug}", encodeURIComponent("" + slug));
-    if (step === null) {
-      throw new globalThis.Error("The parameter 'step' cannot be null.");
-    } else if (step !== undefined) {
-      url_ += "step=" + encodeURIComponent("" + step) + "&";
-    }
     if (before === null) {
       throw new globalThis.Error("The parameter 'before' cannot be null.");
     } else if (before !== undefined) {
@@ -395,25 +385,15 @@ export class TTXClient {
   }
 
   /**
-   * @param step (optional)
    * @param before (optional)
    * @return OK
    */
-  getPlayer(
-    username: string,
-    step?: TimeStep | undefined,
-    before?: string | undefined,
-  ): Promise<PlayerDto> {
+  getPlayer(username: string, before?: string | undefined): Promise<PlayerDto> {
     let url_ = this.baseUrl + "/players/{username}?";
     if (username === undefined || username === null) {
       throw new globalThis.Error("The parameter 'username' must be defined.");
     }
     url_ = url_.replace("{username}", encodeURIComponent("" + username));
-    if (step === null) {
-      throw new globalThis.Error("The parameter 'step' cannot be null.");
-    } else if (step !== undefined) {
-      url_ += "step=" + encodeURIComponent("" + step) + "&";
-    }
     if (before === null) {
       throw new globalThis.Error("The parameter 'before' cannot be null.");
     } else if (before !== undefined) {
@@ -2235,17 +2215,6 @@ export interface IStreamStatusDto {
   is_live: boolean;
   started_at?: Date | null;
   ended_at?: Date | null;
-}
-
-export enum TimeStep {
-  Minute = "Minute",
-  FiveMinute = "FiveMinute",
-  FifteenMinute = "FifteenMinute",
-  ThirtyMinute = "ThirtyMinute",
-  Hour = "Hour",
-  Day = "Day",
-  Week = "Week",
-  Month = "Month",
 }
 
 export class TokenDto implements ITokenDto {

@@ -24,14 +24,14 @@ export function formatToChart(
 
 export function formatValue(value: number) {
   if (Math.abs(value) >= 1_000_000_000_000) {
-    return `$${(value / 1_000_000_000_000).toFixed(2)} T`;
+    return `$${(value / 1_000_000_000_000).toPrecision(2)} T`;
   } else if (Math.abs(value) >= 1_000_000_000) {
-    return `$${(value / 1_000_000_000).toFixed(2)} B`;
+    return `$${(value / 1_000_000_000).toPrecision(2)} B`;
   } else {
     return `$${
       Math.abs(value).toLocaleString("en-US", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       })
     }`;
   }
