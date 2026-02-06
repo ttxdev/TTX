@@ -34,7 +34,7 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
 
   return (
     <header>
-      <div class="navbar fixed left-1/2 z-20 mx-auto w-full mt-4 w-[95%] -translate-x-1/2 rounded-xl bg-clip-padding p-6 shadow-sm backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
+      <div class="navbar max-w-250 fixed left-1/2 z-20 mx-auto w-full mt-4 w-[95%] -translate-x-1/2 rounded-xl bg-clip-padding p-6 shadow-sm backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
         <div class="navbar-start">
           <a href="/" class="btn btn-ghost rounded-2xl text-xl">
             <img class="w-4 lg:w-8" src="/ttx-logo-only.png" alt="TTX Logo" />
@@ -106,7 +106,7 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
             </li>
           </ul>
         </nav>
-        
+
         <nav class={`navbar-end md:hidden`}>
           <button
             onClick={toggleMobileMenu}
