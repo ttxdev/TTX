@@ -43,7 +43,7 @@ export default function Drawer({ state }: { state: State }) {
   return (
     <>
       <AnimatePresence>
-        {!showDrawer.value && 
+        {!showDrawer.value && state.user && 
         <motion.button
             class="fixed right-4 bottom-4 cursor-pointer rounded-full bg-purple-600 p-4 text-white shadow-lg transition-colors hover:bg-purple-700"
             type="button"
@@ -92,7 +92,7 @@ export default function Drawer({ state }: { state: State }) {
                 </div>
                 </div>
                 <button
-                  class="rounded-full p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                  class="rounded-full cursor-pointer p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
                   type="button"
                   onClick={() => showDrawer.value = false}
                   aria-label="Close drawer"
