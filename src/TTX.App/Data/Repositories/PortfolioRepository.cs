@@ -108,50 +108,22 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         int[] creatorIds = [.. creators.Select(c => c.Id.Value)];
         string creatorIdsStr = string.Join(", ", creatorIds);
         string sql = $@"
-            WITH creator_bounds AS (
-                SELECT
-                    id,
-                    CASE
-                        WHEN stream_is_live = true THEN now()
-                        ELSE COALESCE(stream_ended_at, now())
-                    END as last_live
-                FROM creators
-                WHERE id = ANY(@ids)
-            )
             SELECT
-                v.creator_id AS ""CreatorId"",
+                votes.creator_id AS ""CreatorId"",
                 time_bucket_gapfill(
-                    @interval,
-                    v.time,
-                    @start_time,
-                    cb.last_live
+                    '{interval}',
+                    votes.time,
+                    '{after.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
+                    now()
                 ) AS ""Bucket"",
-                locf(last(v.value, v.time)) AS ""Value""
-            FROM votes v
-            JOIN creator_bounds cb ON v.creator_id = cb.id
-            WHERE v.creator_id = ANY(@ids)
-                AND v.time >= @start_time
-                AND v.time <= cb.last_live
-            GROUP BY ""CreatorId"", ""Bucket"", cb.last_live
+                locf (last (votes.value, votes.time)) AS ""Value""
+            FROM votes
+            WHERE votes.creator_id IN ({creatorIdsStr})
+            GROUP BY ""CreatorId"", ""Bucket""
             ORDER BY ""Bucket"" ASC";
 
         using DbCommand command = _dbContext.Database.GetDbConnection().CreateCommand();
         command.CommandText = sql;
-
-        DbParameter pIds = command.CreateParameter();
-        pIds.ParameterName = "ids";
-        pIds.Value = creatorIds;
-        command.Parameters.Add(pIds);
-
-        DbParameter pInterval = command.CreateParameter();
-        pInterval.ParameterName = "interval";
-        pInterval.Value = TimeSpan.Parse(interval);
-        command.Parameters.Add(pInterval);
-
-        DbParameter pStart = command.CreateParameter();
-        pStart.ParameterName = "start_time";
-        pStart.Value = after;
-        command.Parameters.Add(pStart);
 
         if (command.Connection!.State != ConnectionState.Open)
         {
@@ -164,25 +136,22 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         while (await rows.ReadAsync())
         {
             int creatorId = rows.GetInt32(0);
-            DateTime time = rows.GetDateTime(1);
-
-            // locf might return null if there's no data before the window
-            long value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetInt64(2);
-
-            if (!result.TryGetValue(creatorId, out var list))
+            if (!result.ContainsKey(creatorId))
             {
-                list ??= [];
-                result[creatorId] = list;
+                result[creatorId] = [];
             }
 
-            Creator creator = creators.First(c => c.Id.Value == creatorId);
-            list.Add(new Vote
+            // TODO(dylhack): update the query so we don't have to check out of window timestamps
+            DateTime time = rows.GetDateTime(1); // Maps "Bucket" to "Time"
+            if (time < after)
             {
-                Creator = creator,
-                CreatorId = creator.Id,
-                Time = time,
-                Value = value
-            });
+                continue;
+            }
+
+            long value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetInt64(2);
+            Creator creator = creators.First(c => c.Id.Value == creatorId);
+            result[creatorId]
+                .Add(new Vote { Creator = creator, CreatorId = creator.Id, Time = time, Value = value });
         }
 
         return result.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray());
