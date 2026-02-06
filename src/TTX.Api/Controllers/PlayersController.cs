@@ -7,8 +7,8 @@ using TTX.App.Dto.LootBoxes;
 using TTX.App.Dto.Pagination;
 using TTX.App.Dto.Players;
 using TTX.App.Dto.Portfolio;
+using TTX.App.Services.LootBoxes;
 using TTX.App.Services.Players;
-using TTX.App.Services.Transactions;
 using TTX.Domain.ValueObjects;
 
 namespace TTX.Api.Controllers;
@@ -16,7 +16,7 @@ namespace TTX.Api.Controllers;
 [ApiController]
 [Route("players")]
 [Produces(MediaTypeNames.Application.Json)]
-public class PlayersController(PlayerService playerService, TransactionService _transactionService) : ControllerBase
+public class PlayersController(LootBoxService _lootBoxService, PlayerService playerService) : ControllerBase
 {
     [HttpGet]
     [EndpointName("GetPlayers")]
@@ -100,7 +100,7 @@ public class PlayersController(PlayerService playerService, TransactionService _
     public async Task<ActionResult<LootBoxResultDto>> Gamba(int lootBoxId)
     {
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        Result<LootBoxResultDto> result = await _transactionService.OpenLootBox(userId, lootBoxId);
+        Result<LootBoxResultDto> result = await _lootBoxService.OpenLootBox(userId, lootBoxId);
 
         return result.ToActionResult();
     }
