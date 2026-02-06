@@ -55,11 +55,11 @@ public class TransactionService(
 
     public async Task<CreatorRarity[]> GetCreatorRarities()
     {
-        Creator[] creators = await _dbContext.Creators.ToArrayAsync();
-        double creatorValueSum = creators.Sum(creator => creator.Value);
-        double averageCreatorValue = creators.Length / creatorValueSum;
+        double averageCreatorValue = await _dbContext.Creators.AverageAsync(c => c.Value);
+        Creator[] creators = await _dbContext.Creators.Where(creator => creator.Value >= averageCreatorValue).ToArrayAsync();
+        double sum = creators.Sum(creator => creator.Value);
 
-        return [.. creators.Where(creator => creator.Value >= averageCreatorValue).Select(creator => CreatorRarity.Create(creatorValueSum, creator))];
+        return [.. creators.Select(creator => CreatorRarity.Create(sum, creator))];
     }
 
     public async Task<Result<LootBoxResultDto>> OpenLootBox(ModelId playerId, ModelId boxId)
