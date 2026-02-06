@@ -109,10 +109,7 @@ public class TwitchStreamMonitorAdapter : IStreamMonitorAdapter
 
             foreach (string? slug in chunk)
             {
-                if (!_watchedCreators.TryGetValue(slug, out Creator? creator))
-                {
-                    continue;
-                }
+                if (!_watchedCreators.TryGetValue(slug, out Creator? creator)) continue;
 
                 bool isLiveNow = liveStreamMap.TryGetValue(slug, out var streamData);
 
@@ -137,12 +134,14 @@ public class TwitchStreamMonitorAdapter : IStreamMonitorAdapter
                 _logger.LogInformation("Creator {Creator} went live.", creator.Slug);
             }
         }
-
-        FireEvent(creator.Id, false, DateTime.UtcNow);
-        _lastKnownStates[creator.Id] = new StreamState(false, null);
-        if (_logger.IsEnabled(LogLevel.Information))
+        else if (!isLiveNow && lastState.IsLive)
         {
-            _logger.LogInformation("Creator {Creator} went offline.", creator.Slug);
+            FireEvent(creator.Id, false, DateTime.UtcNow);
+            _lastKnownStates[creator.Id] = new StreamState(false, null);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Creator {Creator} went offline.", creator.Slug);
+            }
         }
     }
 
