@@ -99,10 +99,10 @@ public class TransactionTests : ServiceTests
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
         ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         TransactionService txService = scope.ServiceProvider.GetRequiredService<TransactionService>();
-        Random randomNumGen = scope.ServiceProvider.GetRequiredService<Random>();
+        Random random = scope.ServiceProvider.GetRequiredService<Random>();
         Player player = _playerFactory.Create();
         LootBox lootBox = player.AddLootBox();
-        Creator creator = _creatorFactory.Create(value: randomNumGen.Next(1, 500));
+        Creator creator = _creatorFactory.Create(value: random.Next(1, 500));
         db.Players.Add(player);
         db.Creators.Add(creator);
         await db.SaveChangesAsync(TestContext.CancellationToken);
@@ -118,10 +118,10 @@ public class TransactionTests : ServiceTests
         await using AsyncServiceScope scope = _services.CreateAsyncScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         TransactionService txService = scope.ServiceProvider.GetRequiredService<TransactionService>();
-        Random randomNumGen = scope.ServiceProvider.GetRequiredService<Random>();
+        Random random = scope.ServiceProvider.GetRequiredService<Random>();
         Player player = _playerFactory.Create();
         LootBox lootBox = player.AddLootBox();
-        Creator creator = _creatorFactory.Create(value: randomNumGen.Next(1, 500));
+        Creator creator = _creatorFactory.Create(value: random.Next(1, 500));
         dbContext.Players.Add(player);
         dbContext.Creators.Add(creator);
         await dbContext.SaveChangesAsync(TestContext.CancellationToken);
