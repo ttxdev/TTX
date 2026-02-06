@@ -62,10 +62,10 @@ public class CreatorsController(CreatorService _creatorService) : ControllerBase
             Before = before.Value,
             Step = before.Value.Days switch
                 {
-                    >= 30 => TimeStep.Month,
-                    >= 7 => TimeStep.Week,
-                    >= 1 => TimeStep.Day,
-                    _ => before.Value.TotalHours >= 1 ? TimeStep.Hour : TimeStep.Minute
+                    > 30 => TimeStep.Month,
+                    > 7 => TimeStep.Week,
+                    > 1 => TimeStep.Day,
+                    _ => before.Value.TotalHours > 1 ? TimeStep.Hour : TimeStep.Minute
                 }
         });
 

@@ -60,9 +60,9 @@ public class PlayersController(PlayerService playerService, TransactionService _
             Before = before.Value,
             Step = before.Value.Days switch
                     {
-                        >= 30 => TimeStep.Month,
-                        >= 7 => TimeStep.Week,
-                        >= 1 => TimeStep.Day,
+                        > 30 => TimeStep.Month,
+                        > 7 => TimeStep.Week,
+                        > 1 => TimeStep.Day,
                         _ => before.Value.TotalHours >= 1 ? TimeStep.Hour : TimeStep.Minute
                     }
         });
