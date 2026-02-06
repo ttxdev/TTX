@@ -54,11 +54,10 @@ export default function Shares(
                   </td>
                   <td class="flex flex-col items-center justify-center p-2 text-right font-bold">
                     <span class="text-md md:text-xl">
-                      {formatShareAmount(holder.quantity)} @{" "}
-                      {formatValue(price)}
+                      {total[holder.player.name]}
                     </span>
                     <div class="w-full text-right opacity-55">
-                      {total[holder.player.name]}
+                      {formatShareAmount(holder.quantity)} shares
                     </div>
                   </td>
                 </tr>
