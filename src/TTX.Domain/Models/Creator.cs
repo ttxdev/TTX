@@ -29,7 +29,7 @@ public class Creator : User
         return [.. shares.Values.Where(share => share.Quantity > 0)];
     }
 
-    public Vote ApplyNetChange(long netChange)
+    public Vote ApplyNetChange(double netChange)
     {
         Value = Math.Max(MinValue, Value + netChange);
 
