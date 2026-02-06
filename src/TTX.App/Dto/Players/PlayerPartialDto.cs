@@ -5,9 +5,9 @@ namespace TTX.App.Dto.Players;
 
 public class PlayerPartialDto : UserDto
 {
-    [JsonPropertyName("credits")] public required long Credits { get; init; }
-    [JsonPropertyName("portfolio")] public required long Portfolio { get; init; }
-    [JsonPropertyName("value")] public required long Value { get; init; }
+    [JsonPropertyName("credits")] public required double Credits { get; init; }
+    [JsonPropertyName("portfolio")] public required double Portfolio { get; init; }
+    [JsonPropertyName("value")] public required double Value { get; init; }
 
     [JsonPropertyName("type")] public required PlayerType Type { get; init; }
 

@@ -2,7 +2,6 @@ import {
   CreatorDto,
   CreatorShareDto,
   CreatorTransactionDto,
-  TimeStep,
 } from "@/lib/api.ts";
 import { getApiClient } from "@/lib/index.ts";
 import { define } from "@/utils.ts";
@@ -34,7 +33,6 @@ export const handler = define.handlers({
       const client = getApiClient(ctx.state.token);
       const creator = await client.getCreator(
         slug,
-        TimeStep.Minute,
         `${hours}:00:00`
       );
 

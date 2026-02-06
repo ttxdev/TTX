@@ -49,6 +49,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasConversion(new CreditsConverter())
                 .HasColumnName("credits");
             entity.Property(p => p.Portfolio)
+                .HasConversion(new CreditsConverter())
                 .HasColumnName("portfolio");
             entity.Property(p => p.Type)
                 .HasConversion(

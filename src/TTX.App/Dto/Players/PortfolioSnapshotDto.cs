@@ -6,7 +6,7 @@ namespace TTX.App.Dto.Players;
 public class PortfolioSnapshotDto
 {
     [JsonPropertyName("player_id")] public required int PlayerId { get; init; }
-    [JsonPropertyName("value")] public required long Value { get; init; }
+    [JsonPropertyName("value")] public required double Value { get; init; }
     [JsonPropertyName("time")] public required DateTimeOffset Time { get; init; }
 
     public static PortfolioSnapshotDto Create(PortfolioSnapshot p)

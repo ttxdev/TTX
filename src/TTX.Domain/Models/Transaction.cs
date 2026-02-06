@@ -9,7 +9,7 @@ public class Transaction : Model
     public required TransactionAction Action { get; init; }
     public required ModelId CreatorId { get; init; }
     public required ModelId PlayerId { get; init; }
-    public long Total => Value * Quantity;
+    public double Total => Value * Quantity;
 
     public virtual Creator Creator { get; init; } = null!;
     public virtual Player Player { get; init; } = null!;

@@ -2,9 +2,9 @@
 
 namespace TTX.Domain.ValueObjects;
 
-public class Credits : ValueObject<long>
+public class Credits : ValueObject<double>
 {
-    public static bool TryValidate(long value, out string reason)
+    public static bool TryValidate(double value, out string reason)
     {
         reason = string.Empty;
         if (value < 0)
@@ -16,7 +16,7 @@ public class Credits : ValueObject<long>
         return true;
     }
 
-    public static Credits Create(long value)
+    public static Credits Create(double value)
     {
         if (!TryValidate(value, out var reason))
         {
@@ -34,6 +34,16 @@ public class Credits : ValueObject<long>
     public override int GetHashCode()
     {
         return Value.GetHashCode();
+    }
+
+    public static implicit operator double(Credits credits)
+    {
+        return credits.Value;
+    }
+
+    public static implicit operator Credits(double value)
+    {
+        return Create(value);
     }
 
     public static implicit operator Credits(long value)
