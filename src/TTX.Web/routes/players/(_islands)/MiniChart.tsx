@@ -1,17 +1,18 @@
 import { Chart } from "chart.js";
 import type { PortfolioSnapshotDto } from "@/lib/api.ts";
-import { useEffect, useRef } from "preact/hooks";
+import { useSignalEffect } from "@preact/signals";
+import { useSignalRef } from "@preact/signals/utils";
 import { formatToChart } from "../../../lib/formatting.ts";
 
 export default function MiniChart(
   { value, history }: { value: number; history: PortfolioSnapshotDto[] },
 ) {
+  const canvas = useSignalRef<HTMLCanvasElement | null>(null);
   const data = formatToChart(value, history);
-  const canvas = useRef<HTMLCanvasElement | null>(null);
-  const isUpward = history[history.length - 1]?.value > history[0]?.value;
+  const isUpward = data.values[data.values.length - 1] > data.values[0];
   const lineColor = isUpward ? "#22c55e" : "#ef4444";
 
-  useEffect(() => {
+  useSignalEffect(() => {
     if (!canvas.current) {
       return;
     }
@@ -22,7 +23,7 @@ export default function MiniChart(
         labels: Array(data.labels.length).fill(""), // Create empty labels
         datasets: [
           {
-            data: data.labels,
+            data: data.values,
             borderColor: lineColor,
             borderWidth: 3,
             fill: false,
@@ -53,7 +54,7 @@ export default function MiniChart(
     return () => {
       chart.destroy();
     };
-  }, [canvas]);
+  });
 
   return (
     <canvas ref={canvas}>
