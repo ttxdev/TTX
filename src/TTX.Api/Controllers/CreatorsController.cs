@@ -42,7 +42,7 @@ public class CreatorsController(CreatorService _creatorService) : ControllerBase
             HistoryParams = new HistoryParams
             {
                 Step = TimeStep.ThirtyMinute,
-                After = DateTime.UtcNow.AddDays(-1)
+                Before = TimeSpan.FromDays(1)
             }
         });
 
@@ -54,12 +54,12 @@ public class CreatorsController(CreatorService _creatorService) : ControllerBase
     public async Task<ActionResult<CreatorDto>> Show(
         string slug,
         [FromQuery] TimeStep step = TimeStep.FiveMinute,
-        [FromQuery] DateTimeOffset? after = null)
+        [FromQuery] TimeSpan? before = null)
     {
         CreatorDto? creator = await _creatorService.Find(slug, new HistoryParams
         {
             Step = step,
-            After = after ?? DateTimeOffset.UtcNow.AddDays(-1)
+            Before = before ?? TimeSpan.FromDays(1)
         });
 
         if (creator is null)
