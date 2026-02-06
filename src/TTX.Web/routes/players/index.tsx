@@ -231,6 +231,11 @@ function PlayerTable(
                             3rd
                           </span>
                         )}
+                        {placement === 3 && (
+                          <span class="absolute -top-1 -right-1 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-bold text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                            4th
+                          </span>
+                        )}
                         {placement > 3 && (
                           <span class="absolute -top-1 -right-1 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-bold text-gray-700 dark:bg-gray-700 dark:text-gray-300">
                             {placementLabel}
