@@ -99,6 +99,7 @@ export default define.page((ctx) => {
       ["t1zz", "https://twitch.tv/t1zz_tv"],
       ["Vortex", "https://github.com/VortexHero"],
       ["whodat950", "https://twitch.tv/whodat950"],
+      ["yeonaii", "https://twitch.tv/yeonaii"],
     ],
     teamMembers: [
       {
@@ -161,7 +162,7 @@ export default define.page((ctx) => {
       {
         name: "Rub",
         image: "/rub.webp",
-        role: "Lead Frontend Developer",
+        role: "Chief Vibes Officer",
         bio:
           "Enabling users to gamble their life savings away with a smile. I am passionate about creating user-friendly interfaces that enhance the overall experience of our platform.",
         socials: {
@@ -172,7 +173,7 @@ export default define.page((ctx) => {
       {
         name: "Goob-Dev",
         image: "https://avatars.githubusercontent.com/u/67513182?v=4",
-        role: "Video Editor",
+        role: "Chief Memes Officer",
         bio:
           "Transforming raw footage into captivating stories that resonate with our audience. I am passionate about creating engaging content that showcases our platform and its features.",
         socials: {
@@ -194,8 +195,8 @@ export default define.page((ctx) => {
       {
         name: "highsecurity",
         image:
-          "https://static-cdn.jtvnw.net/jtv_user_pictures/9c610ee2-369b-459d-867d-8d2dd47fc904-profile_image-300x300.png",
-        role: "Graphic Designer",
+          "/highsecurity.png",
+        role: "Chief Marketing Officer",
         bio:
           "Creating visually stunning designs that capture the essence of our platform and resonate with our audience. I am passionate about creating engaging content that showcases our platform and its features.",
         socials: {
