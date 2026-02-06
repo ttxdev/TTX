@@ -45,10 +45,10 @@ public class ServiceTests
         dbContext.Database.EnsureCreated();
     }
 
-    // [AssemblyCleanup]
-    // public static void Cleanup(TestContext context)
-    // {
-    //     ApplicationDbContext dbContext = _services.GetRequiredService<ApplicationDbContext>();
-    //     dbContext.Database.EnsureDeleted();
-    // }
+    [AssemblyCleanup]
+    public static void Cleanup(TestContext context)
+    {
+        ApplicationDbContext dbContext = _services.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.EnsureDeleted();
+    }
 }

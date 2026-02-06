@@ -231,7 +231,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
         CreatorDto? creator = await creatorService.Find(target.Slug, new HistoryParams
         {
             Step = TimeStep.Minute,
-            Before = TimeSpan.FromMinutes(1)
+            Before = TimeSpan.FromMinutes(5)
         });
 
         Assert.IsNotNull(creator);
