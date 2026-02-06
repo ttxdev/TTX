@@ -220,10 +220,13 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
         PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
         CreatorService creatorService = scope.ServiceProvider.GetRequiredService<CreatorService>();
         Creator target = _creatorFactory.Create(value: 200);
+        target.StreamStatus.Started(DateTime.UtcNow);
         dbContext.Creators.Add(target);
         await dbContext.SaveChangesAsync(TestContext.CancellationToken);
         await portfolioRepository.StoreVote(target.ApplyNetChange(50));
         await portfolioRepository.StoreVote(target.ApplyNetChange(25));
+        target.StreamStatus.Ended(DateTime.UtcNow.AddMinutes(1));
+        await dbContext.SaveChangesAsync(TestContext.CancellationToken);
 
         CreatorDto? creator = await creatorService.Find(target.Slug, new HistoryParams
         {
@@ -232,7 +235,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
         });
 
         Assert.IsNotNull(creator);
-        VoteDto? vote = creator.History.FirstOrDefault();
+        VoteDto? vote = creator.History.LastOrDefault();
         Assert.IsNotNull(vote);
         Assert.AreEqual(275, vote.Value);
     }
