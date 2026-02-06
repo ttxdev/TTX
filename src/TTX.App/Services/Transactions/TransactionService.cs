@@ -17,8 +17,6 @@ public class TransactionService(
     Random _random
 )
 {
-    public const int LootBoxMinValue = 100;
-
     public async Task<Result<ModelId>> PlaceOrder(ModelId actorId, Slug creatorSlug, TransactionAction action, Quantity quantity)
     {
         Player? player = await _dbContext.Players
@@ -57,12 +55,11 @@ public class TransactionService(
 
     public async Task<CreatorRarity[]> GetCreatorRarities()
     {
-        Creator[] creators = await _dbContext.Creators
-            .Where(c => c.Value >= LootBoxMinValue)
-            .ToArrayAsync();
-        double sum = creators.Sum(creator => creator.Value);
+        Creator[] creators = await _dbContext.Creators.ToArrayAsync();
+        double creatorValueSum = creators.Sum(creator => creator.Value);
+        double averageCreatorValue = creators.Length / creatorValueSum;
 
-        return [.. creators.Select(creator => CreatorRarity.Create(sum, creator))];
+        return [.. creators.Where(creator => creator.Value >= averageCreatorValue).Select(creator => CreatorRarity.Create(creatorValueSum, creator))];
     }
 
     public async Task<Result<LootBoxResultDto>> OpenLootBox(ModelId playerId, ModelId boxId)

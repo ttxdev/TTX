@@ -101,7 +101,8 @@ public class TransactionTests : ServiceTests
         TransactionService txService = scope.ServiceProvider.GetRequiredService<TransactionService>();
         Player player = _playerFactory.Create();
         LootBox lootBox = player.AddLootBox();
-        Creator creator = _creatorFactory.Create(value: TransactionService.LootBoxMinValue);
+        Random random = new();
+        Creator creator = _creatorFactory.Create(value: random.Next(1, 500));
         db.Players.Add(player);
         db.Creators.Add(creator);
         await db.SaveChangesAsync(TestContext.CancellationToken);
@@ -119,7 +120,8 @@ public class TransactionTests : ServiceTests
         TransactionService txService = scope.ServiceProvider.GetRequiredService<TransactionService>();
         Player player = _playerFactory.Create();
         LootBox lootBox = player.AddLootBox();
-        Creator creator = _creatorFactory.Create(value: TransactionService.LootBoxMinValue);
+        Random random = new();
+        Creator creator = _creatorFactory.Create(value: random.Next(1, 500));
         dbContext.Players.Add(player);
         dbContext.Creators.Add(creator);
         await dbContext.SaveChangesAsync(TestContext.CancellationToken);
