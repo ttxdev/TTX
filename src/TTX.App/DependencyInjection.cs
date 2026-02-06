@@ -8,6 +8,7 @@ using TTX.App.Jobs.Portfolios;
 using TTX.App.Jobs.Streams;
 using TTX.App.Options;
 using TTX.App.Services.Creators;
+using TTX.App.Services.LootBoxes;
 using TTX.App.Services.Players;
 using TTX.App.Services.Transactions;
 
@@ -34,6 +35,7 @@ public static class DependencyInjection
                 .AddScoped<PortfolioRepository>()
             // Services
             .AddScoped<CreatorService>()
+            .AddScoped<LootBoxService>()
             .AddScoped<TransactionService>()
             .AddScoped<PlayerService>();
     }

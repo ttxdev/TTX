@@ -1,6 +1,6 @@
 using TTX.Domain.ValueObjects;
 
-namespace TTX.App.Services.Transactions;
+namespace TTX.App.Services.LootBoxes;
 
 public record OpenLootBoxRequest
 {

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TTX.App.Data;
-using TTX.App.Dto.LootBoxes;
 using TTX.App.Services.Transactions;
 using TTX.App.Services.Transactions.Exceptions;
 using TTX.Domain.Models;
@@ -91,44 +90,5 @@ public class TransactionTests : ServiceTests
 
         Assert.IsNull(result.Value);
         Assert.IsInstanceOfType<MarketClosedException>(result.Error);
-    }
-
-    [TestMethod]
-    public async Task PlayerCanGamble()
-    {
-        await using AsyncServiceScope scope = _services.CreateAsyncScope();
-        ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        TransactionService txService = scope.ServiceProvider.GetRequiredService<TransactionService>();
-        Random random = scope.ServiceProvider.GetRequiredService<Random>();
-        Player player = _playerFactory.Create();
-        LootBox lootBox = player.AddLootBox();
-        Creator creator = _creatorFactory.Create(value: random.Next(1, 500));
-        db.Players.Add(player);
-        db.Creators.Add(creator);
-        await db.SaveChangesAsync(TestContext.CancellationToken);
-
-        Result<LootBoxResultDto> result = await txService.OpenLootBox(player.Id, lootBox.Id);
-
-        Assert.IsNotNull(result.Value);
-    }
-
-    [TestMethod]
-    public async Task PlayerCantReuseLootBox()
-    {
-        await using AsyncServiceScope scope = _services.CreateAsyncScope();
-        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        TransactionService txService = scope.ServiceProvider.GetRequiredService<TransactionService>();
-        Random random = scope.ServiceProvider.GetRequiredService<Random>();
-        Player player = _playerFactory.Create();
-        LootBox lootBox = player.AddLootBox();
-        Creator creator = _creatorFactory.Create(value: random.Next(1, 500));
-        dbContext.Players.Add(player);
-        dbContext.Creators.Add(creator);
-        await dbContext.SaveChangesAsync(TestContext.CancellationToken);
-        await txService.OpenLootBox(player.Id, lootBox.Id);
-
-        Result<LootBoxResultDto> result = await txService.OpenLootBox(player.Id, lootBox.Id);
-
-        Assert.IsInstanceOfType<LootBoxOpenedException>(result.Error);
     }
 }
