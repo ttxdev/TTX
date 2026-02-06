@@ -1,6 +1,6 @@
 import type { PlayerTransactionDto } from "@/lib/api.ts";
 import {
-  formatCreatorString,
+  formatName,
   formatShareAmount,
   formatTxAction,
   formatValue,
@@ -46,7 +46,7 @@ export default function LatestTransactions(
                         href={`/creators/${tx.creator.slug}`}
                         class="text-sm text-violet-500 hover:underline"
                       >
-                        {formatCreatorString(tx.creator.name)}
+                        {formatName(tx.creator.name)}
                       </a>
                     </div>
                   </td>

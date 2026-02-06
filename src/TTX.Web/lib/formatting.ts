@@ -61,7 +61,7 @@ export function formatShareAmount(amount: number) {
   }
 }
 
-export function formatCreatorString(creator: string) {
+export function formatName(creator: string) {
   if (creator.length > 12) {
     return `${creator.slice(0, 10)}...`;
   }

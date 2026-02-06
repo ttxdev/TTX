@@ -1,5 +1,5 @@
 import {
-  formatCreatorString,
+  formatName,
   formatShareAmount,
   formatValue,
 } from "@/lib/formatting.ts";
@@ -37,7 +37,7 @@ export default function Shares(props: { shares: PlayerShareDto[] }) {
                         href={`/creators/${share.creator.slug}`}
                         class="text-lg font-semibold text-violet-500 hover:underline"
                       >
-                        {formatCreatorString(share.creator.name)}
+                        {formatName(share.creator.name)}
                       </a>
                       <span class="text-sm">
                         {formatShareAmount(share.quantity)} @{" "}
