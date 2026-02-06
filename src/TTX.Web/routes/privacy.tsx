@@ -51,8 +51,8 @@ export default define.page(() => {
               information this section is hidden.
             </p>
             <div class="my-4 flex w-full flex-col items-center justify-between gap-8 md:w-72 md:flex-row md:items-stretch">
-              <img src="/privacy/oauth with email.png" alt="" class="" />
-              <img src="/privacy/oauth without email.png" alt="" class="" />
+              <img src="privacy/oauth-with-email.png" alt="" class="" />
+              <img src="privacy/oauth-without-email.png" alt="" class="" />
             </div>
           </div>
           <div>
