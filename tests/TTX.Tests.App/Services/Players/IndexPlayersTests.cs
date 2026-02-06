@@ -200,7 +200,7 @@ page.Data[i - 1].Credits, $"Player at index {i - 1} has fewer credits than playe
         });
 
         Assert.IsNotNull(player);
-        PortfolioSnapshotDto? portfolio = player.History.FirstOrDefault();
+        PortfolioSnapshotDto? portfolio = player.History.LastOrDefault();
         Assert.IsNotNull(portfolio);
         Assert.AreEqual(50, portfolio.Value);
     }

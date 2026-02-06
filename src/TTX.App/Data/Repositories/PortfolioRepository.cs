@@ -36,26 +36,37 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
             throw new NotSupportedException("Only PostgreSQL is supported");
         }
 
+        Dictionary<int, Player> playerLookup = players.ToDictionary(p => p.Id.Value);
+        int[] playerIds = [.. playerLookup.Keys];
+        string interval = step.ToTimescaleString();
+
         DateTimeOffset endTime = DateTimeOffset.UtcNow;
         DateTimeOffset startTime = endTime - before;
-        string interval = step.ToTimescaleString();
-        int[] playerIds = [.. players.Select(c => c.Id.Value)];
-        string playerIdsStr = string.Join(", ", playerIds);
-        using DbCommand command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = $@"
+
+        string sql = $@"
             SELECT
-                player_portfolios.player_id AS ""PlayerId"",
+                p.player_id AS ""PlayerId"",
                 time_bucket_gapfill(
-                    '{interval}',
-                    player_portfolios.time,
-                    '{startTime.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz,
-                    '{endTime.UtcDateTime:yyyy-MM-dd HH:mm:ss}'::timestamptz
+                    @interval::interval,
+                    p.time,
+                    @start_time,
+                    @end_time
                 ) AS ""Bucket"",
-                locf (last (player_portfolios.value, player_portfolios.time)) AS ""Value""
-            FROM player_portfolios
-            WHERE player_portfolios.player_id IN ({playerIdsStr})
+                locf(last(p.value, p.time)) AS ""Value""
+            FROM player_portfolios p
+            WHERE p.player_id = ANY(@ids)
+                AND p.time >= @start_time
+                AND p.time <= @end_time
             GROUP BY ""PlayerId"", ""Bucket""
             ORDER BY ""Bucket"" ASC";
+
+        using DbCommand command = _dbContext.Database.GetDbConnection().CreateCommand();
+        command.CommandText = sql;
+
+        command.Parameters.Add(new NpgsqlParameter("ids", playerIds));
+        command.Parameters.Add(new NpgsqlParameter("interval", interval));
+        command.Parameters.Add(new NpgsqlParameter("start_time", startTime));
+        command.Parameters.Add(new NpgsqlParameter("end_time", endTime));
 
         if (command.Connection!.State != ConnectionState.Open)
         {
@@ -68,22 +79,24 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         while (await rows.ReadAsync())
         {
             int playerId = rows.GetInt32(0);
-            if (!result.ContainsKey(playerId))
-            {
-                result[playerId] = [];
-            }
-
-            // TODO(dylhack): update the query so we don't have to check out of window timestamps
-            DateTime time = rows.GetDateTime(1); // Maps "Bucket" to "Time"
-            if (time < endTime)
-            {
-                continue;
-            }
-
+            DateTime bucketTime = rows.GetDateTime(1);
             long value = rows.IsDBNull(2) ? Player.MinPortfolio : rows.GetInt64(2);
-            Player player = players.First(p => p.Id.Value == playerId);
-            result[playerId]
-                .Add(new PortfolioSnapshot { Player = player, PlayerId = player.Id, Time = time, Value = value });
+
+            if (!playerLookup.TryGetValue(playerId, out var player)) continue;
+
+            if (!result.TryGetValue(playerId, out var list))
+            {
+                list = [];
+                result[playerId] = list;
+            }
+
+            list.Add(new PortfolioSnapshot
+            {
+                Player = player,
+                PlayerId = player.Id,
+                Time = bucketTime,
+                Value = value
+            });
         }
 
         return result.ToDictionary(kv => kv.Key, kv => kv.Value.ToArray());
