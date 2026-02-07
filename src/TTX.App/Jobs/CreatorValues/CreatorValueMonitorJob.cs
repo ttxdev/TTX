@@ -78,32 +78,15 @@ public class CreatorValueMonitorJob(
     {
         if (_queue.IsEmpty) return;
 
-        List<NetChangeEvent> batch = [];
-        while (_queue.TryDequeue(out var e))
+        List<NetChangeEvent> events = [];
+        while (_queue.TryDequeue(out NetChangeEvent? e))
         {
-            batch.Add(e);
+            events.Add(e!);
         }
 
-        var aggregatedChanges = batch
-            .GroupBy(e => e.CreatorId)
-            .Select(g => new
-            {
-                CreatorId = g.Key,
-                TotalChange = g.Sum(e => e.NetChange)
-            })
-            .Where(x => x.TotalChange != 0)
-            .ToList();
-
-        await using AsyncServiceScope scope = _services.CreateAsyncScope();
-
-        foreach (var update in aggregatedChanges)
+        foreach (NetChangeEvent @event in events)
         {
-            await Digest(new NetChangeEvent(update.CreatorId, update.TotalChange));
-        }
-
-        if (_logger.IsEnabled(LogLevel.Debug) && batch.Count > 0)
-        {
-            _logger.LogDebug("Ticker processed {EventCount} events into {UpdateCount} updates.", batch.Count, aggregatedChanges.Count);
+            await Digest(@event);
         }
     }
 
