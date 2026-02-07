@@ -55,7 +55,7 @@ public static class DependencyInjection
         if (!disabled.Contains(nameof(CreatorValueMonitorJob)))
         {
             services
-                .AddOptions<CalculatePlayerPortfolioOptions>().Bind(configuration.GetSection("CreatorValues"))
+                .AddOptions<CreatorNetChangeOptions>().Bind(configuration.GetSection("CreatorValues"))
                 .Services
                 .AddHostedService<CreatorValueMonitorJob>();
         }
