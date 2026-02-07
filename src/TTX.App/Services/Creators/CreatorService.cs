@@ -85,7 +85,7 @@ public class CreatorService(
     public async Task<CreatorDto?> Find(Slug slug, HistoryParams historyParams)
     {
         Creator? creator = await _dbContext.Creators
-            .Include(c => c.Transactions.OrderBy(t => t.CreatedAt))
+            .Include(c => c.Transactions.OrderByDescending(t => t.CreatedAt))
             .ThenInclude(t => t.Player)
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Slug == slug);
