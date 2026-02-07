@@ -127,25 +127,38 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
             c.StreamStatus.IsLive ? now : (c.StreamStatus.EndedAt ?? now));
         DateTimeOffset globalStartTime = globalEndTime - before;
 
-        string sql = $@"
-                SELECT
-                    v.creator_id AS ""CreatorId"",
-                    time_bucket_gapfill(
-                        @interval::interval,
-                        v.time,
-                        @start_time,
-                        @end_time
-                    ) AS ""Bucket"",
-                    locf(last(v.value, v.time)) AS ""Value""
-                FROM votes v
-                WHERE v.creator_id = ANY(@ids)
-                    AND v.time >= @start_time
-                    AND v.time <= @end_time
-                GROUP BY ""CreatorId"", ""Bucket""
-                ORDER BY ""Bucket"" ASC";
-
         using DbCommand command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = sql;
+        command.CommandText = """
+            SELECT
+                sub.creator_id AS "CreatorId",
+                time_bucket_gapfill(
+                    @interval::interval,
+                    sub.time,
+                    @start_time,
+                    @end_time
+                ) AS "Bucket",
+                locf(last(sub.value, sub.time)) AS "Value"
+            FROM (
+                SELECT creator_id, time, value
+                FROM votes
+                WHERE creator_id = ANY(@ids)
+                    AND time >= @start_time
+                    AND time <= @end_time
+
+                UNION ALL
+
+                SELECT DISTINCT ON (creator_id)
+                    creator_id,
+                    @start_time AS time,
+                    value
+                FROM votes
+                WHERE creator_id = ANY(@ids)
+                    AND time < @start_time
+                ORDER BY creator_id, time DESC
+            ) sub
+            GROUP BY "CreatorId", "Bucket"
+            ORDER BY "Bucket" ASC
+            """;
 
         command.Parameters.Add(new NpgsqlParameter("ids", creatorIds));
         command.Parameters.Add(new NpgsqlParameter("interval", interval));
@@ -166,11 +179,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
             DateTime bucketTime = rows.GetDateTime(1);
             double value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetDouble(2);
 
-            if (!creatorLookup.TryGetValue(creatorId, out var creator)) continue;
-
-            if (!creator.StreamStatus.IsLive &&
-                creator.StreamStatus.EndedAt.HasValue &&
-                bucketTime > creator.StreamStatus.EndedAt.Value.UtcDateTime)
+            if (!creatorLookup.TryGetValue(creatorId, out var creator))
             {
                 continue;
             }
