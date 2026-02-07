@@ -1,14 +1,11 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using TTX.App.Jobs.CreatorValues;
 using TTX.Domain.Models;
 using TTX.Domain.ValueObjects;
-using TTX.Infrastructure.Options;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
 using TwitchLib.Communication.Events;
-using TwitchLib.PubSub.Events;
 
 namespace TTX.Infrastructure.Twitch;
 
@@ -20,10 +17,10 @@ public sealed class SimpleTwitchChatMonitor : IChatMonitorAdapter
 
     public event EventHandler<NetChangeEvent>? OnNetChange;
 
-    public SimpleTwitchChatMonitor(IOptions<TwitchChatMonitorOptions> options, ILogger<SimpleTwitchChatMonitor> logger)
+    public SimpleTwitchChatMonitor(ILogger<SimpleTwitchChatMonitor> logger)
     {
         _logger = logger;
-        _twitch.Initialize(new ConnectionCredentials(options.Value.Username, options.Value.Password));
+        _twitch.Initialize(new ConnectionCredentials());
         _twitch.OnMessageReceived += OnMessageReceived;
         _twitch.OnConnected += OnConnected;
         _twitch.OnError += OnError;
