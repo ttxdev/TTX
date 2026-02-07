@@ -15,20 +15,20 @@ public class TwitchStreamMonitorAdapter : IStreamMonitorAdapter
     public event EventHandler<StreamUpdateEvent>? StreamStatusUpdated;
     private readonly ILogger<TwitchStreamMonitorAdapter> _logger;
     private readonly TwitchOAuthOptions _authOptions;
-    private readonly TwitchStreamMonitorOptions _monitorOptions;
     private readonly TwitchAPI _twitchApi;
     private readonly ConcurrentDictionary<string, Creator> _watchedCreators = new();
     private readonly ConcurrentDictionary<ModelId, StreamState> _lastKnownStates = new();
     private readonly SemaphoreSlim _syncLock = new(1, 1);
 
+    const int DELAY = 5_000;
+    const int MAX_CREATORS = 100;
+
     public TwitchStreamMonitorAdapter(
         IOptions<TwitchOAuthOptions> twitchOptions,
-        IOptions<TwitchStreamMonitorOptions> streamMonitorOptions,
         ILogger<TwitchStreamMonitorAdapter> logger)
     {
         _logger = logger;
         _authOptions = twitchOptions.Value;
-        _monitorOptions = streamMonitorOptions.Value;
 
         _twitchApi = new TwitchAPI
         {
@@ -44,10 +44,27 @@ public class TwitchStreamMonitorAdapter : IStreamMonitorAdapter
     {
         _logger.LogInformation("Starting Twitch Stream Monitor...");
 
+        // NOTE(dylhack):
+        // Creators,  Batches,   Delay,   Total Cycle Time
+        // 100        1          60.0s    1 Minute
+        // 500        5          12.0s    1 Minute
+        // 1_000      10         6.0s     1 Minute
+        // 5_000      50         1.2s     1 Minute
         while (!cancellationToken.IsCancellationRequested)
         {
+            DateTime startTime = DateTime.UtcNow;
+            int creatorCount = _watchedCreators.Keys.Count;
+
             await CheckStreamsAsync(cancellationToken);
-            await Task.Delay(_monitorOptions.Delay, cancellationToken);
+
+            int numberOfBatches = (int)Math.Ceiling((double)creatorCount / MAX_CREATORS);
+            if (numberOfBatches == 0) numberOfBatches = 1;
+
+            int delayPerBatch = DELAY / numberOfBatches;
+            double processingTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
+            int remainingDelay = (int)Math.Max(500,  delayPerBatch - processingTime);
+
+            await Task.Delay(remainingDelay, cancellationToken);
         }
     }
 
@@ -97,7 +114,7 @@ public class TwitchStreamMonitorAdapter : IStreamMonitorAdapter
             _syncLock.Release();
         }
 
-        foreach (string[] chunk in slugsToCheck.Chunk(100))
+        foreach (string[] chunk in slugsToCheck.Chunk(MAX_CREATORS))
         {
             if (ct.IsCancellationRequested) break;
 

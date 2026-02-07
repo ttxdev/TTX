@@ -53,9 +53,6 @@ public static class DependencyInjection
             .AddOptions<TwitchOAuthOptions>()
             .Bind(config.GetSection("Twitch:OAuth"))
             .Services
-            .AddOptions<TwitchStreamMonitorOptions>()
-            .Bind(config.GetSection("Twitch:Streams"))
-            .Services
             .AddKeyedSingleton<IPlatformUserService, TwitchUserService>(Platform.Twitch)
             .AddSingleton<IStreamMonitorAdapter, TwitchStreamMonitorAdapter>();
 
