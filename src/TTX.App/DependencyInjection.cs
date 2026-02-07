@@ -42,7 +42,7 @@ public static class DependencyInjection
 
     public static IServiceCollection AddTtxJobs(this IServiceCollection services, IConfiguration configuration)
     {
-        string[]? enabled = configuration.GetValue<string[]?>("Enabled");
+        string[]? enabled = configuration.GetSection("Enabled").Get<string[]?>();
 
         if (enabled is null || enabled.Contains(nameof(CalculatePlayerPortfolioJob)))
         {
