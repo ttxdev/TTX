@@ -24,6 +24,13 @@ public class StreamMonitorJob(
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         {
             ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await dbContext.Creators.ExecuteUpdateAsync(
+                s => {
+                    s.SetProperty(c => c.StreamStatus.IsLive, false);
+                    s.SetProperty(c => c.StreamStatus.EndedAt, DateTime.UtcNow);
+                },
+                stoppingToken
+            );
             // TODO optimize
             creators = await dbContext.Creators.ToArrayAsync(cancellationToken: stoppingToken);
             _adapters = [.. scope.ServiceProvider.GetServices<IStreamMonitorAdapter>().Select(adapter =>
