@@ -59,10 +59,7 @@ public static class DependencyInjection
 #if BOT_EXISTS
         services.AddValueMonitor();
 #else
-        services.AddOptions<TwitchChatMonitorOptions>()
-            .Bind(config.GetSection("Twitch:Chat"))
-            .Services
-            .AddSingleton<IChatMonitorAdapter, SimpleTwitchChatMonitor>();
+        services.AddSingleton<IChatMonitorAdapter, SimpleTwitchChatMonitor>();
 #endif
 
         return services;
