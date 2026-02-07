@@ -7,13 +7,16 @@ using Microsoft.Extensions.Hosting;
 using TTX.App.Data;
 using TTX.App.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using TTX.App.Options;
 
 namespace TTX.App.Jobs.CreatorValues;
 
 public class CreatorValueMonitorJob(
     IServiceProvider _services,
     IEventDispatcher _events,
-    ILogger<CreatorValueMonitorJob> _logger
+    ILogger<CreatorValueMonitorJob> _logger,
+    IOptions<CreatorNetChangeOptions> _options
 ) : BackgroundService
 {
     private readonly Queue<NetChangeEvent> _queue = new();
@@ -50,10 +53,17 @@ public class CreatorValueMonitorJob(
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                if (_queue.Count == 0)
+                {
+                    continue;
+                }
+
                 if (_queue.TryDequeue(out NetChangeEvent? e))
                 {
                     await Digest(e!);
                 }
+
+                await Task.Delay(_options.Value.Delay, stoppingToken);
             }
         }, stoppingToken));
 
