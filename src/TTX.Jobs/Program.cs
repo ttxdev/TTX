@@ -16,7 +16,7 @@ IConfiguration configuration = new ConfigurationBuilder()
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Services
     .AddTtx(configuration.GetSection("TTX"))
-    .AddTtxJobs(configuration.GetSection("TTX"))
+    .AddTtxJobs(configuration.GetSection("TTX:Jobs"))
     .AddTtxInfra(configuration.GetSection("TTX:Infrastructure"))
     .BuildServiceProvider();
 
