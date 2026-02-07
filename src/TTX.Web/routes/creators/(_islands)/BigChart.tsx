@@ -120,6 +120,9 @@ export default function BigChart(
           x: {
             ticks: {
               display: false,
+              callback: function (value: string | number, _) {
+                return formatValue(Number(value));
+              },
             },
             grid: {
               display: false,

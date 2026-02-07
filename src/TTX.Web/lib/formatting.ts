@@ -23,13 +23,18 @@ export function formatToChart(
 }
 
 export function formatValue(value: number) {
-  if (Math.abs(value) >= 1_000_000_000_000) {
+  const abs = Math.abs(value)
+  if (abs >= 1_000_000_000_000) {
     return `$${(value / 1_000_000_000_000).toPrecision(2)} T`;
-  } else if (Math.abs(value) >= 1_000_000_000) {
+  } else if (abs >= 1_000_000_000) {
     return `$${(value / 1_000_000_000).toPrecision(2)} B`;
+  } else if (abs >= 1_000_000) {
+    return `$${(value / 1_000_000).toPrecision(2)} M`;
+  } else if (abs >= 1_000) {
+    return `$${(value / 1_000).toPrecision(2)} K`;
   } else {
     return `$${
-      Math.abs(value).toLocaleString("en-US", {
+      abs.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })

@@ -137,8 +137,8 @@ export default function BigChart(
             },
             ticks: {
               display: true,
-              callback: function (_, value: number) {
-                return formatValue(value);
+              callback: function (value: string | number, _) {
+                return formatValue(Number(value));
               },
             },
           },
