@@ -30,8 +30,6 @@ export function formatValue(value: number) {
     return `$${(value / 1_000_000_000).toPrecision(2)} B`;
   } else if (abs >= 1_000_000) {
     return `$${(value / 1_000_000).toPrecision(2)} M`;
-  } else if (abs >= 1_000) {
-    return `$${(value / 1_000).toPrecision(2)} K`;
   } else {
     return `$${
       abs.toLocaleString("en-US", {
