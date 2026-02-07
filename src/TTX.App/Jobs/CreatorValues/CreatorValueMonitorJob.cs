@@ -9,6 +9,7 @@ using TTX.App.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TTX.App.Options;
+using System.Collections.Concurrent;
 
 namespace TTX.App.Jobs.CreatorValues;
 
@@ -19,7 +20,7 @@ public class CreatorValueMonitorJob(
     IOptions<CreatorNetChangeOptions> _options
 ) : BackgroundService
 {
-    private readonly Queue<NetChangeEvent> _queue = new();
+    private readonly ConcurrentQueue<NetChangeEvent> _queue = new();
     private readonly List<Task> _tasks = [];
     private IChatMonitorAdapter[] _chatMonitors = [];
 
@@ -51,19 +52,17 @@ public class CreatorValueMonitorJob(
 
         _tasks.Add(Task.Run(async () =>
         {
-            while (!stoppingToken.IsCancellationRequested)
+            using PeriodicTimer timer = new(_options.Value.Delay);
+            try
             {
-                if (_queue.Count == 0)
+                while (await timer.WaitForNextTickAsync(stoppingToken))
                 {
-                    continue;
+                    await DigestAll();
                 }
-
-                if (_queue.TryDequeue(out NetChangeEvent? e))
-                {
-                    await Digest(e!);
-                }
-
-                await Task.Delay(_options.Value.Delay, stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // Graceful shutdown expected
             }
         }, stoppingToken));
 
@@ -73,6 +72,39 @@ public class CreatorValueMonitorJob(
     private void OnNetChangeReceived(object? _, NetChangeEvent e)
     {
         _queue.Enqueue(e);
+    }
+
+    private async Task DigestAll()
+    {
+        if (_queue.IsEmpty) return;
+
+        List<NetChangeEvent> batch = [];
+        while (_queue.TryDequeue(out var e))
+        {
+            batch.Add(e);
+        }
+
+        var aggregatedChanges = batch
+            .GroupBy(e => e.CreatorId)
+            .Select(g => new
+            {
+                CreatorId = g.Key,
+                TotalChange = g.Sum(e => e.NetChange)
+            })
+            .Where(x => x.TotalChange != 0)
+            .ToList();
+
+        await using AsyncServiceScope scope = _services.CreateAsyncScope();
+
+        foreach (var update in aggregatedChanges)
+        {
+            await Digest(new NetChangeEvent(update.CreatorId, update.TotalChange));
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug) && batch.Count > 0)
+        {
+            _logger.LogDebug("Ticker processed {EventCount} events into {UpdateCount} updates.", batch.Count, aggregatedChanges.Count);
+        }
     }
 
     private async Task Digest(NetChangeEvent e)
