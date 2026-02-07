@@ -42,9 +42,9 @@ public static class DependencyInjection
 
     public static IServiceCollection AddTtxJobs(this IServiceCollection services, IConfiguration configuration)
     {
-        string[] disabled = configuration.GetValue<string[]>("Disabled") ?? [];
+        string[]? enabled = configuration.GetValue<string[]?>("Enabled");
 
-        if (!disabled.Contains(nameof(CalculatePlayerPortfolioJob)))
+        if (enabled is null || enabled.Contains(nameof(CalculatePlayerPortfolioJob)))
         {
             services
                 .AddOptions<CalculatePlayerPortfolioOptions>().Bind(configuration.GetSection("PlayerPortfolio"))
@@ -52,7 +52,7 @@ public static class DependencyInjection
                 .AddHostedService<CalculatePlayerPortfolioJob>();
         }
 
-        if (!disabled.Contains(nameof(CreatorValueMonitorJob)))
+        if (enabled is null || enabled.Contains(nameof(CreatorValueMonitorJob)))
         {
             services
                 .AddOptions<CreatorNetChangeOptions>().Bind(configuration.GetSection("CreatorValues"))
@@ -60,7 +60,7 @@ public static class DependencyInjection
                 .AddHostedService<CreatorValueMonitorJob>();
         }
 
-        if (!disabled.Contains(nameof(StreamMonitorJob)))
+        if (enabled is null || enabled.Contains(nameof(StreamMonitorJob)))
         {
             services.AddHostedService<StreamMonitorJob>();
         }
