@@ -55,12 +55,33 @@ spec:
       imagePullSecrets:
         - name: ttx-regcreds
       containers:
-        - name: jobs
+        - name: streams
           image: ghcr.io/ttxdev/ttx.private:main
           imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: ttx-config
+          env:
+            - name: TTX__Jobs__Enabled__0
+              value: StreamMonitorJob
+        - name: portfolios
+          image: ghcr.io/ttxdev/ttx.private:main
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: ttx-config
+          env:
+            - name: TTX__Jobs__Enabled__0
+              value: CalculatePlayerPortfolioJob
+        - name: creators
+          image: ghcr.io/ttxdev/ttx.private:main
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: ttx-config
+          env:
+            - name: TTX__Jobs__Enabled__0
+              value: CreatorValueMonitorJob
 
 ---
 apiVersion: apps/v1
