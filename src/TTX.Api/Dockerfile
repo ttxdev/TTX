@@ -12,7 +12,6 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /opt/app
 COPY --from=base /opt/app .
 RUN dotnet build src/TTX.Api -c $BUILD_CONFIGURATION -o /opt/app/build/api
-RUN dotnet build src/TTX.Jobs -c $BUILD_CONFIGURATION -o /opt/app/build/jobs
 
 FROM build AS api
 EXPOSE 8080
