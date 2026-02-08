@@ -29,8 +29,9 @@ public class StreamMonitorJob(
             await dbContext.Creators.ExecuteUpdateAsync(
                 s =>
                     s.SetProperty(c => c.StreamStatus.IsLive, false)
-                    .SetProperty(c => c.StreamStatus.EndedAt, DateTime.UtcNow),
-                stoppingToken
+                     .SetProperty(c => c.StreamStatus.EndedAt, DateTime.UtcNow)
+                     .SetProperty(c => c.UpdatedAt, DateTime.UtcNow),
+                    stoppingToken
             );
             // TODO optimize
             creators = await dbContext.Creators.AsNoTracking().ToArrayAsync(cancellationToken: stoppingToken);
@@ -83,7 +84,7 @@ public class StreamMonitorJob(
     {
         while (!_queue.IsEmpty)
         {
-            if (_queue.TryDequeue(out StreamUpdateEvent? @event) || @event is null)
+            if (!_queue.TryDequeue(out StreamUpdateEvent? @event) || @event is null)
             {
                 continue;
             }
@@ -98,7 +99,7 @@ public class StreamMonitorJob(
                     adapter.RemoveCreator(@event.CreatorId);
                 }
 
-                return;
+                continue;
             }
 
             if (@event.IsLive)
