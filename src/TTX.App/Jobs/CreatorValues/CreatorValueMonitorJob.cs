@@ -155,9 +155,10 @@ public class CreatorValueMonitorJob(
         ICreatorStatsRepository statsRepository = scope.ServiceProvider.GetRequiredService<ICreatorStatsRepository>();
         PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
         IStatsProcessor statsProcessor = scope.ServiceProvider.GetRequiredService<IStatsProcessor>();
+        Creator[] creators = await dbContext.Creators.ToArrayAsync();
         CreatorStats[] allStats = await statsRepository.GetAll(true);
 
-        await foreach (Creator creator in dbContext.Creators.AsAsyncEnumerable())
+        foreach (Creator creator in creators)
         {
             CreatorStats? stats = allStats.FirstOrDefault(c => c.CreatorSlug == creator.Slug);
             double netChange = await statsProcessor.Process(creator, stats);

@@ -30,8 +30,7 @@ public class TwitchBot
         _client.OnFailureToReceiveJoinConfirmation += OnFailureToJoin;
         _client.OnError += OnError;
         _client.OnConnected += OnConnected;
-        _client.OnJoinedChannel += OnJoinedChannel;
-        _client.Initialize(new ConnectionCredentials(new Capabilities(membership: true)));
+        _client.Initialize(new ConnectionCredentials());
     }
 
     private Task OnNoPermissionError(object? sender, NoticeEventArgs e)
@@ -49,16 +48,6 @@ public class TwitchBot
         if (_logger.IsEnabled(LogLevel.Debug))
         {
             _logger.LogDebug("Unaccounted for event received {message}", e.RawIRC);
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private Task OnJoinedChannel(object? sender, OnJoinedChannelArgs e)
-    {
-        if (_logger.IsEnabled(LogLevel.Information))
-        {
-            _logger.LogInformation("Joined {channel}", e.Channel);
         }
 
         return Task.CompletedTask;
@@ -143,7 +132,6 @@ public class TwitchBot
             }
 
             await _client.JoinChannelAsync(channel!);
-            await Task.Delay(5_000);
         }
     }
 }
