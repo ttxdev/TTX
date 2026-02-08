@@ -49,43 +49,43 @@ public class CreatorValueMonitorJob(
         }
 
         _tasks.Add(_events.OnEventReceived<UpdateStreamStatusEvent>(async (@event, ct) =>
-                    {
-                        await using AsyncServiceScope scope = _scopes.CreateAsyncScope();
-                        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                        Creator? creator = await dbContext.Creators.AsNoTracking().FirstOrDefaultAsync(c => c.Id == @event.CreatorId, ct);
-                        if (creator is null)
-                        {
-                            return;
-                        }
+        {
+            await using AsyncServiceScope scope = _scopes.CreateAsyncScope();
+            ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            Creator? creator = await dbContext.Creators.AsNoTracking().FirstOrDefaultAsync(c => c.Id == @event.CreatorId, ct);
+            if (creator is null)
+            {
+                return;
+            }
 
-                        IChatMonitorAdapter chatMonitor = scope.ServiceProvider.GetRequiredKeyedService<IChatMonitorAdapter>(creator.Platform);
-                        if (creator.StreamStatus.IsLive)
-                        {
-                            await chatMonitor.Add(creator.Slug);
-                        }
-                        else
-                        {
-                            await chatMonitor.Remove(creator.Slug);
-                        }
-                    }, stoppingToken));
+            IChatMonitorAdapter chatMonitor = scope.ServiceProvider.GetRequiredKeyedService<IChatMonitorAdapter>(creator.Platform);
+            if (creator.StreamStatus.IsLive)
+            {
+                await chatMonitor.Add(creator.Slug);
+            }
+            else
+            {
+                await chatMonitor.Remove(creator.Slug);
+            }
+        }, stoppingToken));
 
         _tasks.Add(Task.Run(async () =>
+        {
+            using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(300));
+            try
             {
-                using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(300));
-                try
+                while (await timer.WaitForNextTickAsync(stoppingToken))
                 {
-                    while (await timer.WaitForNextTickAsync(stoppingToken))
+                    if (_queue.TryDequeue(out Message? m))
                     {
-                        if (_queue.TryDequeue(out Message? m))
-                        {
-                            await ParseMessage(m);
-                        }
+                        await ParseMessage(m);
                     }
                 }
-                catch (OperationCanceledException)
-                {
-                }
-            }, stoppingToken));
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }, stoppingToken));
 
         _tasks.Add(Task.Run(async () =>
         {
@@ -162,6 +162,11 @@ public class CreatorValueMonitorJob(
         {
             CreatorStats? stats = allStats.FirstOrDefault(c => c.CreatorSlug == creator.Slug);
             double netChange = await statsProcessor.Process(creator, stats);
+            if (netChange < 0.001 && netChange > -0.001)
+            {
+                continue;
+            }
+
             Vote vote = creator.ApplyNetChange(netChange);
             await dbContext.SaveChangesAsync();
             await portfolioRepository.StoreVote(vote);
