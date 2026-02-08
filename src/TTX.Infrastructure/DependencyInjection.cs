@@ -14,8 +14,7 @@ using TTX.Infrastructure.Twitch.Chat;
 using TTX.Infrastructure.Data.Repositories;
 using TTX.App.Repositories.CreatorValue;
 using TTX.App.Interfaces.Chat;
-
-
+using TTX.App.Interfaces.CreatorValue;
 
 #if TTX_PRIVATE_EXISTS
 using TTX.Private;
@@ -62,8 +61,8 @@ public static class DependencyInjection
 #if TTX_PRIVATE_EXISTS
         services.AddPrivateServices(config);
 #else
-        services.AddSingleton<IMessageAnalyzer, MessageAnalyzer>();
-        services.AddSingleton<IStatsProcessor, StatsProcessor>();
+        services.AddSingleton<IMessageAnalyzer, Services.MessageAnalyzer>();
+        services.AddSingleton<IStatsProcessor, Services.StatsProcessor>();
 #endif
 
 
