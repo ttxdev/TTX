@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TTX.App.Data;
 using TTX.App.Data.Repositories;
+using TTX.App.Factories;
 using TTX.App.Jobs.CreatorValues;
 using TTX.App.Jobs.Portfolios;
 using TTX.App.Jobs.Streams;
@@ -37,7 +38,9 @@ public static class DependencyInjection
             .AddScoped<CreatorService>()
             .AddScoped<LootBoxService>()
             .AddScoped<TransactionService>()
-            .AddScoped<PlayerService>();
+            .AddScoped<PlayerService>()
+            // Factories
+            .AddSingleton<ChatMonitorFactory>();
     }
 
     public static IServiceCollection AddTtxJobs(this IServiceCollection services, IConfiguration configuration)
@@ -55,7 +58,7 @@ public static class DependencyInjection
         if (enabled is null || enabled.Contains(nameof(CreatorValueMonitorJob)))
         {
             services
-                .AddOptions<CreatorNetChangeOptions>().Bind(configuration.GetSection("CreatorValues"))
+                .AddOptions<CreatorValuesJobOptions>().Bind(configuration.GetSection("CreatorValues"))
                 .Services
                 .AddHostedService<CreatorValueMonitorJob>();
         }

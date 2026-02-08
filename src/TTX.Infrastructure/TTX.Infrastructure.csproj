@@ -3,11 +3,11 @@
   <ItemGroup>
     <ProjectReference Include="..\TTX.App\TTX.App.csproj" />
     <ProjectReference Include="..\TTX.Domain\TTX.Domain.csproj" />
-    <ProjectReference Include="..\TTX.Bot\TTX.Bot.csproj" Condition="Exists('..\TTX.Bot\TTX.Bot.csproj')" />
+    <ProjectReference Include="..\TTX.Private\TTX.Private.csproj" Condition="Exists('..\TTX.Private\TTX.Private.csproj')" />
   </ItemGroup>
 
-  <PropertyGroup Condition="Exists('..\TTX.Bot\TTX.Bot.csproj')">
-    <DefineConstants>$(DefineConstants);BOT_EXISTS</DefineConstants>
+  <PropertyGroup Condition="Exists('..\TTX.Private\TTX.Private.csproj')">
+    <DefineConstants>$(DefineConstants);TTX_PRIVATE_EXISTS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

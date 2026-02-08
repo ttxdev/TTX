@@ -10,45 +10,82 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TTX.App.Options;
 using System.Collections.Concurrent;
+using TTX.App.Factories;
+using TTX.App.Interfaces.CreatorValue;
+using TTX.App.Repositories.CreatorValue;
+using TTX.App.Interfaces.Chat;
 
 namespace TTX.App.Jobs.CreatorValues;
 
 public class CreatorValueMonitorJob(
-    IServiceProvider _services,
-    IEventDispatcher _events,
+    IServiceScopeFactory _scopes,
+    ChatMonitorFactory _chatMonitorFactory,
+    IEventDispatcher _dispatcher,
+    IEventReceiver _events,
     ILogger<CreatorValueMonitorJob> _logger,
-    IOptions<CreatorNetChangeOptions> _options
+    IOptions<CreatorValuesJobOptions> _options
 ) : BackgroundService
 {
-    private readonly ConcurrentQueue<NetChangeEvent> _queue = new();
+    private readonly ConcurrentQueue<Message> _queue = [];
     private readonly List<Task> _tasks = [];
     private IChatMonitorAdapter[] _chatMonitors = [];
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        List<Creator> creators = [];
-        using (AsyncServiceScope scope = _services.CreateAsyncScope())
+        using (AsyncServiceScope scope = _scopes.CreateAsyncScope())
         {
             ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            // TODO optimize
-            creators = await dbContext.Creators.ToListAsync(stoppingToken);
-            _chatMonitors = [.. scope.ServiceProvider.GetServices<IChatMonitorAdapter>().Select(chatMonitor =>
+            _chatMonitors = [.. _chatMonitorFactory.CreateAll().Select(chatMonitor =>
                     {
-                        chatMonitor.OnNetChange += OnNetChangeReceived;
-                        chatMonitor.SetCreators(creators);
-                        _tasks.Add(chatMonitor.Start(stoppingToken));
+                        chatMonitor.OnMessage += OnMessage;
                         return chatMonitor;
                     })];
         }
 
         if (_chatMonitors.Length == 0)
         {
-            _logger.LogWarning("No chat monitors configured");
+            _logger.LogWarning("No chat monitors configured, stopping.");
+            return;
         }
-        else if (_logger.IsEnabled(LogLevel.Information))
-        {
-            _logger.LogInformation("Watching {creatorNames}", string.Join(" ", creators.Select(c => c.Name)));
-        }
+
+        _tasks.Add(_events.OnEventReceived<UpdateStreamStatusEvent>(async (@event, ct) =>
+                    {
+                        await using AsyncServiceScope scope = _scopes.CreateAsyncScope();
+                        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        Creator? creator = await dbContext.Creators.AsNoTracking().FirstOrDefaultAsync(c => c.Id == @event.CreatorId, ct);
+                        if (creator is null)
+                        {
+                            return;
+                        }
+
+                        IChatMonitorAdapter chatMonitor = scope.ServiceProvider.GetRequiredKeyedService<IChatMonitorAdapter>(creator.Platform);
+                        if (creator.StreamStatus.IsLive)
+                        {
+                            await chatMonitor.Add(creator.Slug);
+                        }
+                        else
+                        {
+                            await chatMonitor.Remove(creator.Slug);
+                        }
+                    }, stoppingToken));
+
+        _tasks.Add(Task.Run(async () =>
+            {
+                using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(300));
+                try
+                {
+                    while (await timer.WaitForNextTickAsync(stoppingToken))
+                    {
+                        if (_queue.TryDequeue(out Message? m))
+                        {
+                            await ParseMessage(m);
+                        }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }, stoppingToken));
 
         _tasks.Add(Task.Run(async () =>
         {
@@ -62,53 +99,77 @@ public class CreatorValueMonitorJob(
             }
             catch (OperationCanceledException)
             {
-                // Graceful shutdown expected
             }
         }, stoppingToken));
 
         await Task.WhenAll(_tasks);
     }
 
-    private void OnNetChangeReceived(object? _, NetChangeEvent e)
+    public void OnMessage(object? _, Message m) => _queue.Enqueue(m);
+
+    private async Task ParseMessage(Message m)
     {
-        _queue.Enqueue(e);
-    }
-
-    private async Task DigestAll()
-    {
-        if (_queue.IsEmpty) return;
-
-        List<NetChangeEvent> events = [];
-        while (_queue.TryDequeue(out NetChangeEvent? e))
-        {
-            events.Add(e!);
-        }
-
-        foreach (NetChangeEvent @event in events)
-        {
-            await Digest(@event);
-        }
-    }
-
-    private async Task Digest(NetChangeEvent e)
-    {
-        await using AsyncServiceScope scope = _services.CreateAsyncScope();
+        await using AsyncServiceScope scope = _scopes.CreateAsyncScope();
+        IMessageAnalyzer _analyzer = scope.ServiceProvider.GetRequiredService<IMessageAnalyzer>();
+        ICreatorStatsRepository statsRepository = scope.ServiceProvider.GetRequiredService<ICreatorStatsRepository>();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
-        Creator? creator = await dbContext.Creators.FirstOrDefaultAsync(c => c.Id == e.CreatorId);
-        if (creator is null)
+        bool? isLive = await dbContext.Creators
+            .Where(c => c.Slug == m.Slug)
+            .Select(c => c.StreamStatus.IsLive)
+            .FirstOrDefaultAsync();
+
+        if (isLive is null)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("Channel {Slug} not found in database. Removing.", m.Slug);
+            }
+
+            await Task.WhenAll(_chatMonitors.Select(c => c.Remove(m.Slug)));
+            return;
+        }
+
+        if (!isLive.Value)
         {
             return;
         }
 
-        Vote vote = creator.ApplyNetChange(e.NetChange);
-        await dbContext.SaveChangesAsync();
-        await portfolioRepository.StoreVote(vote);
-        await _events.Dispatch(UpdateCreatorValueEvent.Create(vote));
+        double value = await _analyzer.Analyze(m.Content);
+        CreatorStats stats = await statsRepository.GetByCreator(m.Slug);
 
-        if (_logger.IsEnabled(LogLevel.Information))
+        stats.MessageCount++;
+        if (value > 0) stats.Positive++;
+        else if (value < 0) stats.Negative++;
+
+        if (_logger.IsEnabled(LogLevel.Debug))
         {
-            _logger.LogInformation("{creatorSlug} {diff} {value}", creator.Slug, e.NetChange > 0 ? "gained" : "lost", e.NetChange);
+            _logger.LogDebug("Channel {Slug} ({Compound:F2}): {Message} ", m.Slug, value, m.Content);
+        }
+        await statsRepository.SetByCreator(m.Slug, stats);
+    }
+
+    private async Task DigestAll()
+    {
+        await using AsyncServiceScope scope = _scopes.CreateAsyncScope();
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        ICreatorStatsRepository statsRepository = scope.ServiceProvider.GetRequiredService<ICreatorStatsRepository>();
+        PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
+        IStatsProcessor statsProcessor = scope.ServiceProvider.GetRequiredService<IStatsProcessor>();
+        CreatorStats[] allStats = await statsRepository.GetAll(true);
+
+        await foreach (Creator creator in dbContext.Creators.AsAsyncEnumerable())
+        {
+            CreatorStats? stats = allStats.FirstOrDefault(c => c.CreatorSlug == creator.Slug);
+            double netChange = await statsProcessor.Process(creator, stats);
+            Vote vote = creator.ApplyNetChange(netChange);
+            await dbContext.SaveChangesAsync();
+            await portfolioRepository.StoreVote(vote);
+            await _dispatcher.Dispatch(UpdateCreatorValueEvent.Create(vote));
+
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("{creatorSlug} {diff} {value}", creator.Slug, netChange > 0 ? "gained" : "lost", netChange);
+            }
         }
     }
 }

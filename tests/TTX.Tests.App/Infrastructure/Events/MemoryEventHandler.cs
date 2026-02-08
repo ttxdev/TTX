@@ -1,6 +1,6 @@
 using TTX.App.Events;
 
-namespace TTX.Infrastructure.Events.Memory;
+namespace TTX.Tests.App.Infrastructure.Events;
 
 public sealed class MemoryEventHandler : IEventDispatcher, IEventReceiver
 {

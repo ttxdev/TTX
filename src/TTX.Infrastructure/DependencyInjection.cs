@@ -5,15 +5,20 @@ using StackExchange.Redis;
 using TTX.App.Data;
 using TTX.App.Events;
 using TTX.App.Interfaces.Platforms;
-using TTX.App.Jobs.CreatorValues;
 using TTX.App.Jobs.Streams;
 using TTX.Domain.Models;
-using TTX.Infrastructure.Events.Memory;
 using TTX.Infrastructure.Events.Redis;
 using TTX.Infrastructure.Options;
 using TTX.Infrastructure.Twitch;
-#if BOT_EXISTS
-using TTX.Bot;
+using TTX.Infrastructure.Twitch.Chat;
+using TTX.Infrastructure.Data.Repositories;
+using TTX.App.Repositories.CreatorValue;
+using TTX.App.Interfaces.Chat;
+
+
+
+#if TTX_PRIVATE_EXISTS
+using TTX.Private;
 #endif
 
 namespace TTX.Infrastructure;
@@ -22,45 +27,45 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddTtxInfra(this IServiceCollection services, IConfiguration config)
     {
-        services.ConfigureDbContext<ApplicationDbContext>((opt) =>
-            {
-                if (config.GetValue<DatabaseDriver>("Data") == DatabaseDriver.Postgres)
+        services
+            .AddLogging()
+            .ConfigureDbContext<ApplicationDbContext>((opt) =>
                 {
-                    opt.UseNpgsql(config.GetConnectionString("Postgres")!);
-                }
-                else
-                {
-                    opt.UseSqlite(config.GetConnectionString("Sqlite")!);
-                }
-            });
+                    if (config.GetValue<DatabaseDriver>("Data") == DatabaseDriver.Postgres)
+                    {
+                        opt.UseNpgsql(config.GetConnectionString("Postgres")!);
+                    }
+                    else
+                    {
+                        opt.UseSqlite(config.GetConnectionString("Sqlite")!);
+                    }
+                });
 
-        switch (config.GetValue<EventDriver>("Events"))
-        {
-            case EventDriver.Redis:
-                services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(config.GetConnectionString("Redis")!));
-                services.AddSingleton<IEventDispatcher, RedisEventDispatcher>();
-                services.AddSingleton<IEventReceiver, RedisEventReceiver>();
-                break;
-            case EventDriver.Memory:
-            default:
-                services.AddSingleton<IEventDispatcher, MemoryEventHandler>();
-                services.AddSingleton<IEventReceiver, MemoryEventHandler>();
-                break;
-        }
-
+        services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(config.GetConnectionString("Redis")!))
+            .AddSingleton<IEventDispatcher, RedisEventDispatcher>()
+            .AddSingleton<IEventReceiver, RedisEventReceiver>()
+            .AddSingleton<ICreatorStatsRepository, CreatorStatsRepository>();
 
         services
             .AddOptions<TwitchOAuthOptions>()
             .Bind(config.GetSection("Twitch:OAuth"))
             .Services
+            // Twitch OAuth & Users
             .AddKeyedSingleton<IPlatformUserService, TwitchUserService>(Platform.Twitch)
-            .AddSingleton<IStreamMonitorAdapter, TwitchStreamMonitorAdapter>();
+            // Twitch Streams
+            .AddSingleton<IStreamMonitorAdapter, TwitchStreamMonitorAdapter>()
+            // Twitch Chat
+            .AddKeyedSingleton<IChatMonitorAdapter, TwitchChatAdapter>(Platform.Twitch)
+            .AddSingleton<BotContainer>()
+            .AddScoped<TwitchBot>();
 
-#if BOT_EXISTS
-        services.AddValueMonitor();
+#if TTX_PRIVATE_EXISTS
+        services.AddPrivateServices(config);
 #else
-        services.AddSingleton<IChatMonitorAdapter, SimpleTwitchChatMonitor>();
+        services.AddSingleton<IMessageAnalyzer, MessageAnalyzer>();
+        services.AddSingleton<IStatsProcessor, StatsProcessor>();
 #endif
+
 
         return services;
     }

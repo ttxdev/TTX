@@ -6,13 +6,12 @@ using TTX.Domain.Models;
 using TTX.App.Interfaces.Platforms;
 using TTX.Tests.App.Infrastructure.Platforms;
 using TTX.App.Events;
-using TTX.Infrastructure.Events.Memory;
 using TTX.Tests.App.Infrastructure.Streams;
 using TTX.App.Jobs.Streams;
 using Microsoft.EntityFrameworkCore;
 using TTX.App.Data;
-using TTX.App.Options;
 using TTX.Infrastructure.Options;
+using TTX.Tests.App.Infrastructure.Events;
 
 namespace TTX.Tests.App;
 
