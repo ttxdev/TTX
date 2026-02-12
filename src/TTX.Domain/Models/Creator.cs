@@ -6,8 +6,8 @@ namespace TTX.Domain.Models;
 
 public class Creator : User
 {
-    public const int MinValue = 1;
-    public const int StarterValue = 1;
+    public const double MinValue = 1.0;
+    public const double StarterValue = 1.0;
     public required Ticker Ticker { get; set; }
     public Credits Value { get; set; } = StarterValue;
     public StreamStatus StreamStatus { get; init; } = new();
