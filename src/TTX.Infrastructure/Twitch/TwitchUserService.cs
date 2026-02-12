@@ -66,7 +66,7 @@ public class TwitchUserService(IOptions<TwitchOAuthOptions> _options) : IPlatfor
     {
         string redirectUri = _options.Value.RedirectUri;
         string clientId = _options.Value.ClientId;
-        string scope = string.Join(' ', _options.Value.Scopes);
+        string scope = "";
 
         return new Uri(
             $"https://id.twitch.tv/oauth2/authorize?client_id={clientId}&redirect_uri={redirectUri}&response_type=code&scope={scope}"
