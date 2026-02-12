@@ -6,7 +6,8 @@
 
 @font-face {
   font-family: "ABC Gravity";
-  src: url("/fonts/ABC-Gravity/ABCGravity-Compressed-Trial.woff") format("woff2");
+  src: url("/fonts/ABC-Gravity/ABCGravity-Compressed-Trial.woff")
+    format("woff2");
   font-weight: normal;
   font-style: normal;
 }

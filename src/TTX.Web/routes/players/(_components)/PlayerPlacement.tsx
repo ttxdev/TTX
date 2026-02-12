@@ -1,6 +1,8 @@
 export type Placement = 1 | 2 | 3;
 
-export default function PlayerPlacement(props: { place: Placement, class?: string }) {
+export default function PlayerPlacement(
+  props: { place: Placement; class?: string },
+) {
   let className = "w-fit rounded-lg p-1 px-2 ";
   if (props.place === 1) className += "bg-[#FFD700]/30";
   else if (props.place === 2) className += "bg-gray-600/60";

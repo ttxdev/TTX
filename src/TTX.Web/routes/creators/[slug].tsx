@@ -33,7 +33,7 @@ export const handler = define.handlers({
       const client = getApiClient(ctx.state.token);
       const creator = await client.getCreator(
         slug,
-        `${hours}:00:00`
+        `${hours}:00:00`,
       );
 
       let isPlayer, currentUserIsCreator;

@@ -8,11 +8,7 @@
     "update": "deno run -A -r jsr:@fresh/update .",
     "genapi": "deno x npm:nswag run ./ttx.nswag"
   },
-  "lint": {
-    "rules": {
-      "tags": ["fresh", "recommended"]
-    }
-  },
+  "lint": { "rules": { "tags": ["fresh", "recommended"] } },
   "exclude": ["**/_fresh/*"],
   "imports": {
     "@/": "./",

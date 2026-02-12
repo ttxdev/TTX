@@ -6,7 +6,9 @@ import { getRecentCreators, SearchResult } from "../../lib/search.ts";
 import { getApiClient } from "../../lib/index.ts";
 import { State } from "../../utils.ts";
 
-export default function SearchModal({ state, isSearchOpen }: { state: State, isSearchOpen: Signal<boolean> }) {
+export default function SearchModal(
+  { state, isSearchOpen }: { state: State; isSearchOpen: Signal<boolean> },
+) {
   const apiClient = getApiClient(state.token);
   const recent = getRecentCreators();
   const result = useSignal<SearchResult[]>([]);
@@ -108,8 +110,14 @@ export default function SearchModal({ state, isSearchOpen }: { state: State, isS
   return (
     <>
       <Modal isOpen={isSearchOpen.value}>
-        <button type="button" onClick={close} aria-label="close" className="modal-backdrop size-full absolute">
-          <div class="fixed inset-0 bg-black/10 backdrop-blur-sm size-full"></div>
+        <button
+          type="button"
+          onClick={close}
+          aria-label="close"
+          className="modal-backdrop size-full absolute"
+        >
+          <div class="fixed inset-0 bg-black/10 backdrop-blur-sm size-full">
+          </div>
         </button>
         <div class="modal-box bg-base-200/50 cursor-default z-10 flex h-[28rem] w-11/12 md:w-full max-w-md flex-col rounded-xl p-6 shadow-2xl shadow-purple-500/20">
           <div class="join flex">

@@ -194,8 +194,7 @@ export default define.page((ctx) => {
       },
       {
         name: "highsecurity",
-        image:
-          "/highsecurity.png",
+        image: "/highsecurity.png",
         role: "Chief Marketing Officer",
         bio:
           "Creating visually stunning designs that capture the essence of our platform and resonate with our audience. I am passionate about creating engaging content that showcases our platform and its features.",

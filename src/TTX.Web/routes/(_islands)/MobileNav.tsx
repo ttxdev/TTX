@@ -17,14 +17,15 @@ export default function MobileNav(
 
   return (
     <>
-    <AnimatePresence>
-      {isMobileMenuOpen.value && (
-          <motion.div 
-            initial={{scale: .1, x: 135, y: -280 }} 
-            animate={{scale: 1,  x: 0, y: 0}} 
-            transition={{duration: .20}} 
-            exit={{scale: .1, x: 135, y: -280 }} 
-            class="fixed left-0 top-0 z-50 h-screen w-full bg-white shadow-lg backdrop-blur backdrop-contrast-100 backdrop-saturate-200 backdrop-filter lg:hidden dark:bg-black">
+      <AnimatePresence>
+        {isMobileMenuOpen.value && (
+          <motion.div
+            initial={{ scale: .1, x: 135, y: -280 }}
+            animate={{ scale: 1, x: 0, y: 0 }}
+            transition={{ duration: .20 }}
+            exit={{ scale: .1, x: 135, y: -280 }}
+            class="fixed left-0 top-0 z-50 h-screen w-full bg-white shadow-lg backdrop-blur backdrop-contrast-100 backdrop-saturate-200 backdrop-filter lg:hidden dark:bg-black"
+          >
             <div class="mt-4 flex h-full flex-col">
               <div class="flex items-center justify-between p-4">
                 <a
@@ -154,8 +155,8 @@ export default function MobileNav(
               </div>
             </div>
           </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -16,7 +16,6 @@ cp .env.example .env
 deno i
 ```
 
-
 ### Start
 
 ```sh

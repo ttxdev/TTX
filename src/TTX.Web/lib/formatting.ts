@@ -23,7 +23,7 @@ export function formatToChart(
 }
 
 export function formatValue(value: number) {
-  const abs = Math.abs(value)
+  const abs = Math.abs(value);
   if (abs >= 1_000_000_000_000) {
     return `$${(value / 1_000_000_000_000).toPrecision(2)} T`;
   } else if (abs >= 1_000_000_000) {

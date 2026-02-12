@@ -191,7 +191,14 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
         </div>
       </div>
       <SearchModal state={state} isSearchOpen={isSearchOpen} />
-      <MobileNav urls={urls} state={state} url={url} isSearchOpen={isSearchOpen} isMobileMenuOpen={isMobileMenuOpen} toggleMobileMenu={toggleMobileMenu}  />
-      </header>
+      <MobileNav
+        urls={urls}
+        state={state}
+        url={url}
+        isSearchOpen={isSearchOpen}
+        isMobileMenuOpen={isMobileMenuOpen}
+        toggleMobileMenu={toggleMobileMenu}
+      />
+    </header>
   );
 }

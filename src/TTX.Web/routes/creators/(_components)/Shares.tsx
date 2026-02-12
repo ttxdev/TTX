@@ -1,4 +1,8 @@
-import { formatName, formatShareAmount, formatValue } from "@/lib/formatting.ts";
+import {
+  formatName,
+  formatShareAmount,
+  formatValue,
+} from "@/lib/formatting.ts";
 import Card from "../../../components/Card.tsx";
 import PlayerPlacement, {
   Placement,
