@@ -111,6 +111,8 @@ public class TwitchBot
             _logger.LogWarning("Failed to join {channel} because {details}", e.Exception.Channel, e.Exception);
         }
 
+        _joinQueue.Enqueue(e.Exception.Channel);
+
         return Task.CompletedTask;
     }
 
@@ -131,7 +133,7 @@ public class TwitchBot
                 continue;
             }
 
-            await _client.JoinChannelAsync(channel!);
+            await _client.JoinChannelAsync(channel.ToLower()!);
             await Task.Delay(600);
         }
     }
