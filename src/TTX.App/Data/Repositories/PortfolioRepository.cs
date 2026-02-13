@@ -126,8 +126,13 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         DateTimeOffset globalEndTime = creators.Max(c =>
             c.StreamStatus.IsLive ? now : (c.StreamStatus.EndedAt ?? now));
         DateTimeOffset globalStartTime = globalEndTime - before;
+        Dictionary<int, List<Vote>> result = creators.ToDictionary(
+            c => c.Id.Value,
+            _ => new List<Vote>()
+        );
 
-        string sql = $@"
+        using DbCommand command = _dbContext.Database.GetDbConnection().CreateCommand();
+        command.CommandText = $@"
                 SELECT
                     v.creator_id AS ""CreatorId"",
                     time_bucket_gapfill(
@@ -143,10 +148,6 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
                     AND v.time <= @end_time
                 GROUP BY ""CreatorId"", ""Bucket""
                 ORDER BY ""Bucket"" ASC";
-
-        using DbCommand command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = sql;
-
         command.Parameters.Add(new NpgsqlParameter("ids", creatorIds));
         command.Parameters.Add(new NpgsqlParameter("interval", interval));
         command.Parameters.Add(new NpgsqlParameter("start_time", globalStartTime));
@@ -158,7 +159,6 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         }
 
         using DbDataReader rows = await command.ExecuteReaderAsync();
-        Dictionary<int, List<Vote>> result = [];
 
         while (await rows.ReadAsync())
         {
@@ -175,21 +175,19 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
                 continue;
             }
 
-            if (!result.TryGetValue(creatorId, out var list))
+            if (result.TryGetValue(creatorId, out var list))
             {
-                list = [];
-                result[creatorId] = list;
+                list.Add(new Vote
+                {
+                    Creator = creator,
+                    CreatorId = creator.Id,
+                    Time = bucketTime,
+                    Value = value
+                });
             }
-
-            list.Add(new Vote
-            {
-                Creator = creator,
-                CreatorId = creator.Id,
-                Time = bucketTime,
-                Value = value
-            });
         }
 
+        // Convert Lists to Arrays for the return type
         return result.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray());
     }
 }
