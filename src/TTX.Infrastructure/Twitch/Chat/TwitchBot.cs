@@ -132,6 +132,7 @@ public class TwitchBot
             }
 
             await _client.JoinChannelAsync(channel!);
+            await Task.Delay(600);
         }
     }
 }
