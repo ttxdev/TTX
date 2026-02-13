@@ -9,7 +9,7 @@ import { State } from "@/utils.ts";
 import { HubConnection } from "@microsoft/signalr";
 
 export default function PlayerCard(
-  { player, placement, isStreamer, state }: {
+  { player, isStreamer, state }: {
     placement: Placement;
     player: PlayerDto;
     isStreamer: boolean;
@@ -48,7 +48,7 @@ export default function PlayerCard(
         </div>
         {isStreamer && (
           <a
-            href="/creators/{player.name}"
+            href={`/creators/${player.slug}`}
             class="bg-primary hover:bg-primary/80 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white transition-colors sm:text-sm"
           >
             <svg
