@@ -141,9 +141,9 @@ public class CreatorValueMonitorJob(
         if (value > 0) stats.Positive++;
         else if (value < 0) stats.Negative++;
 
-        if (_logger.IsEnabled(LogLevel.Debug))
+        if (_logger.IsEnabled(LogLevel.Information))
         {
-            _logger.LogDebug("Channel {Slug} ({Compound:F2}): {Message} ", m.Slug, value, m.Content);
+            _logger.LogInformation("Channel {Slug} ({Compound:F2}): {Message} ", m.Slug, value, m.Content);
         }
         await statsRepository.SetByCreator(m.Slug, stats);
     }
@@ -162,7 +162,7 @@ public class CreatorValueMonitorJob(
         {
             CreatorStats? stats = allStats.FirstOrDefault(c => c.CreatorSlug == creator.Slug);
             double netChange = await statsProcessor.Process(creator, stats);
-            if (netChange < 0.001 && netChange > -0.001)
+            if (netChange == 0.0)
             {
                 continue;
             }
@@ -172,9 +172,9 @@ public class CreatorValueMonitorJob(
             await portfolioRepository.StoreVote(vote);
             await _dispatcher.Dispatch(UpdateCreatorValueEvent.Create(vote));
 
-            if (_logger.IsEnabled(LogLevel.Information))
+            if (_logger.IsEnabled(LogLevel.Debug))
             {
-                _logger.LogInformation("{creatorSlug} {diff} {value}", creator.Slug, netChange > 0 ? "gained" : "lost", netChange);
+                _logger.LogDebug("{creatorSlug} {diff} {value}", creator.Slug, netChange > 0 ? "gained" : "lost", netChange);
             }
         }
     }
