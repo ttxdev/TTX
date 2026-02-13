@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
+using System.Net;
 using Microsoft.Extensions.Logging;
+using TTX.Domain.Models;
 using TTX.Domain.ValueObjects;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
@@ -30,7 +32,11 @@ public class TwitchBot
         _client.OnFailureToReceiveJoinConfirmation += OnFailureToJoin;
         _client.OnError += OnError;
         _client.OnConnected += OnConnected;
-        _client.Initialize(new ConnectionCredentials());
+    }
+
+    public void SetCredentials(ConnectionCredentials credentials)
+    {
+        _client.Initialize(credentials);
     }
 
     private Task OnNoPermissionError(object? sender, NoticeEventArgs e)

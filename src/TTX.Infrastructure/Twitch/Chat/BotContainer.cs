@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using TTX.Domain.ValueObjects;
+using TwitchLib.Client.Models;
 using Message = TTX.App.Interfaces.Chat.Message;
 
 namespace TTX.Infrastructure.Twitch.Chat;
@@ -10,6 +11,7 @@ public class BotContainer(IServiceScopeFactory _scopeFactory)
     private readonly List<TwitchBot> _bots = [];
     public readonly List<Task> RunTasks = [];
     private const int CHUNK = 100;
+    private ConnectionCredentials _credentials = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
 
     public int BotCount => _bots.Select(b => b.IsConnected).Count();
@@ -18,6 +20,11 @@ public class BotContainer(IServiceScopeFactory _scopeFactory)
     public bool HasChannel(string channel)
     {
         return _bots.Any(b => b.HasChannel(channel));
+    }
+
+    public void SetCredentials(ConnectionCredentials credentials)
+    {
+        _credentials = credentials;
     }
 
     public async Task AddChannel(string channel)
@@ -104,6 +111,7 @@ public class BotContainer(IServiceScopeFactory _scopeFactory)
     {
         IServiceScope scope = _scopeFactory.CreateScope();
         TwitchBot bot = scope.ServiceProvider.GetRequiredService<TwitchBot>();
+        bot.SetCredentials(_credentials);
         bot.OnMessage += OnMessage;
 
         return bot;

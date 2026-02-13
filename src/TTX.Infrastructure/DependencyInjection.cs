@@ -54,6 +54,9 @@ public static class DependencyInjection
             // Twitch Streams
             .AddSingleton<IStreamMonitorAdapter, TwitchStreamMonitorAdapter>()
             // Twitch Chat
+            .AddOptions<TwitchChatOptions>()
+            .Bind(config.GetSection("Twitch:Chat"))
+            .Services
             .AddKeyedSingleton<IChatMonitorAdapter, TwitchChatAdapter>(Platform.Twitch)
             .AddSingleton<BotContainer>()
             .AddScoped<TwitchBot>();
