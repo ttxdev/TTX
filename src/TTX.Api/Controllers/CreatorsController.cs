@@ -101,7 +101,7 @@ public class CreatorsController(CreatorService _creatorService) : ControllerBase
     )
     {
         ModelId playerId = ModelId.Create(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        PlayerType role = Enum.Parse<PlayerType>(User.FindFirstValue(ClaimTypes.GroupSid)!);
+        PlayerType role = Enum.Parse<PlayerType>(User.FindFirstValue(ClaimTypes.Role)!);
         if (role != PlayerType.Admin && !await _creatorService.IsPlayer(slug, playerId))
         {
             return Unauthorized();
