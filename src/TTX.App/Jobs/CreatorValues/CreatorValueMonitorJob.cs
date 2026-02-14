@@ -148,9 +148,9 @@ public class CreatorValueMonitorJob(
         if (value > 0) stats.Positive++;
         else if (value < 0) stats.Negative++;
 
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (_logger.IsEnabled(LogLevel.Debug))
         {
-            _logger.LogInformation("Channel {Slug} ({Compound:F2}): {Message} ", m.Slug, value, m.Content);
+            _logger.LogDebug("Channel {Slug} ({Compound:F2}): {Message} ", m.Slug, value, m.Content);
         }
         await statsRepository.SetByCreator(m.Slug, stats);
     }
