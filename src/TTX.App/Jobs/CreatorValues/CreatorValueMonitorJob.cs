@@ -27,7 +27,6 @@ public class CreatorValueMonitorJob(
 ) : BackgroundService
 {
     private readonly Channel<Message> _messageChannel = Channel.CreateUnbounded<Message>();
-    private readonly ConcurrentDictionary<string, int> _messageCounts = new();
     private IChatMonitorAdapter[] _chatMonitors = [];
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -153,14 +152,11 @@ public class CreatorValueMonitorJob(
             _logger.LogDebug("Channel {Slug} ({Compound:F2}): {Message} ", m.Slug, value, m.Content);
         }
         await statsRepository.SetByCreator(m.Slug, stats);
+
     }
 
     private async Task DigestAll()
     {
-        if (_messageCounts.IsEmpty) return;
-        string[] activeCreatorSlugs = [.. _messageCounts.Keys];
-        _messageCounts.Clear();
-
         await using AsyncServiceScope scope = _scopes.CreateAsyncScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         ICreatorStatsRepository statsRepository = scope.ServiceProvider.GetRequiredService<ICreatorStatsRepository>();
@@ -170,6 +166,7 @@ public class CreatorValueMonitorJob(
         Creator[] creators = await dbContext.Creators.ToArrayAsync();
         CreatorStats[] allStats = await statsRepository.GetAll(true);
 
+        Console.WriteLine("Digesting");
         foreach (Creator creator in creators)
         {
             CreatorStats? stats = allStats.FirstOrDefault(c => c.CreatorSlug == creator.Slug);
