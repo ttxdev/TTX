@@ -166,7 +166,6 @@ public class CreatorValueMonitorJob(
         Creator[] creators = await dbContext.Creators.ToArrayAsync();
         CreatorStats[] allStats = await statsRepository.GetAll(true);
 
-        Console.WriteLine("Digesting");
         foreach (Creator creator in creators)
         {
             CreatorStats? stats = allStats.FirstOrDefault(c => c.CreatorSlug == creator.Slug);
