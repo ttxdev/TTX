@@ -163,7 +163,9 @@ public class CreatorValueMonitorJob(
         PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
         IStatsProcessor statsProcessor = scope.ServiceProvider.GetRequiredService<IStatsProcessor>();
 
-        Creator[] creators = await dbContext.Creators.ToArrayAsync();
+        Creator[] creators = await dbContext.Creators
+            .Where(c => c.StreamStatus.IsLive)
+            .ToArrayAsync();
         CreatorStats[] allStats = await statsRepository.GetAll(true);
 
         foreach (Creator creator in creators)
