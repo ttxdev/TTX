@@ -167,20 +167,21 @@ public class CreatorValueMonitorJob(
         PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
         IStatsProcessor statsProcessor = scope.ServiceProvider.GetRequiredService<IStatsProcessor>();
 
-        Creator[] creators = await dbContext.Creators
-            .Where(c => activeCreatorSlugs.Contains(c.Slug.Value))
-            .ToArrayAsync();
+        Creator[] creators = await dbContext.Creators.ToArrayAsync();
         CreatorStats[] allStats = await statsRepository.GetAll(true);
 
-        foreach (Creator? creator in creators)
+        foreach (Creator creator in creators)
         {
             CreatorStats? stats = allStats.FirstOrDefault(c => c.CreatorSlug == creator.Slug);
             double netChange = await statsProcessor.Process(creator, stats);
-
-            if (netChange == 0.0) continue;
+            if (netChange == 0.0)
+            {
+                continue;
+            }
 
             Vote vote = creator.ApplyNetChange(netChange);
 
+            await dbContext.SaveChangesAsync();
             await portfolioRepository.StoreVote(vote);
             await _dispatcher.Dispatch(UpdateCreatorValueEvent.Create(vote));
 
@@ -189,7 +190,5 @@ public class CreatorValueMonitorJob(
                 _logger.LogDebug("{creatorSlug} {diff} {value}", creator.Slug, netChange > 0 ? "gained" : "lost", netChange);
             }
         }
-
-        await dbContext.SaveChangesAsync();
     }
 }
