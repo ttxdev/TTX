@@ -12,11 +12,14 @@ using TTX.Infrastructure.Options;
 using TTX.Infrastructure.Twitch;
 using TTX.Infrastructure.Twitch.Chat;
 using TTX.Infrastructure.Data.Repositories;
+using TTX.App.Interfaces.CreatorValue;
+using TTX.Infrastructure.Services;
 using TTX.App.Repositories.CreatorValue;
 using TTX.App.Interfaces.Chat;
 
 #if TTX_PRIVATE_EXISTS
 using TTX.Private;
+#else
 #endif
 
 namespace TTX.Infrastructure;
@@ -60,8 +63,8 @@ public static class DependencyInjection
 #if TTX_PRIVATE_EXISTS
         services.AddPrivateServices(config);
 #else
-        services.AddSingleton<IMessageAnalyzer, Services.MessageAnalyzer>();
-        services.AddSingleton<IStatsProcessor, Services.StatsProcessor>();
+        services.AddSingleton<IMessageAnalyzer, MessageAnalyzer>();
+        services.AddSingleton<IStatsProcessor, StatsProcessor>();
 #endif
 
 
