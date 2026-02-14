@@ -14,7 +14,6 @@ using TTX.Infrastructure.Twitch.Chat;
 using TTX.Infrastructure.Data.Repositories;
 using TTX.App.Repositories.CreatorValue;
 using TTX.App.Interfaces.Chat;
-using TTX.App.Interfaces.CreatorValue;
 
 #if TTX_PRIVATE_EXISTS
 using TTX.Private;
@@ -54,11 +53,8 @@ public static class DependencyInjection
             // Twitch Streams
             .AddSingleton<IStreamMonitorAdapter, TwitchStreamMonitorAdapter>()
             // Twitch Chat
-            .AddOptions<TwitchChatOptions>()
-            .Bind(config.GetSection("Twitch:Chat"))
-            .Services
-            .AddKeyedSingleton<IChatMonitorAdapter, TwitchChatAdapter>(Platform.Twitch)
-            .AddSingleton<BotContainer>()
+            .AddKeyedScoped<IChatMonitorAdapter, TwitchChatAdapter>(Platform.Twitch)
+            .AddScoped<BotContainer>()
             .AddScoped<TwitchBot>();
 
 #if TTX_PRIVATE_EXISTS

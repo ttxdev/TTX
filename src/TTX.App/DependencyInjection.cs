@@ -40,7 +40,7 @@ public static class DependencyInjection
             .AddScoped<TransactionService>()
             .AddScoped<PlayerService>()
             // Factories
-            .AddSingleton<ChatMonitorFactory>();
+            .AddScoped<ChatMonitorFactory>();
     }
 
     public static IServiceCollection AddTtxJobs(this IServiceCollection services, IConfiguration configuration)

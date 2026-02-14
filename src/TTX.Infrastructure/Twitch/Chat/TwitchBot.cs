@@ -1,8 +1,5 @@
-using System.Collections.Concurrent;
-using System.Net;
+using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
-using TTX.Domain.Models;
-using TTX.Domain.ValueObjects;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
@@ -10,137 +7,66 @@ using Message = TTX.App.Interfaces.Chat.Message;
 
 namespace TTX.Infrastructure.Twitch.Chat;
 
-public class TwitchBot
+public sealed class TwitchBot : IAsyncDisposable
 {
     public bool IsConnected => _client.IsConnected;
-    public int ChannelCount => _client.JoinedChannels.Count + _joinQueue.Count;
     public event EventHandler<Message> OnMessage = null!;
+    public int ChannelCount => _client.JoinedChannels.Count;
     private readonly ILogger<TwitchBot> _logger;
     private readonly TwitchClient _client;
-    private readonly ConcurrentQueue<string> _joinQueue = [];
+    private readonly Channel<string> _joinChannel = Channel.CreateUnbounded<string>();
 
     public TwitchBot(ILogger<TwitchBot> logger, ILoggerFactory loggerFactory)
     {
         _logger = logger;
+        _client = new TwitchClient(loggerFactory: loggerFactory);
 
-        _client = new(loggerFactory: loggerFactory);
-        _client.OnNoPermissionError += OnNoPermissionError;
-        _client.OnUnaccountedFor += OnUnaccountedFor;
-        _client.OnMessageReceived += OnTwitchMessage;
-        _client.OnRateLimit += OnRateLimit;
-        _client.OnConnectionError += OnConnectionError;
-        _client.OnFailureToReceiveJoinConfirmation += OnFailureToJoin;
-        _client.OnError += OnError;
-        _client.OnConnected += OnConnected;
+        _client.Initialize(new ConnectionCredentials());
+        _client.OnMessageReceived += OnMessageReceived;
+        _client.OnConnected += async (_, _) => { _ = OnConnected(); };
+        _client.OnFailureToReceiveJoinConfirmation += OnFailureToReceiveJoinConfirmation;
     }
-
-    public void SetCredentials(ConnectionCredentials credentials)
-    {
-        _client.Initialize(credentials);
-    }
-
-    private Task OnNoPermissionError(object? sender, NoticeEventArgs e)
-    {
-        if (_logger.IsEnabled(LogLevel.Warning))
-        {
-            _logger.LogWarning("No permission error received {message}", e.Message);
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private Task OnUnaccountedFor(object? sender, OnUnaccountedForArgs e)
-    {
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Unaccounted for event received {message}", e.RawIRC);
-        }
-
-        return Task.CompletedTask;
-    }
-
-    public bool HasChannel(string channel) =>
-        _client.JoinedChannels.Any(c => c.Channel == channel)
-         || _joinQueue.Any(c => c == channel);
 
     public Task Start() => _client.ConnectAsync();
 
     public Task Stop() => _client.DisconnectAsync();
 
-    public async Task AddChannel(string channel)
+    public ValueTask AddChannel(string channel) => _joinChannel.Writer.WriteAsync(channel);
+
+    public Task RemoveChannel(string channel) => _client.LeaveChannelAsync(channel);
+
+    private Task OnMessageReceived(object? _, OnMessageReceivedArgs e)
     {
-        _joinQueue.Enqueue(channel);
-
-        if (_client.IsConnected)
-        {
-            await JoinAll();
-        }
-    }
-
-    public Task RemoveChannel(string channel)
-    {
-        return _client.LeaveChannelAsync(channel);
-    }
-
-    private Task OnConnectionError(object? sender, OnConnectionErrorArgs e)
-    {
-        if (_logger.IsEnabled(LogLevel.Error))
-        {
-            _logger.LogError("Connection error {message}", e.Error.Message);
-        }
-
+        OnMessage?.Invoke(this, new Message(e.ChatMessage.Channel, e.ChatMessage.Message));
         return Task.CompletedTask;
     }
 
-    private Task OnRateLimit(object? sender, NoticeEventArgs e)
+    private Task OnFailureToReceiveJoinConfirmation(object? _, OnFailureToReceiveJoinConfirmationArgs e)
     {
         if (_logger.IsEnabled(LogLevel.Warning))
         {
-            _logger.LogWarning("Rate limit exceeded {desc}", e.Message);
+            _logger.LogWarning("Failed to join {channel}: {error}", e.Exception.Channel, e.Exception.Details);
         }
 
+        _joinChannel.Writer.TryWrite(e.Exception.Channel);
         return Task.CompletedTask;
     }
 
-    private Task OnConnected(object? sender, OnConnectedEventArgs e) => JoinAll();
-
-    private Task OnError(object? sender, TwitchLib.Communication.Events.OnErrorEventArgs e)
+    private async Task OnConnected()
     {
-        _logger.LogError(e.Exception, "Ran into an error");
-        return Task.CompletedTask;
-    }
-
-    private Task OnFailureToJoin(object? sender, OnFailureToReceiveJoinConfirmationArgs e)
-    {
-        if (_logger.IsEnabled(LogLevel.Warning))
+        while (await _joinChannel.Reader.WaitToReadAsync())
         {
-            _logger.LogWarning("Failed to join {channel} because {details}", e.Exception.Channel, e.Exception);
-        }
-
-        _joinQueue.Enqueue(e.Exception.Channel);
-
-        return Task.CompletedTask;
-    }
-
-    private Task OnTwitchMessage(object? _, OnMessageReceivedArgs @event)
-    {
-        Slug slug = @event.ChatMessage.Channel;
-        string content = @event.ChatMessage.Message;
-        OnMessage.Invoke(this, new Message(slug, content));
-        return Task.CompletedTask;
-    }
-
-    private async Task JoinAll()
-    {
-        while (!_joinQueue.IsEmpty)
-        {
-            if (!_joinQueue.TryDequeue(out string? channel))
+            while (_joinChannel.Reader.TryRead(out string? channel))
             {
-                continue;
+                await _client.JoinChannelAsync(channel);
             }
-
-            await _client.JoinChannelAsync(channel.ToLower()!);
-            await Task.Delay(600);
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _client.OnMessageReceived -= OnMessageReceived;
+        _client.OnFailureToReceiveJoinConfirmation -= OnFailureToReceiveJoinConfirmation;
+        await _client.DisconnectAsync();
     }
 }

@@ -14,98 +14,105 @@ using TTX.App.Factories;
 using TTX.App.Interfaces.CreatorValue;
 using TTX.App.Repositories.CreatorValue;
 using TTX.App.Interfaces.Chat;
+using System.Threading.Channels;
 
 namespace TTX.App.Jobs.CreatorValues;
 
 public class CreatorValueMonitorJob(
     IServiceScopeFactory _scopes,
-    ChatMonitorFactory _chatMonitorFactory,
     IEventDispatcher _dispatcher,
     IEventReceiver _events,
     ILogger<CreatorValueMonitorJob> _logger,
     IOptions<CreatorValuesJobOptions> _options
 ) : BackgroundService
 {
-    private readonly ConcurrentQueue<Message> _queue = [];
-    private readonly List<Task> _tasks = [];
+    private readonly Channel<Message> _messageChannel = Channel.CreateUnbounded<Message>();
+    private readonly ConcurrentDictionary<string, int> _messageCounts = new();
     private IChatMonitorAdapter[] _chatMonitors = [];
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using (AsyncServiceScope scope = _scopes.CreateAsyncScope())
-        {
-            ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            _chatMonitors = [.. _chatMonitorFactory.CreateAll().Select(chatMonitor =>
-                    {
-                        chatMonitor.OnMessage += OnMessage;
-                        return chatMonitor;
-                    })];
-        }
-
+        AsyncServiceScope scope = _scopes.CreateAsyncScope();
+        ChatMonitorFactory chatFactory = scope.ServiceProvider.GetRequiredService<ChatMonitorFactory>();
+        List<Task> _tasks = [];
+        _chatMonitors = [.. chatFactory.CreateAll()];
         if (_chatMonitors.Length == 0)
         {
-            _logger.LogWarning("No chat monitors configured, stopping.");
+            _logger.LogWarning("No chat monitors configured.");
             return;
         }
 
+        foreach (IChatMonitorAdapter monitor in _chatMonitors)
+        {
+            monitor.OnMessage += (_, msg) => _messageChannel.Writer.TryWrite(msg);
+            await monitor.Start([], stoppingToken);
+        }
+
+        _tasks.Add(ProcessMessagesAsync(stoppingToken));
         _tasks.Add(_events.OnEventReceived<UpdateStreamStatusEvent>(async (@event, ct) =>
         {
-            await using AsyncServiceScope scope = _scopes.CreateAsyncScope();
-            ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            Creator? creator = await dbContext.Creators.AsNoTracking().FirstOrDefaultAsync(c => c.Id == @event.CreatorId, ct);
-            if (creator is null)
-            {
-                return;
-            }
+            using AsyncServiceScope dbScope = _scopes.CreateAsyncScope();
+            ApplicationDbContext dbContext = dbScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            Creator? creator = await dbContext.Creators.AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == @event.CreatorId, ct);
 
-            IChatMonitorAdapter chatMonitor = scope.ServiceProvider.GetRequiredKeyedService<IChatMonitorAdapter>(creator.Platform);
-            if (creator.StreamStatus.IsLive)
+            if (creator is null) return;
+
+            IChatMonitorAdapter? monitor = _chatMonitors.FirstOrDefault();
+
+            if (monitor != null)
             {
-                await chatMonitor.Add(creator.Slug);
-            }
-            else
-            {
-                await chatMonitor.Remove(creator.Slug);
+                if (creator.StreamStatus.IsLive)
+                {
+                    await monitor.Add(creator.Slug.Value.ToLower());
+                }
+                else
+                {
+                    await monitor.Remove(creator.Slug.Value.ToLower());
+                }
             }
         }, stoppingToken));
-
         _tasks.Add(Task.Run(async () =>
-        {
-            using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(300));
-            try
             {
-                while (await timer.WaitForNextTickAsync(stoppingToken))
+                using PeriodicTimer timer = new(_options.Value.Delay);
+                try
                 {
-                    if (_queue.TryDequeue(out Message? m))
+                    while (await timer.WaitForNextTickAsync(stoppingToken))
                     {
-                        await ParseMessage(m);
+                        try
+                        {
+                            await DigestAll();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "An error occurred during the periodic digest.");
+                        }
                     }
                 }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }, stoppingToken));
-
-        _tasks.Add(Task.Run(async () =>
-        {
-            using PeriodicTimer timer = new(_options.Value.Delay);
-            try
-            {
-                while (await timer.WaitForNextTickAsync(stoppingToken))
+                catch (OperationCanceledException)
                 {
-                    await DigestAll();
+                    _logger.LogInformation("Digest loop shutting down.");
                 }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }, stoppingToken));
+            }, stoppingToken));
 
-        await Task.WhenAll(_tasks);
+        await Task.WhenAny(_tasks);
+        await scope.DisposeAsync();
     }
 
-    public void OnMessage(object? _, Message m) => _queue.Enqueue(m);
+    private async Task ProcessMessagesAsync(CancellationToken ct)
+    {
+        await foreach (Message message in _messageChannel.Reader.ReadAllAsync(ct))
+        {
+            try
+            {
+                await ParseMessage(message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error parsing message");
+            }
+        }
+    }
 
     private async Task ParseMessage(Message m)
     {
@@ -150,25 +157,30 @@ public class CreatorValueMonitorJob(
 
     private async Task DigestAll()
     {
+        if (_messageCounts.IsEmpty) return;
+        string[] activeCreatorSlugs = [.. _messageCounts.Keys];
+        _messageCounts.Clear();
+
         await using AsyncServiceScope scope = _scopes.CreateAsyncScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         ICreatorStatsRepository statsRepository = scope.ServiceProvider.GetRequiredService<ICreatorStatsRepository>();
         PortfolioRepository portfolioRepository = scope.ServiceProvider.GetRequiredService<PortfolioRepository>();
         IStatsProcessor statsProcessor = scope.ServiceProvider.GetRequiredService<IStatsProcessor>();
-        Creator[] creators = await dbContext.Creators.ToArrayAsync();
+
+        Creator[] creators = await dbContext.Creators
+            .Where(c => activeCreatorSlugs.Contains(c.Slug.Value))
+            .ToArrayAsync();
         CreatorStats[] allStats = await statsRepository.GetAll(true);
 
-        foreach (Creator creator in creators)
+        foreach (Creator? creator in creators)
         {
             CreatorStats? stats = allStats.FirstOrDefault(c => c.CreatorSlug == creator.Slug);
             double netChange = await statsProcessor.Process(creator, stats);
-            if (netChange == 0.0)
-            {
-                continue;
-            }
+
+            if (netChange == 0.0) continue;
 
             Vote vote = creator.ApplyNetChange(netChange);
-            await dbContext.SaveChangesAsync();
+
             await portfolioRepository.StoreVote(vote);
             await _dispatcher.Dispatch(UpdateCreatorValueEvent.Create(vote));
 
@@ -177,5 +189,7 @@ public class CreatorValueMonitorJob(
                 _logger.LogDebug("{creatorSlug} {diff} {value}", creator.Slug, netChange > 0 ? "gained" : "lost", netChange);
             }
         }
+
+        await dbContext.SaveChangesAsync();
     }
 }

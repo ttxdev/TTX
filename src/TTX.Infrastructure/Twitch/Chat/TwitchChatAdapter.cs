@@ -1,51 +1,47 @@
-using Microsoft.Extensions.Options;
 using TTX.App.Interfaces.Chat;
-using TTX.Infrastructure.Options;
-using TwitchLib.Client.Models;
 
 namespace TTX.Infrastructure.Twitch.Chat;
 
-public sealed class TwitchChatAdapter : IChatMonitorAdapter
+public sealed class TwitchChatAdapter : IChatMonitorAdapter, IDisposable
 {
     public event EventHandler<Message>? OnMessage;
-    private readonly BotContainer _botContainer;
+    private readonly BotContainer _bots;
 
-    public TwitchChatAdapter(BotContainer botContainer, IOptions<TwitchChatOptions> options)
+    public TwitchChatAdapter(BotContainer bots)
     {
-        _botContainer = botContainer;
-        _botContainer.OnMessage += OnMessage;
+        _bots = bots;
+        _bots.OnMessage += Bot_OnMessage;
+    }
 
-        if (options.Value.Username.Length > 0)
-        {
-            _botContainer.SetCredentials(new ConnectionCredentials(options.Value.Username, options.Value.Token));
-        }
+    private void Bot_OnMessage(object? sender, Message e)
+    {
+        OnMessage?.Invoke(this, e);
     }
 
     public async Task Start(IEnumerable<string> channels, CancellationToken stoppingToken = default)
     {
-        await _botContainer.Setup(channels);
-        await _botContainer.Start();
+        foreach (string channel in channels)
+        {
+            await _bots.AddChannel(channel);
+        }
+
+        await _bots.Start();
     }
 
     public async Task<bool> Add(string channel)
     {
-        if (_botContainer.HasChannel(channel))
-        {
-            return true;
-        }
-
-        await _botContainer.AddChannel(channel);
+        await _bots.AddChannel(channel);
         return true;
     }
 
     public async Task<bool> Remove(string channel)
     {
-        if (!_botContainer.HasChannel(channel))
-        {
-            return false;
-        }
-
-        await _botContainer.RemoveChannel(channel);
+        await _bots.RemoveChannel(channel);
         return true;
+    }
+
+    public void Dispose()
+    {
+        _bots.OnMessage -= Bot_OnMessage;
     }
 }
