@@ -1,6 +1,6 @@
 using System.Text.Json;
 using StackExchange.Redis;
-using TTX.App.Repositories.CreatorValue;
+using TTX.App.Interfaces.Data.CreatorValue;
 using TTX.Domain.ValueObjects;
 
 namespace TTX.Infrastructure.Data.Repositories;

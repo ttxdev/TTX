@@ -1,5 +1,5 @@
 using TTX.App.Interfaces.CreatorValue;
-using TTX.App.Repositories.CreatorValue;
+using TTX.App.Interfaces.Data.CreatorValue;
 using TTX.Domain.Models;
 
 namespace TTX.Infrastructure.Services;

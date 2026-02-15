@@ -74,7 +74,6 @@ public class BotContainer(IServiceScopeFactory _scopeFactory)
                 await bot.RemoveChannel(channel);
                 if (bot.ChannelCount == 0)
                 {
-                    await bot.Stop();
                     _bots.Remove(bot);
                 }
             }

@@ -12,6 +12,7 @@ public sealed class TwitchBot : IAsyncDisposable
     public bool IsConnected => _client.IsConnected;
     public event EventHandler<Message> OnMessage = null!;
     public int ChannelCount => _client.JoinedChannels.Count;
+    private readonly CancellationTokenSource _cts = new();
     private readonly ILogger<TwitchBot> _logger;
     private readonly TwitchClient _client;
     private readonly Channel<string> _joinChannel = Channel.CreateUnbounded<string>();
@@ -28,8 +29,6 @@ public sealed class TwitchBot : IAsyncDisposable
     }
 
     public Task Start() => _client.ConnectAsync();
-
-    public Task Stop() => _client.DisconnectAsync();
 
     public ValueTask AddChannel(string channel) => _joinChannel.Writer.WriteAsync(channel);
 
@@ -54,7 +53,7 @@ public sealed class TwitchBot : IAsyncDisposable
 
     private async Task OnConnected()
     {
-        while (await _joinChannel.Reader.WaitToReadAsync())
+        while (!_cts.Token.IsCancellationRequested && await _joinChannel.Reader.WaitToReadAsync())
         {
             while (_joinChannel.Reader.TryRead(out string? channel))
             {
@@ -67,6 +66,7 @@ public sealed class TwitchBot : IAsyncDisposable
     {
         _client.OnMessageReceived -= OnMessageReceived;
         _client.OnFailureToReceiveJoinConfirmation -= OnFailureToReceiveJoinConfirmation;
+        await _cts.CancelAsync();
         await _client.DisconnectAsync();
     }
 }
