@@ -3,8 +3,8 @@ namespace TTX.Domain.Models;
 public class StreamStatus
 {
     public bool IsLive { get; private set; } = false;
-    public DateTimeOffset? StartedAt { get; private set; }
-    public DateTimeOffset? EndedAt { get; private set; }
+    public DateTimeOffset StartedAt { get; private set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset EndedAt { get; private set; } = DateTimeOffset.UtcNow;
 
     public void Started(DateTimeOffset at)
     {
