@@ -9,12 +9,11 @@ using TTX.App.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TTX.App.Options;
-using System.Collections.Concurrent;
 using TTX.App.Factories;
 using TTX.App.Interfaces.CreatorValue;
-using TTX.App.Repositories.CreatorValue;
 using TTX.App.Interfaces.Chat;
 using System.Threading.Channels;
+using TTX.App.Interfaces.Data.CreatorValue;
 
 namespace TTX.App.Jobs.CreatorValues;
 

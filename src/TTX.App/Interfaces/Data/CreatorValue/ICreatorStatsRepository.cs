@@ -1,6 +1,6 @@
 using TTX.Domain.ValueObjects;
 
-namespace TTX.App.Repositories.CreatorValue;
+namespace TTX.App.Interfaces.Data.CreatorValue;
 
 public interface ICreatorStatsRepository
 {

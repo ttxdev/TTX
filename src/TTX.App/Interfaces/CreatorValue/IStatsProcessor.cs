@@ -1,4 +1,4 @@
-using TTX.App.Repositories.CreatorValue;
+using TTX.App.Interfaces.Data.CreatorValue;
 using TTX.Domain.Models;
 
 namespace TTX.App.Interfaces.CreatorValue;
