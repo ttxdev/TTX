@@ -101,92 +101,8 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         return result.ToDictionary(kv => kv.Key, kv => kv.Value.ToArray());
     }
 
-    public async Task<Vote[]> FindCreatorHistory(
-        Creator creator,
-        TimeStep step,
-        TimeSpan before
-    )
-    {
-        // 1. Connection Management: Open explicitly via EF
-        var connection = _dbContext.Database.GetDbConnection();
-        if (connection.State != ConnectionState.Open)
-        {
-            await connection.OpenAsync();
-        }
 
-        string intervalStr = step.ToTimescaleString();
-        DateTimeOffset endTime = creator.StreamStatus.EndedAt;
-        DateTimeOffset startTime = endTime - before;
-
-        using DbCommand command = connection.CreateCommand();
-
-        command.CommandText = $@"
-            WITH initial_val AS (
-                -- Find the last value immediately BEFORE the window starts
-                SELECT
-                    @id AS creator_id,
-                    @start_time::timestamptz AS time,
-                    value
-                FROM votes
-                WHERE creator_id = @id AND time < @start_time
-                ORDER BY time DESC
-                LIMIT 1
-            ),
-            combined_data AS (
-                -- Combine the 'lookback' value with the actual range data
-                SELECT creator_id, time, value FROM votes
-                WHERE creator_id = @id
-                  AND time >= @start_time
-                  AND time <= @end_time
-                UNION ALL
-                SELECT creator_id, time, value FROM initial_val
-            )
-            SELECT
-                c.creator_id AS ""CreatorId"",
-                time_bucket_gapfill(
-                    @interval::interval,
-                    c.time,
-                    @start_time,
-                    @end_time
-                ) AS ""Bucket"",
-                locf(last(c.value, c.time)) AS ""Value""
-            FROM combined_data c
-            WHERE c.creator_id = @id -- Redundant but safe
-            GROUP BY ""CreatorId"", ""Bucket""
-            ORDER BY ""Bucket"" ASC";
-
-        command.Parameters.Add(new NpgsqlParameter("id", creator.Id.Value));
-        command.Parameters.Add(new NpgsqlParameter("interval", intervalStr));
-        command.Parameters.Add(new NpgsqlParameter("start_time", startTime));
-        command.Parameters.Add(new NpgsqlParameter("end_time", endTime));
-
-        using DbDataReader rows = await command.ExecuteReaderAsync();
-
-        List<Vote> result = [];
-        while (await rows.ReadAsync())
-        {
-            DateTime bucketTime = rows.GetDateTime(1);
-
-            double? value = rows.IsDBNull(2) ? null : rows.GetDouble(2);
-
-            if (value is null || !creator.StreamStatus.IsLive && bucketTime > creator.StreamStatus.EndedAt.UtcDateTime)
-            {
-                continue;
-            }
-
-            result.Add(new Vote
-            {
-                Creator = creator,
-                CreatorId = creator.Id,
-                Time = bucketTime,
-                Value = value
-            });
-        }
-
-        return [.. result];
-    }
-
-    public async Task<Dictionary<int, Vote[]>> IndexCreatorHistory(
+    public async Task<Dictionary<int, Vote[]>> GetHistoryFor(
         IEnumerable<Creator> creators,
         TimeStep step,
         TimeSpan before
@@ -207,7 +123,8 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         int[] creatorIds = [.. creatorLookup.Keys];
         string interval = step.ToTimescaleString();
 
-        DateTimeOffset globalEndTime = creators.Min(c => c.StreamStatus.StartedAt);
+        DateTimeOffset globalEndTime = creators.Max(c =>
+            c.StreamStatus.IsLive ? now : (c.StreamStatus.EndedAt ?? now));
         DateTimeOffset globalStartTime = globalEndTime - before;
         Dictionary<int, List<Vote>> result = creators.ToDictionary(
             c => c.Id.Value,
@@ -251,7 +168,9 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
 
             if (!creatorLookup.TryGetValue(creatorId, out var creator)) continue;
 
-            if (!creator.StreamStatus.IsLive && bucketTime > creator.StreamStatus.EndedAt.UtcDateTime)
+            if (!creator.StreamStatus.IsLive &&
+                creator.StreamStatus.EndedAt.HasValue &&
+                bucketTime > creator.StreamStatus.EndedAt.Value.UtcDateTime)
             {
                 continue;
             }

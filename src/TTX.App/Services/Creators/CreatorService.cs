@@ -66,7 +66,7 @@ public class CreatorService(
         Creator[] creators =
             await query.Skip((request.Page - 1) * limit).Take(limit).ToArrayAsync();
 
-        Dictionary<int, Vote[]> history = await _portfolioRepository.IndexCreatorHistory(creators, request.HistoryParams.Step, request.HistoryParams.Before);
+        Dictionary<int, Vote[]> history = await _portfolioRepository.GetHistoryFor(creators, request.HistoryParams.Step, request.HistoryParams.Before);
 
         return new PaginationDto<CreatorDto>
         {
@@ -95,7 +95,12 @@ public class CreatorService(
             return null;
         }
 
-        creator.History = await _portfolioRepository.FindCreatorHistory(creator, historyParams.Step, historyParams.Before);
+        Dictionary<int, Vote[]> history =
+            await _portfolioRepository.GetHistoryFor([creator], historyParams.Step, historyParams.Before);
+        if (history.TryGetValue(creator.Id, out Vote[]? value))
+        {
+            creator.History = [.. value];
+        }
 
         return CreatorDto.Create(creator);
     }
