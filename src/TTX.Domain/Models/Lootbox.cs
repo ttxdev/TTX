@@ -9,7 +9,7 @@ public class LootBox : Model
     public ModelId? ResultId { get; private set; }
     public bool IsOpen => ResultId is not null;
     public virtual Player Player { get; init; } = null!;
-    public Creator? Result { get; private set; }
+    public virtual Creator? Result { get; private set; }
 
     public static LootBox Create(Player player)
     {
