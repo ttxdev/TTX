@@ -8,7 +8,7 @@ public class BotContainer(IServiceScopeFactory _scopeFactory)
     public event EventHandler<Message>? OnMessage;
     private readonly List<TwitchBot> _bots = [];
     public readonly List<Task> RunTasks = [];
-    private const int CHUNK = 50;
+    private const int CHUNK = 1_000;
     private readonly SemaphoreSlim _lock = new(1, 1);
 
     public int BotCount => _bots.Select(b => b.IsConnected).Count();
