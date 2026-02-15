@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TTX.App.Data.Converters;
 using TTX.Domain.Models;
+using TTX.Domain.ValueObjects;
 
 namespace TTX.App.Data;
 
@@ -10,6 +11,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     private static readonly MethodInfo DateTruncMethod
         = typeof(ApplicationDbContext).GetRuntimeMethod(nameof(DateTrunc), [typeof(string), typeof(DateTime)])!;
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<ModelId>().HaveConversion<ModelIdConverter>();
+        configurationBuilder.Properties<Name>().HaveConversion<NameConverter>();
+        configurationBuilder.Properties<Slug>().HaveConversion<SlugConverter>();
+        configurationBuilder.Properties<PlatformId>().HaveConversion<PlatformIdConverter>();
+        configurationBuilder.Properties<Quantity>().HaveConversion<QuantityConverter>();
+        configurationBuilder.Properties<Ticker>().HaveConversion<TickerConverter>();
+        configurationBuilder.Properties<Credits>()
+            .HaveConversion<CreditsConverter>()
+            .HavePrecision(2);
+        configurationBuilder.Properties<Uri>().HaveConversion<string>();
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,34 +37,24 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasKey(p => p.Id);
             entity.Property(p => p.Id)
                 .ValueGeneratedOnAdd()
-                .HasConversion(new ModelIdConverter())
                 .HasColumnName("id");
             entity.Property(p => p.Name)
-                .HasConversion(new NameConverter())
                 .HasColumnName("name");
             entity.Property(p => p.Slug)
-                .HasConversion(new SlugConverter())
                 .HasColumnName("slug");
             entity.Property(p => p.Platform)
                 .HasConversion(
-                    t => t.ToString(),
-                    t => Enum.Parse<Platform>(t)
+                    p => p.ToString(),
+                    p => Enum.Parse<Platform>(p)
                 )
                 .HasColumnName("platform");
             entity.Property(p => p.PlatformId)
-                .HasConversion(new PlatformIdConverter())
                 .HasColumnName("platform_id");
             entity.Property(p => p.AvatarUrl)
-                .HasConversion(
-                    a => a.ToString(),
-                    a => new Uri(a)
-                )
                 .HasColumnName("avatar_url");
             entity.Property(p => p.Credits)
-                .HasConversion(new CreditsConverter())
                 .HasColumnName("credits");
             entity.Property(p => p.Portfolio)
-                .HasConversion(new CreditsConverter())
                 .HasColumnName("portfolio");
             entity.Property(p => p.Type)
                 .HasConversion(
@@ -74,6 +79,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 
+            entity.HasMany<PortfolioSnapshot>()
+                .WithOne(p => p.Player)
+                .HasForeignKey(p => p.PlayerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
             entity.Ignore(p => p.History);
 
             entity.HasIndex(c => c.Slug).IsUnique();
@@ -88,16 +99,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasKey(c => c.Id);
             entity.Property(c => c.Id)
                 .ValueGeneratedOnAdd()
-                .HasConversion(new ModelIdConverter())
                 .HasColumnName("id");
             entity.Property(c => c.Name)
-                .HasConversion(new NameConverter())
                 .HasColumnName("name");
             entity.Property(c => c.Slug)
-                .HasConversion(new SlugConverter())
                 .HasColumnName("slug");
             entity.Property(c => c.Ticker)
-                .HasConversion(new TickerConverter())
                 .HasColumnName("ticker");
             entity.Property(p => p.Platform)
                 .HasConversion(
@@ -106,17 +113,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 )
                 .HasColumnName("platform");
             entity.Property(c => c.PlatformId)
-                .HasConversion(new PlatformIdConverter())
                 .HasColumnName("platform_id");
-            entity.Property(u => u.AvatarUrl)
-                .HasConversion(
-                    a => a.ToString(),
-                    a => new Uri(a)
-                )
-                .HasColumnName("avatar_url");
-            entity.Property(c => c.Value)
-                .HasConversion(new CreditsConverter())
-                .HasColumnName("value");
+            entity.Property(c => c.AvatarUrl).HasColumnName("avatar_url");
+            entity.Property(c => c.Value).HasColumnName("value");
             entity.OwnsOne(c => c.StreamStatus, ss =>
             {
                 ss.WithOwner();
@@ -138,6 +137,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 
+            entity.HasMany<Vote>()
+                .WithOne(v => v.Creator)
+                .HasForeignKey(v => v.CreatorId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            entity.HasMany<LootBox>()
+                .WithOne(l => l.Result)
+                .HasForeignKey(l => l.ResultId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             entity.Ignore(c => c.History);
 
             entity.HasIndex(c => c.Slug).IsUnique();
@@ -150,14 +160,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.ToTable("votes");
 
             entity.HasNoKey();
-            entity.Property(v => v.CreatorId)
-                .HasConversion(new ModelIdConverter())
-                .HasColumnName("creator_id");
-            entity.Property(v => v.Value)
-                .HasConversion(new CreditsConverter())
-                .HasColumnName("value");
-            entity.Property(v => v.Time)
-                .HasColumnName("time");
+            entity.Property(v => v.CreatorId).HasColumnName("creator_id");
+            entity.Property(v => v.Value).HasColumnName("value");
+            entity.Property(v => v.Time).HasColumnName("time");
 
             entity.HasIndex(v => new { v.CreatorId, v.Time });
         });
@@ -167,13 +172,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.ToTable("player_portfolios");
 
             entity.HasNoKey();
-            entity.Property(p => p.PlayerId)
-                .HasConversion(new ModelIdConverter())
-                .HasColumnName("player_id");
-            entity.Property(p => p.Value)
-                .HasColumnName("value");
-            entity.Property(p => p.Time)
-                .HasColumnName("time");
+            entity.Property(p => p.PlayerId).HasColumnName("player_id");
+            entity.Property(p => p.Value).HasColumnName("value");
+            entity.Property(p => p.Time).HasColumnName("time");
 
             entity.HasOne(p => p.Player)
                 .WithMany()
@@ -188,20 +189,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.ToTable("loot_boxes");
 
             entity.HasKey(l => l.Id);
-            entity.Property(l => l.Id)
-                .ValueGeneratedOnAdd()
-                .HasConversion(new ModelIdConverter())
-                .HasColumnName("id");
-            entity.Property(l => l.PlayerId)
-                .HasConversion(new ModelIdConverter())
-                .HasColumnName("player_id");
-            entity.Property(l => l.ResultId)
-                .HasConversion(new ModelIdConverter()!)
-                .HasColumnName("result_id");
-            entity.Property(l => l.CreatedAt)
-                .HasColumnName("created_at");
-            entity.Property(l => l.UpdatedAt)
-                .HasColumnName("updated_at");
+            entity.Property(l => l.Id).ValueGeneratedOnAdd().HasColumnName("id");
+            entity.Property(l => l.PlayerId).HasColumnName("player_id");
+            entity.Property(l => l.ResultId).HasColumnName("result_id");
+            entity.Property(l => l.CreatedAt).HasColumnName("created_at");
+            entity.Property(l => l.UpdatedAt).HasColumnName("updated_at");
 
             entity.HasOne(l => l.Player)
                 .WithMany(u => u.LootBoxes)
@@ -218,32 +210,19 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.ToTable("transactions");
 
             entity.HasKey(t => t.Id);
-            entity.Property(t => t.Id)
-                .ValueGeneratedOnAdd()
-                .HasConversion(new ModelIdConverter())
-                .HasColumnName("id");
-            entity.Property(t => t.Quantity)
-                .HasConversion(new QuantityConverter())
-                .HasColumnName("quantity");
-            entity.Property(t => t.Value)
-                .HasConversion(new CreditsConverter())
-                .HasColumnName("value");
+            entity.Property(t => t.Id).ValueGeneratedOnAdd().HasColumnName("id");
+            entity.Property(t => t.Quantity).HasColumnName("quantity");
+            entity.Property(t => t.Value).HasColumnName("value");
             entity.Property(t => t.Action)
                 .HasConversion(
                     t => t.ToString(),
                     t => Enum.Parse<TransactionAction>(t)
                 )
                 .HasColumnName("action");
-            entity.Property(t => t.PlayerId)
-                .HasConversion(new ModelIdConverter())
-                .HasColumnName("player_id");
-            entity.Property(t => t.CreatorId)
-                .HasConversion(new ModelIdConverter())
-                .HasColumnName("creator_id");
-            entity.Property(t => t.CreatedAt)
-                .HasColumnName("created_at");
-            entity.Property(t => t.UpdatedAt)
-                .HasColumnName("updated_at");
+            entity.Property(t => t.PlayerId).HasColumnName("player_id");
+            entity.Property(t => t.CreatorId).HasColumnName("creator_id");
+            entity.Property(t => t.CreatedAt).HasColumnName("created_at");
+            entity.Property(t => t.UpdatedAt).HasColumnName("updated_at");
 
             entity.HasOne(t => t.Player)
                 .WithMany(u => u.Transactions)
@@ -263,19 +242,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasKey(a => a.Id);
             entity.Property(a => a.Id)
                 .ValueGeneratedOnAdd()
-                .HasConversion(new ModelIdConverter())
                 .HasColumnName("id");
             entity.Property(a => a.SubmitterId)
-                .HasConversion(new ModelIdConverter())
                 .HasColumnName("submitter_id");
             entity.Property(a => a.Name)
-                .HasConversion(new NameConverter())
                 .HasColumnName("name");
             entity.Property(a => a.PlatformId)
-                .HasConversion(new PlatformIdConverter())
                 .HasColumnName("platform_id");
             entity.Property(a => a.Ticker)
-                .HasConversion(new TickerConverter())
                 .HasColumnName("ticker");
             entity.Property(a => a.Status)
                 .HasConversion(
@@ -301,10 +275,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasKey(a => a.Id);
             entity.Property(a => a.Id)
                 .ValueGeneratedOnAdd()
-                .HasConversion(new ModelIdConverter())
                 .HasColumnName("id");
             entity.Property(a => a.PlatformId)
-                .HasConversion(new PlatformIdConverter())
                 .HasColumnName("platform_id");
             entity.Property(a => a.CreatedAt)
                 .HasColumnName("created_at");
@@ -323,21 +295,21 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         return base.SaveChanges();
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         UpdateTimestamps();
-        return await base.SaveChangesAsync(cancellationToken);
+        return base.SaveChangesAsync(cancellationToken);
     }
 
     private void UpdateTimestamps()
     {
-        IEnumerable<EntityEntry> entries = ChangeTracker.Entries()
-            .Where(e => e.Entity is Model && (e.State == EntityState.Added || e.State == EntityState.Modified));
+        IEnumerable<EntityEntry<Model>> entries = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+            .OfType<EntityEntry<Model>>();
 
-        foreach (EntityEntry entry in entries)
+        foreach (EntityEntry<Model> entry in entries)
         {
-            Model entity = (Model)entry.Entity;
-            entity.Bump();
+            entry.Entity.Bump();
         }
     }
 
