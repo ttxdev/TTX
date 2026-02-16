@@ -124,7 +124,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         string interval = step.ToTimescaleString();
 
         DateTimeOffset globalEndTime = creators.Max(c =>
-            c.StreamStatus.IsLive ? now : (c.StreamStatus.EndedAt ?? now));
+            c.StreamStatus.IsLive ? now : c.StreamStatus.EndedAt);
         DateTimeOffset globalStartTime = globalEndTime - before;
         Dictionary<int, List<Vote>> result = creators.ToDictionary(
             c => c.Id.Value,
@@ -169,8 +169,7 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
             if (!creatorLookup.TryGetValue(creatorId, out var creator)) continue;
 
             if (!creator.StreamStatus.IsLive &&
-                creator.StreamStatus.EndedAt.HasValue &&
-                bucketTime > creator.StreamStatus.EndedAt.Value.UtcDateTime)
+                bucketTime > creator.StreamStatus.EndedAt.UtcDateTime)
             {
                 continue;
             }

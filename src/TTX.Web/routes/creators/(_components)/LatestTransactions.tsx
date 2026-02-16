@@ -20,7 +20,10 @@ export default function LatestTransactions(
       {transactions.length > 0 && (
         <table class="table">
           <tbody>
-            {transactions.map((tx) => {
+            {[...transactions].sort((a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+            ).map((tx) => {
               const href = `/players/${tx.player.slug}`;
               return (
                 <tr
