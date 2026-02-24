@@ -22,6 +22,7 @@ public class LootBoxesTests : ServiceTests
         Player player = _playerFactory.Create();
         LootBox lootBox = player.AddLootBox();
         Creator creator = _creatorFactory.Create(value: random.Next(1, 500));
+        creator.StreamStatus.Started(DateTimeOffset.UtcNow);
         db.Players.Add(player);
         db.Creators.Add(creator);
         await db.SaveChangesAsync(TestContext.CancellationToken);
@@ -41,6 +42,7 @@ public class LootBoxesTests : ServiceTests
         Player player = _playerFactory.Create();
         LootBox lootBox = player.AddLootBox();
         Creator creator = _creatorFactory.Create(value: random.Next(1, 500));
+        creator.StreamStatus.Started(DateTimeOffset.UtcNow);
         dbContext.Players.Add(player);
         dbContext.Creators.Add(creator);
         await dbContext.SaveChangesAsync(TestContext.CancellationToken);

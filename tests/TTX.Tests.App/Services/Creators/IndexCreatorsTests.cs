@@ -154,7 +154,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
             Search = creator.Name
         });
 
-        Assert.IsTrue(page.Data.Any(c => c.Id == creator.Id));
+        Assert.Contains(c => c.Id == creator.Id, page.Data);
     }
 
 
@@ -171,6 +171,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
         foreach (int _ in Enumerable.Range(0, total))
         {
             Creator creator = _creatorFactory.Create();
+            creator.StreamStatus.Started(DateTimeOffset.UtcNow);
             creators.Add(creator);
             dbContext.Creators.Add(creator);
         }
@@ -190,7 +191,7 @@ page.Data[i - 1].Value, $"Creator at index {i - 1} has fewer credits than creato
             },
         });
 
-        Assert.IsTrue(page.Data.Any(c => c.History.Length > 0));
+        Assert.Contains(c => c.History.Length > 0, page.Data);
     }
 
     [TestMethod]
