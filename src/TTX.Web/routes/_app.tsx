@@ -56,6 +56,9 @@ export default define.page((ctx) => {
               Copyright © {new Date().getFullYear()} - All right reserved.
             </p>
             <div class="flex flex-row gap-4">
+              <a href="/privacy" class="text-purple-500 hover:underline">
+                Privacy Policy
+              </a>
               <ExternalLink
                 clientId={ctx.state.discordId}
                 href={Deno.env.get("FRESH_PUBLIC_DISCORD_URL")!}
@@ -64,9 +67,14 @@ export default define.page((ctx) => {
               >
                 Join our Discord!
               </ExternalLink>
-              <a href="/privacy" class="text-purple-500 hover:underline">
-                Privacy Policy
-              </a>
+              <ExternalLink
+                clientId={ctx.state.discordId}
+                href="https://github.com/ttxdev/ttx"
+                target="_blank"
+                class="w-fit text-purple-500 hover:underline"
+              >
+                We're open-source!
+              </ExternalLink>
             </div>
           </aside>
         </footer>

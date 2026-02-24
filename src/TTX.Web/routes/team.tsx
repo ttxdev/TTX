@@ -246,7 +246,7 @@ export default define.page((ctx) => {
             ))}
             <span>and the original ATX Team.</span>
           </div>
-          <div class="my-6 flex w-full flex-row justify-center md:my-10">
+          <div class="my-6 flex w-full flex-row gap-4 justify-center md:my-10">
             <ExternalLink
               clientId={ctx.state.discordId}
               href={Deno.env.get("FRESH_PUBLIC_DISCORD_URL")!}
@@ -254,6 +254,14 @@ export default define.page((ctx) => {
               class="rounded bg-violet-500 px-6 py-3 text-center font-bold text-white transition hover:bg-violet-600"
             >
               Join our Discord!
+            </ExternalLink>
+            <ExternalLink
+              clientId={ctx.state.discordId}
+              href="https://github.com/ttxdev/ttx"
+              target="_blank"
+              class="rounded bg-gray-500 px-6 py-3 text-center font-bold text-white transition hover:bg-gray-600"
+            >
+              GitHub
             </ExternalLink>
           </div>
         </section>
