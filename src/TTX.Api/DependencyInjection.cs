@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using TTX.Api.Jobs;
 using TTX.App.Data;
 using SessionOptions = TTX.Api.Options.SessionOptions;
@@ -58,6 +62,12 @@ public static class DependencyInjection
             .AddLogging(opt =>
             {
                 opt.AddConsole();
+                opt.AddOpenTelemetry(otel =>
+                {
+                    otel.IncludeScopes = true;
+                    otel.IncludeFormattedMessage = true;
+                    otel.AddOtlpExporter();
+                });
                 if (env.IsDevelopment())
                 {
                     opt.AddDebug();
@@ -67,6 +77,18 @@ public static class DependencyInjection
             .AddHealthChecks()
             .AddCheck("self", () => HealthCheckResult.Healthy())
             .AddDbContextCheck<ApplicationDbContext>()
+            .Services
+            .AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService("TTX.Api"))
+            .WithTracing(tracing => tracing
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddOtlpExporter())
+            .WithMetrics(metrics => metrics
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddOtlpExporter())
             .Services
             // Rate Limiting
             .AddRateLimiter(options =>
