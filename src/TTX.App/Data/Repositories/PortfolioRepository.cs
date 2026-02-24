@@ -51,7 +51,12 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
                     @start_time,
                     @end_time
                 ) AS ""Bucket"",
-                locf(last(p.value, p.time)) AS ""Value""
+                locf(
+                    last(p.value, p.time),
+                    (SELECT p2.value FROM player_portfolios p2
+                     WHERE p2.player_id = p.player_id AND p2.time < @start_time
+                     ORDER BY p2.time DESC LIMIT 1)
+                ) AS ""Value""
             FROM player_portfolios p
             WHERE p.player_id = ANY(@ids)
                 AND p.time >= @start_time
@@ -77,9 +82,10 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
 
         while (await rows.ReadAsync())
         {
+            if (rows.IsDBNull(2)) continue;
             int playerId = rows.GetInt32(0);
             DateTime bucketTime = rows.GetDateTime(1);
-            double value = rows.IsDBNull(2) ? Player.MinPortfolio : rows.GetDouble(2);
+            double value = rows.GetDouble(2);
 
             if (!playerLookup.TryGetValue(playerId, out var player)) continue;
 
@@ -119,63 +125,58 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
         }
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
-        Dictionary<int, Creator> creatorLookup = creators.ToDictionary(c => c.Id.Value);
-        int[] creatorIds = [.. creatorLookup.Keys];
         string interval = step.ToTimescaleString();
-
-        DateTimeOffset globalEndTime = creators.Max(c =>
-            c.StreamStatus.IsLive ? now : c.StreamStatus.EndedAt);
-        DateTimeOffset globalStartTime = globalEndTime - before;
         Dictionary<int, List<Vote>> result = creators.ToDictionary(
             c => c.Id.Value,
             _ => new List<Vote>()
         );
 
-        using DbCommand command = _dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = $@"
+        DbConnection connection = _dbContext.Database.GetDbConnection();
+        if (connection.State != ConnectionState.Open)
+        {
+            await connection.OpenAsync();
+        }
+
+        foreach (Creator creator in creators)
+        {
+            DateTimeOffset endTime = creator.StreamStatus.IsLive ? now : creator.StreamStatus.EndedAt;
+            DateTimeOffset startTime = endTime - before;
+
+            using DbCommand command = connection.CreateCommand();
+            command.CommandText = $@"
                 SELECT
-                    v.creator_id AS ""CreatorId"",
                     time_bucket_gapfill(
                         @interval::interval,
                         v.time,
                         @start_time,
                         @end_time
                     ) AS ""Bucket"",
-                    locf(last(v.value, v.time)) AS ""Value""
+                    locf(
+                        last(v.value, v.time),
+                        (SELECT v2.value FROM votes v2
+                         WHERE v2.creator_id = @id AND v2.time < @start_time
+                         ORDER BY v2.time DESC LIMIT 1)
+                    ) AS ""Value""
                 FROM votes v
-                WHERE v.creator_id = ANY(@ids)
+                WHERE v.creator_id = @id
                     AND v.time >= @start_time
                     AND v.time <= @end_time
-                GROUP BY ""CreatorId"", ""Bucket""
+                GROUP BY ""Bucket""
                 ORDER BY ""Bucket"" ASC";
-        command.Parameters.Add(new NpgsqlParameter("ids", creatorIds));
-        command.Parameters.Add(new NpgsqlParameter("interval", interval));
-        command.Parameters.Add(new NpgsqlParameter("start_time", globalStartTime));
-        command.Parameters.Add(new NpgsqlParameter("end_time", globalEndTime));
+            command.Parameters.Add(new NpgsqlParameter("id", creator.Id.Value));
+            command.Parameters.Add(new NpgsqlParameter("interval", interval));
+            command.Parameters.Add(new NpgsqlParameter("start_time", startTime));
+            command.Parameters.Add(new NpgsqlParameter("end_time", endTime));
 
-        if (command.Connection!.State != ConnectionState.Open)
-        {
-            await command.Connection.OpenAsync();
-        }
+            using DbDataReader rows = await command.ExecuteReaderAsync();
+            List<Vote> list = result[creator.Id.Value];
 
-        using DbDataReader rows = await command.ExecuteReaderAsync();
-
-        while (await rows.ReadAsync())
-        {
-            int creatorId = rows.GetInt32(0);
-            DateTime bucketTime = rows.GetDateTime(1);
-            double value = rows.IsDBNull(2) ? Creator.MinValue : rows.GetDouble(2);
-
-            if (!creatorLookup.TryGetValue(creatorId, out var creator)) continue;
-
-            if (!creator.StreamStatus.IsLive &&
-                bucketTime > creator.StreamStatus.EndedAt.UtcDateTime)
+            while (await rows.ReadAsync())
             {
-                continue;
-            }
+                if (rows.IsDBNull(1)) continue;
+                DateTime bucketTime = rows.GetDateTime(0);
+                double value = rows.GetDouble(1);
 
-            if (result.TryGetValue(creatorId, out var list))
-            {
                 list.Add(new Vote
                 {
                     Creator = creator,
@@ -186,7 +187,6 @@ public sealed class PortfolioRepository(ApplicationDbContext _dbContext)
             }
         }
 
-        // Convert Lists to Arrays for the return type
         return result.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray());
     }
 }
