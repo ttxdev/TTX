@@ -1,5 +1,5 @@
 ---
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   namespace: ttx
@@ -11,9 +11,16 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: ttx-api
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
 
 ---
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   namespace: ttx
@@ -25,3 +32,10 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: ttx-web
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
