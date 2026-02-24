@@ -77,7 +77,9 @@ public class LootBoxService(
     public async Task<CreatorRarity[]> GetCreatorRarities()
     {
         double averageCreatorValue = await _dbContext.Creators.AverageAsync(c => c.Value);
-        Creator[] creators = await _dbContext.Creators.Where(creator => creator.Value >= averageCreatorValue).ToArrayAsync();
+        Creator[] creators = await _dbContext.Creators
+            .Where(creator => creator.StreamStatus.IsLive && creator.Value >= averageCreatorValue)
+            .ToArrayAsync();
         double sum = creators.Sum(creator => creator.Value);
 
         return [.. creators.Select(creator => CreatorRarity.Create(sum, creator))];
