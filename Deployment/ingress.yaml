@@ -5,7 +5,15 @@ metadata:
   namespace: ttx
   labels:
     name: ttx
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
 spec:
+  tls:
+    - hosts:
+        - api.ttx.gg
+        - ttx.gg
+      secretName: ttx-tls
   rules:
     - host: api.ttx.gg
       http:
