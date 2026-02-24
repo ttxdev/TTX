@@ -24,6 +24,9 @@ spec:
           image: ghcr.io/ttxdev/ttx.api:main
           imagePullPolicy: Always
           resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
             limits:
               memory: "250Mi"
               cpu: "500m"
@@ -35,22 +38,34 @@ spec:
           volumeMounts:
             - name: ttx-dataprotection
               mountPath: /var/ttx/keys
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ttx-jobs
+  name: ttx-job-streams
   namespace: ttx
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: ttx-jobs
-  replicas: 1 # jobs is not scalable :(
+      app: ttx-job-streams
   template:
     metadata:
       labels:
-        app: ttx-jobs
+        app: ttx-job-streams
     spec:
       imagePullSecrets:
         - name: ttx-regcreds
@@ -58,24 +73,85 @@ spec:
         - name: streams
           image: ghcr.io/ttxdev/ttx.private:main
           imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
           envFrom:
             - secretRef:
                 name: ttx-config
           env:
             - name: TTX__Jobs__Enabled__0
               value: StreamMonitorJob
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-job-portfolios
+  namespace: ttx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ttx-job-portfolios
+  template:
+    metadata:
+      labels:
+        app: ttx-job-portfolios
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
         - name: portfolios
           image: ghcr.io/ttxdev/ttx.private:main
           imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
           envFrom:
             - secretRef:
                 name: ttx-config
           env:
             - name: TTX__Jobs__Enabled__0
               value: CalculatePlayerPortfolioJob
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttx-job-creators
+  namespace: ttx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ttx-job-creators
+  template:
+    metadata:
+      labels:
+        app: ttx-job-creators
+    spec:
+      imagePullSecrets:
+        - name: ttx-regcreds
+      containers:
         - name: creators
           image: ghcr.io/ttxdev/ttx.private:main
           imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
           envFrom:
             - secretRef:
                 name: ttx-config
@@ -105,11 +181,29 @@ spec:
           image: ghcr.io/ttxdev/ttx.web:main
           imagePullPolicy: Always
           resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
             limits:
               memory: "128Mi"
               cpu: "500m"
           ports:
             - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: ttx-config
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
 
 ---
 apiVersion: apps/v1
@@ -128,7 +222,31 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:latest
-          imagePullPolicy: Always
+          image: redis:7.4
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
           ports:
             - containerPort: 6379
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-data
