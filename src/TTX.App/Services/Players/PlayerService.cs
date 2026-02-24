@@ -127,7 +127,8 @@ public class PlayerService(
             return Result<PlayerPartialDto>.Ok(PlayerPartialDto.Create(player));
         }
 
-        player = Player.Create(pUser);
+        Credits credits = await _dbContext.Creators.AverageAsync(c => c.Value);
+        player = Player.Create(pUser, credits);
         _dbContext.Players.Add(player);
         await _dbContext.SaveChangesAsync();
         await _events.Dispatch(CreatePlayerEvent.Create(player));

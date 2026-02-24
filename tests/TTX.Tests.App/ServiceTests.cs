@@ -17,6 +17,7 @@ public class ServiceTests
     protected static PlayerFactory _playerFactory = null!;
     protected static PlatformUserFactory _platformUserFactory = null!;
     protected static TickerFactory _tickerFactory = null!;
+    protected static Random _random = null!;
 
     public virtual TestContext TestContext { get; set; } = null!;
 
@@ -40,6 +41,7 @@ public class ServiceTests
         _playerFactory = _services.GetRequiredService<PlayerFactory>();
         _platformUserFactory = _services.GetRequiredService<PlatformUserFactory>();
         _tickerFactory = _services.GetRequiredService<TickerFactory>();
+        _random = _services.GetRequiredService<Random>();
 
         ApplicationDbContext dbContext = _services.GetRequiredService<ApplicationDbContext>();
         dbContext.Database.EnsureCreated();

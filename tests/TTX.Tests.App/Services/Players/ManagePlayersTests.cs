@@ -30,4 +30,27 @@ public class ManagePlayersTests : ServiceTests
         ModelId playerId = result.Value!.Id;
         Assert.IsTrue(await dbContext.LootBoxes.Where(l => l.PlayerId == playerId && l.ResultId == null).AnyAsync(TestContext.CancellationToken));
     }
+
+    [TestMethod]
+    public async Task PlayerStartsWithAverageCreatorValue()
+    {
+        await using AsyncServiceScope scope = _services.CreateAsyncScope();
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        PlayerService playerService = scope.ServiceProvider.GetRequiredService<PlayerService>();
+        PlatformUser user = _platformUserFactory.Create();
+        Creator creator = _creatorFactory.Create(value: _random.Next(100, 1_000));
+        dbContext.Creators.Add(creator);
+        await dbContext.SaveChangesAsync(TestContext.CancellationToken);
+
+        Credits expected = await dbContext.Creators.AverageAsync(c => c.Value, TestContext.CancellationToken);
+        Result<PlayerPartialDto> result = await playerService.Onboard(Platform.Twitch, user);
+        if (!result.IsSuccessful)
+        {
+            Assert.Fail(result.Error!.ToString());
+        }
+
+        ModelId playerId = result.Value!.Id;
+        Credits credits = await dbContext.Players.Where(p => p.Id == playerId).Select(p => p.Credits).FirstAsync(TestContext.CancellationToken);
+        Assert.AreEqual(expected.Value, credits.Value);
+    }
 }
