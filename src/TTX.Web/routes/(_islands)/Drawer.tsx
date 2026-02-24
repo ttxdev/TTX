@@ -69,11 +69,14 @@ export default function Drawer({ state }: { state: State }) {
                     d="M5 15l7-7 7 7"
                   />
                 </svg>
-                {self.value && shares.value.online.length >= 1 && (
-                  <span class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold">
-                    {shares.value.offline.length + self.value.loot_boxes.length}
-                  </span>
-                )}
+                {self.value &&
+                  self.value.loot_boxes.filter((b) => !b.is_open).length >
+                    0 &&
+                  (
+                    <span class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold">
+                      {self.value.loot_boxes.filter((b) => !b.is_open).length}
+                    </span>
+                  )}
               </div>
             </motion.button>
           )}
