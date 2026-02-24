@@ -123,7 +123,7 @@ public class CreatorValueMonitorJob(
             .Select(c => c.StreamStatus.IsLive)
             .FirstOrDefaultAsync();
 
-        if (isLive is null)
+        if (!isLive.HasValue)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
             {
