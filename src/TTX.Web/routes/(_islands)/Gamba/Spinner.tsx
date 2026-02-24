@@ -28,6 +28,13 @@ export default function Spinner(
     (r) => r.creator.id === result.result.creator.id,
   );
 
+  const repeats = 3;
+  const items = Array.from(
+    { length: repeats },
+    () => result.rarities,
+  ).flat();
+  const targetIndex = (repeats - 1) * result.rarities.length + winnerIndex;
+
   useEffect(() => {
     if (!winnerRef.current || !containerRef.current) {
       return;
@@ -65,8 +72,8 @@ export default function Spinner(
         style={{ x }}
         className="absolute flex items-center h-full will-change-transform"
       >
-        {result.rarities.map((item, i) => {
-          const isWinner = i === winnerIndex;
+        {items.map((item, i) => {
+          const isWinner = i === targetIndex;
 
           return (
             <div
