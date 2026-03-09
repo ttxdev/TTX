@@ -146,19 +146,11 @@ public class TwitchStreamMonitorAdapter : IStreamMonitorAdapter
         {
             FireEvent(creator.Id, true, startedAt ?? DateTime.UtcNow);
             _lastKnownStates[creator.Id] = new StreamState(true, startedAt);
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation("Creator {Creator} went live.", creator.Slug);
-            }
         }
         else if (!isLiveNow && lastState.IsLive)
         {
             FireEvent(creator.Id, false, DateTime.UtcNow);
             _lastKnownStates[creator.Id] = new StreamState(false, null);
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation("Creator {Creator} went offline.", creator.Slug);
-            }
         }
     }
 
