@@ -61,13 +61,16 @@ public static class DependencyInjection
             .AddHttpLogging()
             .AddLogging(opt =>
             {
-                opt.AddConsole();
                 opt.AddOpenTelemetry(otel =>
                 {
                     otel.IncludeScopes = true;
                     otel.IncludeFormattedMessage = true;
                     otel.AddOtlpExporter();
                 });
+                if (!env.IsProduction())
+                {
+                    opt.AddConsole();
+                }
                 if (env.IsDevelopment())
                 {
                     opt.AddDebug();
@@ -80,6 +83,7 @@ public static class DependencyInjection
             .Services
             .AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService("TTX.Api"))
+            .WithLogging(logging => logging.AddOtlpExporter())
             .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
