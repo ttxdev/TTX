@@ -32,6 +32,9 @@ spec:
               cpu: "500m"
           ports:
             - containerPort: 8080
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: API
           envFrom:
             - secretRef:
                 name: ttx-config
@@ -84,6 +87,8 @@ spec:
             - secretRef:
                 name: ttx-config
           env:
+            - name: OTEL_SERVICE_NAME
+              value: StreamMonitorJob
             - name: TTX__Jobs__Enabled__0
               value: StreamMonitorJob
 
@@ -120,6 +125,8 @@ spec:
             - secretRef:
                 name: ttx-config
           env:
+            - name: OTEL_SERVICE_NAME
+              value: CalculatePlayerPortfolioJob
             - name: TTX__Jobs__Enabled__0
               value: CalculatePlayerPortfolioJob
 
@@ -156,6 +163,8 @@ spec:
             - secretRef:
                 name: ttx-config
           env:
+            - name: OTEL_SERVICE_NAME
+              value: CreatorValueMonitorJob
             - name: TTX__Jobs__Enabled__0
               value: CreatorValueMonitorJob
 
