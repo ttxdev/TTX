@@ -231,7 +231,7 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:7.4
+          image: docker.io/redis:7.4
           imagePullPolicy: IfNotPresent
           resources:
             requests:
