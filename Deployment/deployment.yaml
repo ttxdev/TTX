@@ -198,6 +198,11 @@ spec:
               cpu: "500m"
           ports:
             - containerPort: 8000
+          env:
+            - name: OTEL_DENO
+              value: "true"
+            - name: OTEL_SERVICE_NAME
+              value: "TTX.Web"
           envFrom:
             - secretRef:
                 name: ttx-config
