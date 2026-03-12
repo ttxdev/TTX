@@ -14,6 +14,7 @@
     "@/": "./",
     "@discord/embedded-app-sdk": "npm:@discord/embedded-app-sdk@^2.4.0",
     "@microsoft/signalr": "npm:@microsoft/signalr@^10.0.0",
+    "@opentelemetry/api": "npm:@opentelemetry/api@^1.9.0",
     "@std/async": "jsr:@std/async@^1.1.0",
     "@std/http": "jsr:@std/http@^1.0.23",
     "chart.js": "npm:chart.js@^4.5.1",

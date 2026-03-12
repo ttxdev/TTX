@@ -1,10 +1,21 @@
 import { App, staticFiles } from "fresh";
 import type { State } from "./utils.ts";
 import { getSession } from "./lib/auth/sessions.ts";
+import { trace } from "npm:@opentelemetry/api@1";
 
 export const app = new App<State>();
 
 app.use(staticFiles());
+
+app.use(async (ctx) => {
+  const span = trace.getActiveSpan();
+  if (span) {
+    span.setAttribute("http.route", ctx.url.pathname);
+    span.updateName(`${ctx.req.method} ${ctx.url.pathname}`);
+  }
+
+  return await ctx.next();
+})
 
 app.use(async (ctx) => {
   const session = getSession(ctx.req.headers);

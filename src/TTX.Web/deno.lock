@@ -1722,6 +1722,7 @@
       "jsr:@std/http@^1.0.23",
       "npm:@discord/embedded-app-sdk@^2.4.0",
       "npm:@microsoft/signalr@10",
+      "npm:@opentelemetry/api@^1.9.0",
       "npm:@preact/signals@^2.5.0",
       "npm:@tailwindcss/vite@^4.1.12",
       "npm:chart.js@^4.5.1",
