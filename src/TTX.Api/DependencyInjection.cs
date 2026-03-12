@@ -86,6 +86,7 @@ public static class DependencyInjection
             .WithLogging(logging => logging.AddOtlpExporter())
             .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation()
+                .AddEntityFrameworkCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddOtlpExporter())
             .WithMetrics(metrics => metrics
