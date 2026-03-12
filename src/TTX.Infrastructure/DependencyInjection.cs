@@ -12,15 +12,13 @@ using TTX.Infrastructure.Options;
 using TTX.Infrastructure.Twitch;
 using TTX.Infrastructure.Twitch.Chat;
 using TTX.Infrastructure.Data.Repositories;
-using TTX.App.Interfaces.CreatorValue;
-using TTX.Infrastructure.Services;
 using TTX.App.Interfaces.Chat;
 using TTX.App.Interfaces.Data.CreatorValue;
-
-
 #if TTX_PRIVATE_EXISTS
 using TTX.Private;
 #else
+using TTX.App.Interfaces.CreatorValue;
+using TTX.Infrastructure.Services;
 #endif
 
 namespace TTX.Infrastructure;
@@ -30,7 +28,6 @@ public static class DependencyInjection
     public static IServiceCollection AddTtxInfra(this IServiceCollection services, IConfiguration config)
     {
         services
-            .AddLogging()
             .ConfigureDbContext<ApplicationDbContext>((opt) =>
                 {
                     if (config.GetValue<DatabaseDriver>("Data") == DatabaseDriver.Postgres)
