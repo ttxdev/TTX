@@ -87,6 +87,7 @@ public static class DependencyInjection
             .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation()
                 .AddEntityFrameworkCoreInstrumentation()
+                .AddRedisInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddOtlpExporter())
             .WithMetrics(metrics => metrics
