@@ -14,6 +14,14 @@ IConfiguration configuration = new ConfigurationBuilder()
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Services
+    .AddLogging(opt =>
+        {
+            opt.AddOpenTelemetry();
+            if (!builder.Environment.IsProduction())
+            {
+                opt.AddConsole();
+            }
+        })
     .AddOpenTelemetry()
     .ConfigureResource(resource => resource.AddHostDetector().AddContainerDetector())
     .WithLogging(logging => logging.AddOtlpExporter())
