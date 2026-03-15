@@ -20,10 +20,10 @@ export default function MobileNav(
       <AnimatePresence>
         {isMobileMenuOpen.value && (
           <motion.div
-            initial={{ scale: .1, x: 135, y: -280 }}
-            animate={{ scale: 1, x: 0, y: 0 }}
-            transition={{ duration: .20 }}
-            exit={{ scale: .1, x: 135, y: -280 }}
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            transition={{ duration: 0.20, ease: "easeOut" }}
+            exit={{ x: "100%" }}
             class="fixed left-0 top-0 z-50 h-screen w-full bg-white shadow-lg backdrop-blur backdrop-contrast-100 backdrop-saturate-200 backdrop-filter lg:hidden dark:bg-black"
           >
             <div class="mt-4 flex h-full flex-col">
