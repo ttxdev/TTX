@@ -15,7 +15,11 @@ const TAKE = 20;
 export const handler = define.handlers({
   async GET(ctx) {
     const client = getApiClient(ctx.state.token);
-    const index = Number(ctx.url.searchParams.get("page") ?? "1");
+
+    const rawPage = Number(ctx.url.searchParams.get("page") ?? "1");
+    // Default to first page if we go to index 0 or invalid value
+    const index = rawPage >= 1 ? rawPage : 1;
+
     const orderDir =
       ctx.url.searchParams.get("orderDir") == OrderDirection.Ascending
         ? OrderDirection.Ascending
@@ -42,6 +46,17 @@ export const handler = define.handlers({
       orderBy,
       orderDir,
     );
+
+    // Make sure we are in bounds, if not redirect to the last page
+    const totalPages = Math.max(1, Math.ceil(page.total / TAKE));
+    if (index > totalPages) {
+      const url = new URL(ctx.url);
+      url.searchParams.set("page", totalPages.toString());
+      return new Response(null, {
+        status: 302,
+        headers: { Location: url.toString() },
+      });
+    }
 
     return { data: { page, orderBy, orderDir, index } };
   },
@@ -320,9 +335,14 @@ function CreatorTable(props: {
           </div>
           <div class="join max-md:scale-90 max-md:flex-wrap max-md:justify-center">
             <a
-              href={nav({ index: props.index - 1 })}
+              href={props.index > 1
+                ? nav({ index: props.index - 1 })
+                : undefined}
               aria-label="Previous page"
-              class="join-item btn rounded-l-2xl border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700"
+              aria-disabled={props.index <= 1}
+              class={`join-item btn rounded-l-2xl border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700 ${
+                props.index <= 1 ? "pointer-events-none opacity-50" : ""
+              }`}
             >
               «
             </a>
@@ -340,8 +360,15 @@ function CreatorTable(props: {
               </a>
             ))}
             <a
-              href={nav({ index: props.index + 1 })}
-              class="join-item btn rounded-r-2xl border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700"
+              href={props.index < totalPages
+                ? nav({ index: props.index + 1 })
+                : undefined}
+              aria-disabled={props.index >= totalPages}
+              class={`join-item btn rounded-r-2xl border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700 ${
+                props.index >= totalPages
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
             >
               »
             </a>
