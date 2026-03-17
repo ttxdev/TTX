@@ -73,6 +73,13 @@ export default function SearchModal(
 
   function handleKeydown(event: KeyboardEvent) {
     const items = result.value.length > 0 ? result.value : recent;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close();
+      return;
+    }
+
     if (!items.length) return;
 
     switch (event.key) {
