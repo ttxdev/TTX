@@ -200,7 +200,7 @@ export default function SearchModal(
                               <span class="text-xl font-semibold {index === selectedIndex
                   														? 'text-purple-500'
                   														: ''}">
-                                {result.name}
+                                {item.name}
                               </span>
                               {item.ticker && (
                                 <span
