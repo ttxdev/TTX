@@ -15,7 +15,7 @@ export default function SearchModal(
   const isLoading = useSignal(false);
   const selectedIndex = useSignal(-1);
   const query = useSignal("");
-  const resultContainer = useRef<HTMLDivElement | null>(null);
+  const resultContainer = useRef<HTMLTableElement | null>(null);
   const search = debounce(async () => {
     if (query.value.length === 0) {
       result.value = [];
@@ -177,7 +177,7 @@ export default function SearchModal(
               </div>
             )}
             {result.value.length > 0 && (
-              <table class="table w-full">
+              <table class="table w-full" ref={resultContainer}>
                 <tbody>
                   {result.value.map((item, index) => {
                     return (
@@ -188,6 +188,7 @@ export default function SearchModal(
                             : "hover:bg-base-100/30"
                         }`}
                         key={`search-${item.type}-${item.id}`}
+                        data-index={index}
                       >
                         <td class="w-full p-0">
                           <a
@@ -199,9 +200,11 @@ export default function SearchModal(
                             <img
                               src={item.avatar_url}
                               alt={item.name}
-                              class="size-10 rounded-full {index === selectedIndex
-                  														? 'ring-2 ring-purple-500'
-                  														: ''}"
+                              class={`size-10 rounded-full ${
+                                index === selectedIndex.value
+                                  ? "ring-2 ring-purple-500"
+                                  : ""
+                              }`}
                             />
                             <div class="flex flex-col items-start">
                               <span class="text-xl font-semibold {index === selectedIndex
