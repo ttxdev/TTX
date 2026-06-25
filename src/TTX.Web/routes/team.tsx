@@ -44,7 +44,7 @@ function TeamMemberCard(
               href={member.socials.github}
               target="_blank"
               class="btn btn-circle btn-ghost text-black hover:bg-white dark:text-white dark:hover:bg-neutral-700"
-              ariaLabel="GitHub"
+              ariaLabel="Source Code"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -109,7 +109,7 @@ export default define.page((ctx) => {
         bio:
           "Passionate about building a platform that empowers users to achieve their financial goals while having fun along the way. With a background in finance and technology, I am dedicated to creating innovative solutions that enhance the trading and gaming experience for our users.",
         socials: {
-          github: "https://github.com/dylhack",
+          github: "https://codeberg.org/dylan",
           twitch: "https://www.twitch.tv/ttlnow",
         },
       },
@@ -257,11 +257,11 @@ export default define.page((ctx) => {
             </ExternalLink>
             <ExternalLink
               clientId={ctx.state.discordId}
-              href="https://github.com/ttxdev/ttx"
+              href="https://codeberg.org/TTX/TTX"
               target="_blank"
               class="rounded bg-gray-500 px-6 py-3 text-center font-bold text-white transition hover:bg-gray-600"
             >
-              GitHub
+              Source Code
             </ExternalLink>
           </div>
         </section>

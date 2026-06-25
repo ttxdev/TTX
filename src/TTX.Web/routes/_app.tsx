@@ -69,7 +69,7 @@ export default define.page((ctx) => {
               </ExternalLink>
               <ExternalLink
                 clientId={ctx.state.discordId}
-                href="https://github.com/ttxdev/ttx"
+                href="https://codeberg.org/TTX/TTX"
                 target="_blank"
                 class="w-fit text-purple-500 hover:underline"
               >
