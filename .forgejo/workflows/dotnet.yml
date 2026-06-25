@@ -1,5 +1,5 @@
 # This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+# For more information see: https://docs.codeberg.org/ci/actions/
 
 name: .NET
 
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: docker
 
     steps:
       - uses: actions/checkout@v4
@@ -25,12 +25,10 @@ jobs:
         run: dotnet build --no-restore
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: docker
     services:
       postgres:
         image: timescale/timescaledb:latest-pg17
-        ports:
-          - 5432:5432
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: ttx_test
@@ -41,8 +39,6 @@ jobs:
           --health-retries 5
       redis:
         image: redis:latest
-        ports:
-          - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -59,8 +55,8 @@ jobs:
         run: dotnet restore
       - name: Test
         env:
-          TTX__Infrastructure__ConnectionStrings__Postgres: "Server=localhost;Port=5432;Database=ttx_test;Username=postgres;Password=postgres;"
-          TTX__Infrastructure__ConnectionStrings__Redis: "localhost:6379"
+          TTX__Infrastructure__ConnectionStrings__Postgres: "Server=postgres;Port=5432;Database=ttx_test;Username=postgres;Password=postgres;"
+          TTX__Infrastructure__ConnectionStrings__Redis: "redis:6379"
           TTX__Infrastructure__Events: "Redis"
           TTX__Infrastructure__Data: "Postgres"
         run: dotnet test --verbosity normal
