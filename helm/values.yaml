@@ -41,7 +41,7 @@ config:
 # ---------------------------------------------------------------------------
 api:
   image:
-    repository: ghcr.io/ttxdev/ttx.api
+    repository: codeberg.org/ttx/ttx.api
     tag: main
     pullPolicy: Always
   containerPort: 8080
@@ -88,7 +88,7 @@ api:
 # ---------------------------------------------------------------------------
 web:
   image:
-    repository: ghcr.io/ttxdev/ttx.web
+    repository: codeberg.org/ttx/ttx.web
     tag: main
     pullPolicy: Always
   containerPort: 8000
