@@ -1,0 +1,33 @@
+{{- if .Values.api.dataProtection.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.api.dataProtection.claimName }}
+  {{- include "ttx.namespace" . | nindent 2 }}
+  labels:
+    {{- include "ttx.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  accessModes:
+    {{- toYaml .Values.api.dataProtection.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.api.dataProtection.storage }}
+{{- end }}
+{{- if .Values.redis.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.redis.persistence.claimName }}
+  {{- include "ttx.namespace" . | nindent 2 }}
+  labels:
+    {{- include "ttx.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  accessModes:
+    {{- toYaml .Values.redis.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.redis.persistence.storage }}
+{{- end }}

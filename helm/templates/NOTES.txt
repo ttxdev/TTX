@@ -1,0 +1,32 @@
+TTX has been deployed.
+
+Release:   {{ .Release.Name }}
+Namespace: {{ .Values.namespace | default .Release.Namespace }}
+
+Workloads:
+  - {{ include "ttx.name" . }}-api   (image: {{ .Values.api.image.repository }}:{{ .Values.api.image.tag }})
+  - {{ include "ttx.name" . }}-web   (image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }})
+  {{- range .Values.jobs.workers }}
+  - {{ include "ttx.name" $ }}-job-{{ .name }}   (job: {{ .jobName }})
+  {{- end }}
+  {{- if .Values.redis.enabled }}
+  - redis   (image: {{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }})
+  {{- end }}
+
+{{- if .Values.ingress.enabled }}
+
+Ingress hosts:
+{{- range .Values.ingress.hosts }}
+  - https://{{ .host }}
+{{- end }}
+{{- end }}
+
+Check rollout status with:
+  kubectl get pods -n {{ .Values.namespace | default .Release.Namespace }}
+
+NOTE: the {{ .Values.config.name }} secret ships with empty values for the
+Twitch OAuth credentials, API session key and OTEL exporter endpoint. Override
+them per-environment, e.g.:
+  helm upgrade --install {{ .Release.Name }} . \
+    --set config.stringData.TTX__Infrastructure__Twitch__OAuth__ClientId=... \
+    --set config.stringData.TTX__Api__Sessions__Key=...

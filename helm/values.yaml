@@ -1,0 +1,226 @@
+# Default values for ttx.
+# This is a YAML-formatted file.
+
+# Overrides for the chart name. ttx.name is used as the prefix for component
+# resource names (e.g. "ttx-api", "ttx-web", "ttx-job-streams").
+nameOverride: ""
+fullnameOverride: ""
+
+# Namespace applied to all resources. Set to "" to let Helm/`--namespace`
+# decide the namespace instead.
+namespace: ttx
+
+# Pull secret used for the private ghcr.io/ttxdev images.
+imagePullSecrets:
+  - name: ttx-regcreds
+
+# ttx-config secret, shared by api/web/jobs via envFrom.
+# Override the empty values per-environment (e.g. with `-f secrets.yaml` or --set).
+config:
+  create: true
+  name: ttx-config
+  stringData:
+    TTX__Infrastructure__ConnectionStrings__Redis: "redis:6379"
+    TTX__Infrastructure__ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=ttx;Username=postgres;Password=postgres"
+    TTX__Infrastructure__Data: "Postgres"
+    TTX__Infrastructure__Events: "Redis"
+    TTX__Infrastructure__Twitch__OAuth__ClientId: ""
+    TTX__Infrastructure__Twitch__OAuth__ClientSecret: ""
+    TTX__Infrastructure__Twitch__OAuth__RedirectUrl: "https://ttx.gg/login/twitch"
+    TTX__Api__ConnectionStrings__Redis: "redis:6379"
+    TTX__Api__Sessions__Key: ""
+    OTEL_EXPORTER_OTLP_ENDPOINT: ""
+    OTEL_EXPORTER_OTLP_HEADERS: "api-key="
+    OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT: "4095"
+    OTEL_EXPORTER_OTLP_COMPRESSION: "gzip"
+    OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+    OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: "delta"
+
+# ---------------------------------------------------------------------------
+# API
+# ---------------------------------------------------------------------------
+api:
+  image:
+    repository: ghcr.io/ttxdev/ttx.api
+    tag: main
+    pullPolicy: Always
+  containerPort: 8080
+  service:
+    port: 3030
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 250m
+    limits:
+      memory: 250Mi
+      cpu: 500m
+  env:
+    - name: OTEL_SERVICE_NAME
+      value: API
+  # ASP.NET Core DataProtection keys persisted across replicas.
+  dataProtection:
+    enabled: true
+    claimName: ttx-dataprotection
+    mountPath: /var/ttx/keys
+    accessModes:
+      - ReadWriteMany
+    storage: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 75
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 5
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+# ---------------------------------------------------------------------------
+# Web
+# ---------------------------------------------------------------------------
+web:
+  image:
+    repository: ghcr.io/ttxdev/ttx.web
+    tag: main
+    pullPolicy: Always
+  containerPort: 8000
+  service:
+    port: 3031
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 128Mi
+      cpu: 500m
+  env:
+    - name: OTEL_DENO
+      value: "true"
+    - name: OTEL_SERVICE_NAME
+      value: TTX.Web
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 75
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 8000
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 8000
+    initialDelaySeconds: 15
+    periodSeconds: 10
+
+# ---------------------------------------------------------------------------
+# Background jobs (share the ttx.private image; one Deployment per worker).
+# ---------------------------------------------------------------------------
+jobs:
+  image:
+    repository: ghcr.io/ttxdev/ttx.private
+    tag: main
+    pullPolicy: Always
+  workers:
+    - name: streams
+      jobName: StreamMonitorJob
+      otelServiceName: StreamMonitorJob
+      replicas: 1
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 500m
+    - name: portfolios
+      jobName: CalculatePlayerPortfolioJob
+      otelServiceName: CalculatePlayerPortfolioJob
+      replicas: 1
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 500m
+    - name: creators
+      jobName: CreatorValueMonitorJob
+      otelServiceName: CreatorValueMonitorJob
+      replicas: 1
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 100m
+        limits:
+          memory: 1Gi
+          cpu: 500m
+
+# ---------------------------------------------------------------------------
+# Redis (in-cluster). The service is named "redis" to match the connection
+# strings in the config secret.
+# ---------------------------------------------------------------------------
+redis:
+  enabled: true
+  image:
+    repository: docker.io/redis
+    tag: "7.4"
+    pullPolicy: IfNotPresent
+  service:
+    port: 6379
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+  persistence:
+    claimName: redis-data
+    accessModes:
+      - ReadWriteOnce
+    storage: 5Gi
+
+# ---------------------------------------------------------------------------
+# Ingress (Traefik)
+# ---------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+    traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
+    traefik.ingress.kubernetes.io/service.sticky.cookie.name: "TTX.Session.Sticky"
+    traefik.ingress.kubernetes.io/service.sticky.cookie.httpOnly: "true"
+    traefik.ingress.kubernetes.io/service.sticky.cookie.sameSite: "lax"
+    traefik.ingress.kubernetes.io/service.sticky.cookie.secure: "true"
+  tls:
+    - hosts:
+        - api.ttx.gg
+        - ttx.gg
+      secretName: ttx-tls
+  hosts:
+    - host: api.ttx.gg
+      paths:
+        - path: /
+          pathType: Prefix
+          service: ttx-api
+          port: 3030
+    - host: ttx.gg
+      paths:
+        - path: /
+          pathType: Prefix
+          service: ttx-web
+          port: 3031
