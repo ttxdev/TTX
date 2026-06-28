@@ -1,0 +1,55 @@
+{
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "check": "deno fmt --check . && deno lint . && deno check",
+    "dev": "vite",
+    "build": "vite build",
+    "start": "deno serve -A _fresh/server.js",
+    "update": "deno run -A -r jsr:@fresh/update .",
+    "swagger": "deno run -A npm:nswag run ./ttx.nswag"
+  },
+  "lint": { "rules": { "tags": ["fresh", "recommended"] } },
+  "exclude": ["**/_fresh/*"],
+  "imports": {
+    "@/": "./",
+    "@discord/embedded-app-sdk": "npm:@discord/embedded-app-sdk@^2.5.0",
+    "@opentelemetry/api": "npm:@opentelemetry/api@^1.9.1",
+    "@std/async": "jsr:@std/async@^1.4.0",
+    "@std/http": "jsr:@std/http@^1.1.1",
+    "chart.js": "npm:chart.js@^4.5.1",
+    "chartjs-plugin-zoom": "npm:chartjs-plugin-zoom@^2.2.0",
+    "confetti-js": "npm:confetti-js@^0.0.18",
+    "daisyui": "npm:daisyui@^5.6.3",
+    "fresh": "jsr:@fresh/core@^2.3.3",
+    "motion": "npm:motion@^12.42.0",
+    "preact": "npm:preact@^10.29.3",
+    "@preact/signals": "npm:@preact/signals@^2.9.2",
+    "@fresh/plugin-vite": "jsr:@fresh/plugin-vite@^1.1.2",
+    "preact-compat": "npm:preact-compat@^3.19.0",
+    "vite": "npm:vite@^7.1.4",
+    "tailwindcss": "npm:tailwindcss@^4.3.1",
+    "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.3.1"
+  },
+  "compilerOptions": {
+    "lib": ["dom", "dom.asynciterable", "dom.iterable", "deno.ns"],
+    "jsx": "precompile",
+    "jsxImportSource": "preact",
+    "jsxPrecompileSkipElements": [
+      "a",
+      "img",
+      "source",
+      "body",
+      "html",
+      "head",
+      "title",
+      "meta",
+      "script",
+      "link",
+      "style",
+      "base",
+      "noscript",
+      "template"
+    ],
+    "types": ["vite/client"]
+  }
+}

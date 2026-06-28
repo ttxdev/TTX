@@ -1,0 +1,86 @@
+# Build, lint, and test the Rust workspace (src/ttx, src/api, src/jobs,
+# src/infra, src/private). Mirrors the recipes in the root Justfile.
+# For more information see: https://docs.codeberg.org/ci/actions/
+
+name: Rust
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  lint:
+    runs-on: docker
+    container: rust:1.93-slim-bookworm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build deps for the TLS backends pulled in by rustls (ring / aws-lc-rs),
+      # matching the binaries' Dockerfiles.
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential cmake clang libclang-dev perl pkg-config
+
+      - name: Add rustfmt and clippy
+        run: rustup component add rustfmt clippy
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  test:
+    runs-on: docker
+    container: rust:1.93-slim-bookworm
+
+    services:
+      postgres:
+        image: timescale/timescaledb:latest-pg17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ttx_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:latest
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # The repository integration tests read TEST_DATABASE_URL (and skip when
+      # unset). DATABASE_URL / REDIS_URL match the runtime variables the
+      # binaries use, so anything reading them resolves to the CI services.
+      TEST_DATABASE_URL: "postgres://postgres:postgres@postgres:5432/ttx_test"
+      DATABASE_URL: "postgres://postgres:postgres@postgres:5432/ttx_test"
+      REDIS_URL: "redis://redis:6379"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential cmake clang libclang-dev perl pkg-config postgresql-client
+
+      # The integration tests expect the schema to already exist; apply the
+      # sqlx migrations (the binaries run these via `sqlx::migrate!` at startup).
+      - name: Apply migrations
+        run: |
+          for f in src/ttx/migrations/*.sql; do
+            echo "applying $f"
+            psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Test
+        run: cargo test --workspace
