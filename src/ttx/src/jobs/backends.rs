@@ -1,0 +1,98 @@
+//! Concrete backends for the chat/value jobs (ported from
+//! `TTX.Infrastructure`).
+//!
+//! These are the open-source implementations of the job trait interfaces: a
+//! Redis-backed [`CreatorStatsRepository`] plus the fallback [`MessageAnalyzer`]
+//! and [`StatsProcessor`] used when the closed-source `TTX.Private` algorithms
+//! aren't compiled in.
+
+use std::collections::HashMap;
+
+use async_trait::async_trait;
+use redis::AsyncCommands;
+use redis::aio::ConnectionManager;
+
+use crate::creators::Creator;
+use crate::error::{Error, Result};
+use crate::jobs::{CreatorStats, CreatorStatsRepository, MessageAnalyzer, StatsProcessor};
+
+const STATS_KEY: &str = "creator_stats";
+
+fn ext(e: impl std::fmt::Display) -> Error {
+    Error::External(e.to_string())
+}
+
+/// Redis-backed [`CreatorStatsRepository`]: per-creator stats live in a single
+/// hash keyed by slug.
+#[derive(Clone)]
+pub struct RedisCreatorStatsRepository {
+    conn: ConnectionManager,
+}
+
+impl RedisCreatorStatsRepository {
+    pub async fn connect(url: &str) -> Result<Self> {
+        let client = redis::Client::open(url).map_err(ext)?;
+        let conn = ConnectionManager::new(client).await.map_err(ext)?;
+        Ok(Self { conn })
+    }
+}
+
+#[async_trait]
+impl CreatorStatsRepository for RedisCreatorStatsRepository {
+    async fn get_by_creator(&self, slug: &str) -> Result<CreatorStats> {
+        let mut conn = self.conn.clone();
+        let data: Option<String> = conn.hget(STATS_KEY, slug).await.map_err(ext)?;
+        match data {
+            Some(json) => serde_json::from_str(&json).map_err(ext),
+            None => Ok(CreatorStats::new(slug.to_string())),
+        }
+    }
+
+    async fn set_by_creator(&self, slug: &str, stats: CreatorStats) -> Result<()> {
+        let mut conn = self.conn.clone();
+        let json = serde_json::to_string(&stats).map_err(ext)?;
+        let _: () = conn.hset(STATS_KEY, slug, json).await.map_err(ext)?;
+        Ok(())
+    }
+
+    async fn get_all(&self, clear: bool) -> Result<Vec<CreatorStats>> {
+        let mut conn = self.conn.clone();
+        let raw: HashMap<String, String> = conn.hgetall(STATS_KEY).await.map_err(ext)?;
+        let mut stats = Vec::with_capacity(raw.len());
+        for json in raw.values() {
+            stats.push(serde_json::from_str(json).map_err(ext)?);
+        }
+        if clear {
+            let _: () = conn.del(STATS_KEY).await.map_err(ext)?;
+        }
+        Ok(stats)
+    }
+}
+
+/// Open-source fallback [`MessageAnalyzer`]: a simple keyword scorer used when
+/// the `TTX.Private` sentiment model isn't available.
+pub struct KeywordMessageAnalyzer;
+
+#[async_trait]
+impl MessageAnalyzer for KeywordMessageAnalyzer {
+    async fn analyze(&self, content: &str) -> Result<f64> {
+        if content.contains("+2") {
+            return Ok(2.0);
+        }
+        if content.contains("-2") {
+            return Ok(-2.0);
+        }
+        Ok(0.0)
+    }
+}
+
+/// Open-source fallback [`StatsProcessor`]: sums the positive and negative
+/// tallies into a single value.
+pub struct SumStatsProcessor;
+
+#[async_trait]
+impl StatsProcessor for SumStatsProcessor {
+    async fn process(&self, _creator: &Creator, stats: Option<&CreatorStats>) -> Result<f64> {
+        Ok(stats.map_or(0.0, |s| s.positive + s.negative))
+    }
+}

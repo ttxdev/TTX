@@ -1,43 +1,41 @@
-{{- range $job := .Values.jobs.workers }}
----
+{{- if .Values.jobs.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "ttx.name" $ }}-job-{{ $job.name }}
-  {{- include "ttx.namespace" $ | nindent 2 }}
+  name: {{ include "ttx.name" . }}-jobs
+  {{- include "ttx.namespace" . | nindent 2 }}
   labels:
-    {{- include "ttx.labels" $ | nindent 4 }}
-    app.kubernetes.io/component: job-{{ $job.name }}
+    {{- include "ttx.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jobs
 spec:
-  replicas: {{ $job.replicas | default 1 }}
+  replicas: {{ .Values.jobs.replicas | default 1 }}
   selector:
     matchLabels:
-      {{- include "ttx.selectorLabels" $ | nindent 6 }}
-      app.kubernetes.io/component: job-{{ $job.name }}
+      {{- include "ttx.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: jobs
   template:
     metadata:
       labels:
-        {{- include "ttx.selectorLabels" $ | nindent 8 }}
-        app.kubernetes.io/component: job-{{ $job.name }}
+        {{- include "ttx.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: jobs
     spec:
-      {{- with $.Values.imagePullSecrets }}
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ $job.name }}
-          image: "{{ $.Values.jobs.image.repository }}:{{ $.Values.jobs.image.tag }}"
-          imagePullPolicy: {{ $.Values.jobs.image.pullPolicy }}
-          {{- with $job.resources }}
+        - name: jobs
+          image: "{{ .Values.jobs.image.repository }}:{{ .Values.jobs.image.tag }}"
+          imagePullPolicy: {{ .Values.jobs.image.pullPolicy }}
+          {{- with .Values.jobs.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           envFrom:
             - secretRef:
-                name: {{ $.Values.config.name }}
+                name: {{ .Values.config.name }}
+          {{- with .Values.jobs.env }}
           env:
-            - name: OTEL_SERVICE_NAME
-              value: {{ $job.otelServiceName | quote }}
-            - name: TTX__Jobs__Enabled__0
-              value: {{ $job.jobName | quote }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
 {{- end }}

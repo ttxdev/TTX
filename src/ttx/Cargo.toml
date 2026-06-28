@@ -1,0 +1,30 @@
+[package]
+name = "ttx"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+chrono.workspace = true
+futures-util.workspace = true
+moka.workspace = true
+rand.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx = { workspace = true, features = ["chrono"] }
+thiserror.workspace = true
+tokio = { workspace = true, features = ["sync"] }
+tokio-util.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
+reqwest.workspace = true
+validator.workspace = true
+redis.workspace = true
+twitch-irc = { version = "5.0.1", default-features = false, features = ["transport-tcp-rustls-webpki-roots"] }
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "domain"
+harness = false

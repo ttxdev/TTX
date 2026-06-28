@@ -1,32 +1,15 @@
-src/TTX.Web
+# Build artifacts (never copy host target dirs into the build).
+target
+**/target
 
-**/.classpath
-**/.dockerignore
+# VCS + the C# reference project (not needed for the Rust build).
+.git
+ref
+
+# The Deno web app builds from its own context (src/web/Dockerfile).
+src/web/node_modules
+src/web/_fresh
+src/web/vendor
+
+# Local env files — configuration is provided via real environment variables.
 **/.env
-**/.git
-**/.gitignore
-**/.project
-**/.settings
-**/.toolstarget
-**/.vs
-**/.vscode
-**/*.*proj.user
-**/*.dbmdl
-**/*.jfm
-**/azds.yaml
-**/bin
-**/charts
-**/docker-compose*
-**/Dockerfile*
-**/node_modules
-**/npm-debug.log
-**/obj
-**/secrets.dev.yaml
-**/values.dev.yaml
-LICENSE
-README.md
-!**/.gitignore
-!.git/HEAD
-!.git/config
-!.git/packed-refs
-!.git/refs/heads/**

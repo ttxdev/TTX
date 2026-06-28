@@ -1,3 +1,0 @@
-## TTX.Domain
-
-Domain logic

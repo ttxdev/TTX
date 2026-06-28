@@ -1,8 +1,8 @@
-# Default values for ttx.
+# Default values for ttx (Rust port).
 # This is a YAML-formatted file.
 
 # Overrides for the chart name. ttx.name is used as the prefix for component
-# resource names (e.g. "ttx-api", "ttx-web", "ttx-job-streams").
+# resource names (e.g. "ttx-api", "ttx-web", "ttx-jobs").
 nameOverride: ""
 fullnameOverride: ""
 
@@ -10,61 +10,59 @@ fullnameOverride: ""
 # decide the namespace instead.
 namespace: ttx
 
-# Pull secret used for the private ghcr.io/ttxdev images.
+# Pull secret used for the private container images.
 imagePullSecrets:
   - name: ttx-regcreds
 
 # ttx-config secret, shared by api/web/jobs via envFrom.
-# Override the empty values per-environment (e.g. with `-f secrets.yaml` or --set).
+#
+# The Rust port reads flat environment variables (not the .NET `TTX__...`
+# hierarchy). Override the empty values per-environment (e.g. with
+# `-f secrets.yaml` or --set).
 config:
   create: true
   name: ttx-config
   stringData:
-    TTX__Infrastructure__ConnectionStrings__Redis: "redis:6379"
-    TTX__Infrastructure__ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=ttx;Username=postgres;Password=postgres"
-    TTX__Infrastructure__Data: "Postgres"
-    TTX__Infrastructure__Events: "Redis"
-    TTX__Infrastructure__Twitch__OAuth__ClientId: ""
-    TTX__Infrastructure__Twitch__OAuth__ClientSecret: ""
-    TTX__Infrastructure__Twitch__OAuth__RedirectUrl: "https://ttx.gg/login/twitch"
-    TTX__Api__ConnectionStrings__Redis: "redis:6379"
-    TTX__Api__Sessions__Key: ""
-    OTEL_EXPORTER_OTLP_ENDPOINT: ""
-    OTEL_EXPORTER_OTLP_HEADERS: "api-key="
-    OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT: "4095"
-    OTEL_EXPORTER_OTLP_COMPRESSION: "gzip"
-    OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
-    OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: "delta"
+    # Postgres connection string in URL form (sqlx). Points at an external
+    # Postgres/TimescaleDB; migrations run automatically on startup.
+    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/ttx"
+    # Optional shared L2 cache. Shared by the API (warm cache across replicas)
+    # and required by the jobs runner's CreatorValueMonitorJob.
+    REDIS_URL: "redis://redis:6379"
+    # Deployment environment. "production" makes a missing JWT_KEY fatal.
+    APP_ENV: "production"
+    # tracing-subscriber EnvFilter directive.
+    RUST_LOG: "info"
+    # Session JWT signing secret. REQUIRED in production — override before deploy.
+    JWT_KEY: ""
+    JWT_ISSUER: "api.ttx.gg"
+    JWT_AUDIENCE: "ttx.gg"
+    JWT_EXPIRES_DAYS: "7"
+    # Twitch OAuth app credentials (login flow + Helix stream polling).
+    TWITCH_CLIENT_ID: ""
+    TWITCH_CLIENT_SECRET: ""
+    TWITCH_REDIRECT_URI: "https://api.ttx.gg/sessions/twitch/callback"
 
 # ---------------------------------------------------------------------------
-# API
+# API (Rust / axum)
 # ---------------------------------------------------------------------------
 api:
   image:
     repository: codeberg.org/ttx/ttx.api
     tag: main
     pullPolicy: Always
-  containerPort: 8080
+  # The Rust binary binds 0.0.0.0:3000 by default (BIND_ADDR).
+  containerPort: 3000
   service:
     port: 3030
   resources:
     requests:
-      memory: 128Mi
-      cpu: 250m
+      memory: 64Mi
+      cpu: 100m
     limits:
-      memory: 250Mi
+      memory: 128Mi
       cpu: 500m
-  env:
-    - name: OTEL_SERVICE_NAME
-      value: API
-  # ASP.NET Core DataProtection keys persisted across replicas.
-  dataProtection:
-    enabled: true
-    claimName: ttx-dataprotection
-    mountPath: /var/ttx/keys
-    accessModes:
-      - ReadWriteMany
-    storage: 1Gi
+  env: []
   autoscaling:
     enabled: true
     minReplicas: 3
@@ -73,18 +71,18 @@ api:
   readinessProbe:
     httpGet:
       path: /health
-      port: 8080
+      port: 3000
     initialDelaySeconds: 10
     periodSeconds: 5
   livenessProbe:
     httpGet:
       path: /health
-      port: 8080
+      port: 3000
     initialDelaySeconds: 30
     periodSeconds: 10
 
 # ---------------------------------------------------------------------------
-# Web
+# Web (Deno frontend — unchanged by the Rust port, deployed alongside the API)
 # ---------------------------------------------------------------------------
 web:
   image:
@@ -101,11 +99,7 @@ web:
     limits:
       memory: 128Mi
       cpu: 500m
-  env:
-    - name: OTEL_DENO
-      value: "true"
-    - name: OTEL_SERVICE_NAME
-      value: TTX.Web
+  env: []
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -125,51 +119,36 @@ web:
     periodSeconds: 10
 
 # ---------------------------------------------------------------------------
-# Background jobs (share the ttx.private image; one Deployment per worker).
+# Background jobs (Rust / single binary).
+#
+# Unlike the .NET deployment (one Deployment per worker), the Rust `jobs`
+# binary runs every job for which its integration is configured, in one
+# process:
+#   * CalculatePlayerPortfolioJob — always (DB only).
+#   * StreamMonitorJob            — when TWITCH_CLIENT_ID/SECRET are set.
+#   * CreatorValueMonitorJob      — when REDIS_URL is set.
+# All three are configured via the shared ttx-config secret, so a single
+# Deployment runs the full set.
 # ---------------------------------------------------------------------------
 jobs:
+  enabled: true
   image:
-    repository: ghcr.io/ttxdev/ttx.private
+    repository: codeberg.org/ttx/ttx.jobs
     tag: main
     pullPolicy: Always
-  workers:
-    - name: streams
-      jobName: StreamMonitorJob
-      otelServiceName: StreamMonitorJob
-      replicas: 1
-      resources:
-        requests:
-          memory: 64Mi
-          cpu: 100m
-        limits:
-          memory: 256Mi
-          cpu: 500m
-    - name: portfolios
-      jobName: CalculatePlayerPortfolioJob
-      otelServiceName: CalculatePlayerPortfolioJob
-      replicas: 1
-      resources:
-        requests:
-          memory: 64Mi
-          cpu: 100m
-        limits:
-          memory: 256Mi
-          cpu: 500m
-    - name: creators
-      jobName: CreatorValueMonitorJob
-      otelServiceName: CreatorValueMonitorJob
-      replicas: 1
-      resources:
-        requests:
-          memory: 64Mi
-          cpu: 100m
-        limits:
-          memory: 1Gi
-          cpu: 500m
+  replicas: 1
+  env: []
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+      cpu: 500m
 
 # ---------------------------------------------------------------------------
-# Redis (in-cluster). The service is named "redis" to match the connection
-# strings in the config secret.
+# Redis (in-cluster). The service is named "redis" to match REDIS_URL in the
+# config secret.
 # ---------------------------------------------------------------------------
 redis:
   enabled: true
@@ -201,11 +180,6 @@ ingress:
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
-    traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
-    traefik.ingress.kubernetes.io/service.sticky.cookie.name: "TTX.Session.Sticky"
-    traefik.ingress.kubernetes.io/service.sticky.cookie.httpOnly: "true"
-    traefik.ingress.kubernetes.io/service.sticky.cookie.sameSite: "lax"
-    traefik.ingress.kubernetes.io/service.sticky.cookie.secure: "true"
   tls:
     - hosts:
         - api.ttx.gg
