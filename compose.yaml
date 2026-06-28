@@ -1,31 +1,4 @@
 services:
-  api:
-    build:
-      context: .
-    entrypoint: ["dotnet", "TTX.Api.dll"]
-    environment:
-      TTX__Infrastructure__ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=ttx;Username=postgres;Password=postgres"
-      TTX__Infrastructure__ConnectionStrings__Redis: "redis:6379,abortConnect=false"
-      TTX__Infrastructure__Data: "Postgres"
-      TTX__Infrastructure__Events: "Redis"
-    depends_on:
-      - redis
-      - postgres
-      - jobs
-
-  jobs:
-    build:
-      context: .
-    entrypoint: ["dotnet", "TTX.Jobs.dll"]
-    environment:
-      TTX__Infrastructure__ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=ttx;Username=postgres;Password=postgres"
-      TTX__Infrastructure__ConnectionStrings__Redis: "redis:6379,abortConnect=false"
-      TTX__Infrastructure__Data: "Postgres"
-      TTX__Infrastructure__Events: "Redis"
-    depends_on:
-      - redis
-      - postgres
-
   redis:
     image: docker.io/redis:latest
     ports:

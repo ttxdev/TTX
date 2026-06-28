@@ -24,12 +24,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.api.dataProtection.enabled }}
-      volumes:
-        - name: {{ .Values.api.dataProtection.claimName }}
-          persistentVolumeClaim:
-            claimName: {{ .Values.api.dataProtection.claimName }}
-      {{- end }}
       containers:
         - name: api
           image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
@@ -43,11 +37,6 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Values.config.name }}
-          {{- if .Values.api.dataProtection.enabled }}
-          volumeMounts:
-            - name: {{ .Values.api.dataProtection.claimName }}
-              mountPath: {{ .Values.api.dataProtection.mountPath }}
-          {{- end }}
           {{- with .Values.api.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
