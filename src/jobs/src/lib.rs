@@ -81,9 +81,7 @@ pub async fn run(plugins: impl Plugins) -> Result<(), Box<dyn Error>> {
         match job {
             Job::Portfolio => handles.push(runners::spawn_portfolio(&ctx)),
             Job::Streams => handles.extend(runners::spawn_stream_monitor(&ctx)),
-            Job::Creators => {
-                handles.extend(runners::spawn_creator_values(&ctx, &plugins).await)
-            }
+            Job::Creators => handles.extend(runners::spawn_creator_values(&ctx, &plugins).await),
         }
     }
 
