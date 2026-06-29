@@ -47,7 +47,7 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
           <div class="badge badge-ghost rounded-xl">BETA</div>
         </div>
 
-        <nav class="navbar-center hidden md:flex">
+        <nav class="navbar-center hidden lg:flex">
           <ul class="menu menu-horizontal relative px-1">
             {urls.map(({ url: u, label }) => {
               const isActive = activeUrl.value === u;
@@ -105,7 +105,7 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
           </ul>
         </nav>
 
-        <nav class={`navbar-end md:hidden`}>
+        <nav class={`navbar-end lg:hidden`}>
           <button
             onClick={toggleMobileMenu}
             type="button"
@@ -129,7 +129,7 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
           </button>
         </nav>
 
-        <div class="navbar-end hidden md:flex">
+        <div class="navbar-end hidden lg:flex">
           <div class="flex gap-2">
             {user && (
               <div class="join">
