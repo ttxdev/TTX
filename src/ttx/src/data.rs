@@ -106,16 +106,10 @@ impl Db {
         let deadline = Instant::now() + wait;
         loop {
             if self.cache.lock(key, &token, ttl).await {
-                return Ok(LockGuard::new(
-                    self.cache.clone(),
-                    key.to_string(),
-                    token,
-                ));
+                return Ok(LockGuard::new(self.cache.clone(), key.to_string(), token));
             }
             if Instant::now() >= deadline {
-                return Err(Error::Busy(format!(
-                    "'{key}' is busy, please try again"
-                )));
+                return Err(Error::Busy(format!("'{key}' is busy, please try again")));
             }
             tokio::time::sleep(LOCK_BACKOFF).await;
         }
@@ -123,7 +117,8 @@ impl Db {
 
     /// Lock a single player's balances for the duration of a read-modify-write.
     pub(crate) async fn lock_player(&self, id: Id) -> Result<LockGuard> {
-        self.lock(&format!("player:{id}"), LOCK_TTL, LOCK_WAIT).await
+        self.lock(&format!("player:{id}"), LOCK_TTL, LOCK_WAIT)
+            .await
     }
 
     pub async fn creator_history(
