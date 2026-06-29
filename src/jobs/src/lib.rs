@@ -68,7 +68,8 @@ impl Job {
 /// the selected jobs, and run until Ctrl-C.
 pub async fn run(plugins: impl Plugins) -> Result<(), Box<dyn Error>> {
     dotenvy::dotenv().ok();
-    config::init_tracing();
+    // Held until `run` returns so trace export is flushed on shutdown.
+    let _telemetry = config::init_tracing();
 
     let jobs = Job::select(std::env::args().skip(1))?;
     tracing::info!(?jobs, "starting jobs runner");

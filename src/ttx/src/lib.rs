@@ -9,6 +9,7 @@ pub mod jobs;
 pub mod options;
 pub mod platforms;
 pub mod primitives;
+pub mod telemetry;
 pub mod validators;
 
 pub mod shares;

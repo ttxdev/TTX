@@ -12,7 +12,8 @@ use state::AppState;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
-    config::init_tracing();
+    // Held until `main` returns so trace export is flushed on shutdown.
+    let _telemetry = config::init_tracing();
 
     let database_url = config::database_url();
     let state = AppState::build(&database_url).await?;

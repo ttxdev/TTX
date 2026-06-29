@@ -24,6 +24,14 @@ futures-util = "0.3.32"
 # the rustls backend already pulled in by sqlx/reqwest/twitch-irc.
 jsonwebtoken = { version = "10.4.0", default-features = false, features = ["aws_lc_rs"] }
 moka = { version = "0.12.15", features = ["future"] }
+# OpenTelemetry: distributed tracing exported over OTLP/HTTP. Uses reqwest with
+# rustls (backed by aws-lc-rs, matching the jsonwebtoken provider) so no OpenSSL
+# is pulled in. The four crates are version-locked to one another, so bump them
+# together.
+opentelemetry = "0.32"
+opentelemetry_sdk = { version = "0.32", features = ["rt-tokio"] }
+opentelemetry-otlp = { version = "0.32", default-features = false, features = ["trace", "http-proto", "reqwest-rustls"] }
+opentelemetry-semantic-conventions = "0.32"
 rand = "0.10.1"
 redis = { version = "0.27.6", features = ["tokio-comp", "connection-manager"] }
 reqwest = { version = "0.12.9", default-features = false, features = ["json", "rustls-tls"] }
@@ -35,6 +43,7 @@ tokio = { version = "1.52.3", features = ["rt-multi-thread", "macros", "time"] }
 tokio-util = { version = "0.7.18", features = ["rt"] }
 tower-http = { version = "0.7.0", features = ["cors", "trace"] }
 tracing = "0.1.44"
+tracing-opentelemetry = "0.33"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 utoipa = { version = "5.5.0", features = ["chrono"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }

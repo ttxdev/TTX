@@ -15,6 +15,12 @@ api:
       BIND_ADDR: "0.0.0.0:3000"
       APP_ENV: "production"
       RUST_LOG: "info"
+      # OpenTelemetry: leave the endpoint empty to disable span export (console
+      # logging stays on). Set it to an OTLP/HTTP collector (e.g.
+      # "http://otel-collector:4318") to enable; OTEL_EXPORTER_OTLP_HEADERS is
+      # optional (e.g. "authorization=Bearer <token>").
+      OTEL_EXPORTER_OTLP_ENDPOINT: ""
+      OTEL_EXPORTER_OTLP_HEADERS: ""
       JWT_KEY: ""
       JWT_ISSUER: "api.ttx.gg"
       JWT_AUDIENCE: "ttx.gg"
@@ -105,6 +111,12 @@ jobs:
     stringData:
       DATABASE_URL: "postgres://postgres:postgres@postgres:5432/ttx"
       RUST_LOG: "info"
+      # OpenTelemetry: leave the endpoint empty to disable span export (console
+      # logging stays on). Set it to an OTLP/HTTP collector (e.g.
+      # "http://otel-collector:4318") to enable; OTEL_EXPORTER_OTLP_HEADERS is
+      # optional (e.g. "authorization=Bearer <token>").
+      OTEL_EXPORTER_OTLP_ENDPOINT: ""
+      OTEL_EXPORTER_OTLP_HEADERS: ""
       TWITCH_CLIENT_ID: ""
       TWITCH_CLIENT_SECRET: ""
       TWITCH_REDIRECT_URI: "https://api.ttx.gg/sessions/twitch/callback"

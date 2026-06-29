@@ -1,14 +1,12 @@
 use chrono::Duration;
-use tracing_subscriber::EnvFilter;
 use ttx::jobs::{ChatShard, CreatorValuesJobOptions};
 use ttx::platforms::twitch::TwitchOAuthOptions;
+use ttx::telemetry::{self, OtelGuard};
 
-pub fn init_tracing() {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")),
-        )
-        .init();
+/// Initialise console logging plus OpenTelemetry export. The returned guard must
+/// be held for the process lifetime so buffered spans are flushed on shutdown.
+pub fn init_tracing() -> OtelGuard {
+    telemetry::init("ttx-jobs")
 }
 
 pub fn database_url() -> String {
