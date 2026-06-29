@@ -1,8 +1,11 @@
 import { TTXClient } from "./api.ts";
 
-export function getApiClient(token?: string): TTXClient {
+export function getApiClient(
+  token?: string,
+  auth?: { unauthorized: boolean },
+): TTXClient {
   return new TTXClient(Deno.env.get("FRESH_PUBLIC_API_BASE_URL")!, {
-    fetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
+    async fetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
       if (!init) {
         init = {};
       }
@@ -12,7 +15,11 @@ export function getApiClient(token?: string): TTXClient {
         init.headers["Authorization"] = "Bearer " + token;
       }
 
-      return fetch(url, init);
+      const res = await fetch(url, init);
+      if (token && auth && res.status === 401) {
+        auth.unauthorized = true;
+      }
+      return res;
     },
   });
 }

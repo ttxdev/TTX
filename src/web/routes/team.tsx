@@ -165,11 +165,31 @@ function TwitchIcon() {
   );
 }
 
+function SectionHeading(
+  { kicker, title, subtitle }: {
+    kicker?: string;
+    title: string;
+    subtitle?: string;
+  },
+) {
+  return (
+    <div class="flex flex-col items-center gap-2 text-center">
+      {kicker && (
+        <span class="text-xs font-semibold tracking-widest text-purple-500 uppercase">
+          {kicker}
+        </span>
+      )}
+      <h2 class="font-display text-4xl max-md:text-3xl">{title}</h2>
+      {subtitle && <p class="max-w-md text-sm opacity-60">{subtitle}</p>}
+    </div>
+  );
+}
+
 function TeamMemberCard(
   { state, member }: { state: State; member: TeamMember },
 ) {
   return (
-    <div class="card group flex h-full w-full max-w-62 flex-col rounded-2xl border border-white/10 bg-gray-500/20 bg-clip-padding p-2 pt-4 shadow-md backdrop-blur-sm backdrop-filter transition duration-200 hover:-translate-y-1 hover:border-violet-400/40 hover:shadow-xl hover:shadow-violet-500/10">
+    <div class="group border-base-content/10 bg-base-200/40 hover:border-purple-500/30 flex h-full w-full max-w-62 flex-col items-center rounded-2xl border p-5 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/10">
       <ExternalLink
         clientId={state.discordId}
         href={member.socials.twitch}
@@ -178,46 +198,42 @@ function TeamMemberCard(
         ariaLabel={`${member.name} on Twitch`}
       >
         <img
-          class="size-24 rounded-full bg-gray-400/20 ring-2 ring-white/10 transition duration-200 group-hover:scale-105 group-hover:ring-violet-400/60 sm:size-32"
+          class="ring-base-content/10 size-24 rounded-full object-cover ring-2 transition duration-200 group-hover:scale-105 group-hover:ring-purple-500/50 sm:size-28"
           src={member.image}
           alt={member.name}
           loading="lazy"
         />
       </ExternalLink>
-      <div class="card-body flex flex-1 flex-col p-2 sm:p-4">
-        <div class="flex flex-col">
-          <h2 class="card-title p-0 text-lg sm:text-xl">{member.name}</h2>
-          <p class="p-0 text-xs font-semibold tracking-wide text-violet-400 uppercase">
-            {member.role}
-          </p>
-        </div>
-        <p class="text-sm text-gray-600 sm:text-base dark:text-gray-300">
-          {member.bio}
-        </p>
-        <div class="card-actions mt-auto flex justify-end gap-2 pt-2 sm:gap-4">
-          {member.socials.github && (
-            <ExternalLink
-              clientId={state.discordId}
-              href={member.socials.github}
-              target="_blank"
-              class="btn btn-circle btn-ghost text-black hover:bg-white dark:text-white dark:hover:bg-neutral-700"
-              ariaLabel={`${member.name} on GitHub`}
-            >
-              <GithubIcon />
-            </ExternalLink>
-          )}
-          {member.socials.twitch && (
-            <ExternalLink
-              clientId={state.discordId}
-              href={member.socials.twitch}
-              target="_blank"
-              class="btn btn-circle btn-ghost text-violet-400 hover:bg-white dark:text-white dark:hover:bg-purple-700"
-              ariaLabel={`${member.name} on Twitch`}
-            >
-              <TwitchIcon />
-            </ExternalLink>
-          )}
-        </div>
+      <h2 class="mt-3 text-lg font-bold sm:text-xl">{member.name}</h2>
+      <p class="text-xs font-semibold tracking-widest text-purple-500 uppercase">
+        {member.role}
+      </p>
+      <p class="mt-2 text-sm opacity-70">
+        {member.bio}
+      </p>
+      <div class="mt-auto flex justify-center gap-2 pt-4">
+        {member.socials.github && (
+          <ExternalLink
+            clientId={state.discordId}
+            href={member.socials.github}
+            target="_blank"
+            class="btn btn-circle btn-ghost hover:bg-purple-500/10 hover:text-purple-500"
+            ariaLabel={`${member.name} on GitHub`}
+          >
+            <GithubIcon />
+          </ExternalLink>
+        )}
+        {member.socials.twitch && (
+          <ExternalLink
+            clientId={state.discordId}
+            href={member.socials.twitch}
+            target="_blank"
+            class="btn btn-circle btn-ghost hover:bg-purple-500/10 hover:text-purple-500"
+            ariaLabel={`${member.name} on Twitch`}
+          >
+            <TwitchIcon />
+          </ExternalLink>
+        )}
       </div>
     </div>
   );
@@ -233,12 +249,13 @@ export default define.page((ctx) => {
           content="Meet the team behind TTX. We are a group of passionate individuals dedicated to building a better future for all."
         />
       </Head>
-      <div class="mx-auto flex max-w-250 flex-col items-center justify-center gap-8 p-4 md:gap-16">
-        <section class="w-full">
-          <h1 class="font-display my-4 text-center text-3xl md:text-left md:text-4xl">
-            Meet the Team
-          </h1>
-          <div class="mb-6 h-1 w-16 rounded-full bg-violet-500 md:mx-0 mx-auto" />
+      <div class="mx-auto flex max-w-250 flex-col items-center gap-20 p-4">
+        <section class="flex w-full flex-col items-center gap-8">
+          <SectionHeading
+            kicker="Who We Are"
+            title="Meet the Team"
+            subtitle="The crew building the streamer stock market — chronically online, mostly responsible."
+          />
           <div class="grid w-full grid-cols-1 justify-items-center gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {TEAM_MEMBERS.map((member) => (
               <TeamMemberCard
@@ -249,33 +266,34 @@ export default define.page((ctx) => {
             ))}
           </div>
         </section>
-        <section class="w-full">
-          <h1 class="font-display my-4 text-center text-3xl md:text-4xl">
-            Thank You
-          </h1>
-          <div class="mx-auto mb-6 h-1 w-16 rounded-full bg-violet-500" />
+        <section class="flex w-full flex-col items-center gap-8">
+          <SectionHeading
+            kicker="Shoutouts"
+            title="Thank You"
+            subtitle="The people who helped make TTX what it is."
+          />
           <div class="mx-auto flex w-full max-w-150 flex-row flex-wrap items-center justify-center gap-2 text-center">
             {THANK_YOU.map(([name, href]) => (
               <ExternalLink
                 clientId={ctx.state.discordId}
                 target="_blank"
                 href={href}
-                class="badge badge-lg border-white/10 bg-gray-500/20 transition hover:border-violet-400/50 hover:text-violet-400"
+                class="badge badge-lg border-base-content/10 bg-base-200/40 transition hover:border-purple-500/40 hover:text-purple-500"
                 key={`thanks-${name}`}
               >
                 {name}
               </ExternalLink>
             ))}
-            <span class="text-sm text-gray-500">
+            <span class="text-sm opacity-50">
               and the original ATX Team.
             </span>
           </div>
-          <div class="my-6 flex w-full flex-row gap-4 justify-center md:my-10">
+          <div class="flex w-full flex-row flex-wrap justify-center gap-3">
             <ExternalLink
               clientId={ctx.state.discordId}
               href={Deno.env.get("FRESH_PUBLIC_DISCORD_URL")!}
               target="_blank"
-              class="rounded-lg bg-violet-500 px-6 py-3 text-center font-bold text-white shadow-md transition hover:bg-violet-600 hover:shadow-lg hover:shadow-violet-500/20 active:scale-95"
+              class="btn rounded-lg border-none bg-purple-600 px-6 font-bold text-white shadow transition hover:bg-purple-700 active:scale-95"
             >
               Join our Discord!
             </ExternalLink>
@@ -283,7 +301,7 @@ export default define.page((ctx) => {
               clientId={ctx.state.discordId}
               href="https://codeberg.org/TTX/TTX"
               target="_blank"
-              class="rounded-lg bg-gray-500 px-6 py-3 text-center font-bold text-white shadow-md transition hover:bg-gray-600 hover:shadow-lg active:scale-95"
+              class="btn border-base-content/20 rounded-lg bg-transparent px-6 font-bold transition hover:bg-base-200 active:scale-95"
             >
               Source Code
             </ExternalLink>

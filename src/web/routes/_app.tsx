@@ -31,20 +31,9 @@ export default define.page((ctx) => {
         <link rel="manifest" href="/site.webmanifest" />
         <title>TTX</title>
       </head>
-      <body class="flex min-h-screen w-full flex-col from-40% via-transparent via-70%">
+      <body class="flex min-h-screen w-full flex-col">
         <Nav state={ctx.state} url={ctx.url} />
-        <div
-          class="h-24"
-          style="
-				background: linear-gradient(
-					0deg,
-					hsla(277, 100%, 5%, 0) 5%,
-					hsla(278, 100%, 50%, 0.5) 100%
-				);
-			"
-        >
-        </div>
-        <main class="container mx-auto flex w-full grow flex-col pb-24 md:p-24">
+        <main class="container mx-auto flex w-full grow flex-col px-4 pt-32 pb-24 md:px-24">
           <ctx.Component />
         </main>
 

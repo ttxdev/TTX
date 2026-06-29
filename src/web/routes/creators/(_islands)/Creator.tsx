@@ -41,7 +41,7 @@ function IntervalSelector(props: { interval: Interval }) {
       {intervals.map(({ label, value }) => (
         <a
           href={`?interval=${value}`}
-          class={`join-item btn btn-xs sm:btn-sm min-w-14 border-none text-xs transition-all duration-200 ease-in-out first:rounded-l-3xl last:rounded-r-3xl sm:min-w-[4rem] sm:text-sm
+          class={`join-item btn btn-xs sm:btn-sm min-w-14 border-none text-xs transition-all duration-200 ease-in-out first:rounded-l-2xl last:rounded-r-2xl sm:min-w-[4rem] sm:text-sm
    			${
             props.interval === value
               ? "bg-purple-600 font-medium text-white shadow-md hover:bg-purple-700"
@@ -73,8 +73,6 @@ export default function Creator(props: CreatorProps) {
   useEffect(() => {
     const hub = createHub("votes", props.state.token);
     hub.on("UpdateCreatorValueEvent", addVote);
-    // Set the client-side filter before connecting so it applies even if the
-    // first connection attempt fails and later auto-reconnects.
     hub.invoke("SetCreator", props.creator.id);
     hub.start().catch(console.error);
     return () => {
@@ -112,13 +110,13 @@ export default function Creator(props: CreatorProps) {
 
       <div>
         <section class="mx-auto flex w-full max-w-250 flex-col gap-4 p-4">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h1 class="text-2xl font-bold">{props.creator.name}</h1>
-            {props.isPlayer && (
-              <div class="flex gap-2">
+            <div class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+              {props.isPlayer && (
                 <a
                   href={`/players/${props.creator.slug}`}
-                  class="bg-primary hover:bg-primary/80 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white transition-colors sm:text-sm"
+                  class="bg-primary hover:bg-primary/80 inline-flex items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-white transition-colors sm:text-sm"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -134,9 +132,7 @@ export default function Creator(props: CreatorProps) {
                   </svg>
                   <p>Switch to player profile</p>
                 </a>
-              </div>
-            )}
-            <div class="flex justify-end">
+              )}
               <IntervalSelector interval={props.interval} />
             </div>
           </div>
@@ -151,7 +147,7 @@ export default function Creator(props: CreatorProps) {
               <button
                 onClick={() => optOut()}
                 type="button"
-                class="inline-flex cursor-pointer items-center gap-1 rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600 sm:text-sm"
+                class="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600 sm:text-sm"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -201,51 +197,51 @@ export default function Creator(props: CreatorProps) {
               </div>
             )}
           </div>
-          <div class="flex flex-col gap-4 md:flex-row">
-            <div class="divider divider-vertical md:hidden"></div>
-            <div class="join flex w-full flex-col items-center justify-center gap-2">
-              {!props.creator.stream_status.is_live &&
-                (
-                  <div class="flex flex-col justify-center items-center gap-2">
-                    <h1 class="text-2xl font-bold">
-                      {props.creator.name} is offline
-                    </h1>
-                    <h2 class="text-sm text-center max-w-3/4">
-                      You cannot buy or sell a creators stock when they are
-                      offline.
-                    </h2>
-                  </div>
-                )}
-              <div class="join mt-2 md:mt-0">
-                <button
-                  disabled={!props.creator.stream_status.is_live}
-                  class={`btn btn-lg h-10 rounded-l-2xl border-2 p-4 ${
-                    !props.creator.stream_status.is_live
-                      ? "text-gray-500"
-                      : "text-green-500"
-                  }`}
-                  type="button"
-                  onClick={() => setOrderModal(TransactionAction.Buy)}
-                >
-                  Buy
-                </button>
-                <button
-                  disabled={!props.creator.stream_status.is_live}
-                  class={`btn btn-lg h-10 rounded-r-2xl p-4 ${
-                    !props.creator.stream_status.is_live
-                      ? "text-gray-500"
-                      : "text-red-500"
-                  }`}
-                  type="button"
-                  onClick={() => setOrderModal(TransactionAction.Sell)}
-                >
-                  Sell
-                </button>
+          <div class="bg-base-200/40 flex w-full flex-col items-center gap-3 rounded-2xl p-6">
+            {!props.creator.stream_status.is_live && (
+              <div class="flex flex-col items-center justify-center gap-1 text-center">
+                <h2 class="text-xl font-bold">
+                  {props.creator.name} is offline
+                </h2>
+                <p class="max-w-md text-sm opacity-70">
+                  You can only buy or sell a creator's stock while they are
+                  live.
+                </p>
               </div>
+            )}
+            <div class="join">
+              <button
+                disabled={!props.creator.stream_status.is_live}
+                class={`btn btn-lg join-item h-10 rounded-l-2xl border-none px-8 ${
+                  props.creator.stream_status.is_live
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "text-gray-500"
+                }`}
+                type="button"
+                onClick={() => setOrderModal(TransactionAction.Buy)}
+              >
+                Buy
+              </button>
+              <button
+                disabled={!props.creator.stream_status.is_live}
+                class={`btn btn-lg join-item h-10 rounded-r-2xl border-none px-8 ${
+                  props.creator.stream_status.is_live
+                    ? "bg-red-600 text-white hover:bg-red-700"
+                    : "text-gray-500"
+                }`}
+                type="button"
+                onClick={() => setOrderModal(TransactionAction.Sell)}
+              >
+                Sell
+              </button>
             </div>
+            {props.creator.stream_status.is_live && (
+              <p class="text-xs opacity-60">
+                Trades execute at the current market price.
+              </p>
+            )}
           </div>
-          <div class="divider divider-vertical md:hidden"></div>
-          <div class="flex w-full items-center justify-between">
+          <div class="mt-4 flex w-full items-center justify-between">
             <h2 class="text-2xl font-bold">Investors</h2>
           </div>
         </section>

@@ -1,7 +1,6 @@
-import { Placement } from "../(_components)/PlayerPlacement.tsx";
 import { PlayerDto, PortfolioSnapshotDto } from "@/lib/api.ts";
-import { formatValue } from "@/lib/formatting.ts";
-import BigChart from "./BigChart.tsx";
+import { calculatePercentChange } from "@/lib/math.ts";
+import BigChart from "@/islands/BigChart.tsx";
 import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import { createHub } from "@/lib/ws.ts";
@@ -9,10 +8,8 @@ import CurrentValue from "@/islands/CurrentValue.tsx";
 import { State } from "@/utils.ts";
 
 export default function PlayerCard(
-  { player, isStreamer, state }: {
-    placement: Placement;
+  { player, state }: {
     player: PlayerDto;
-    isStreamer: boolean;
     state: State;
   },
 ) {
@@ -27,8 +24,6 @@ export default function PlayerCard(
   useEffect(() => {
     const hub = createHub("portfolios", state.token);
     hub.on("UpdatePlayerPortfolioEvent", addSnapshot);
-    // Set the client-side filter before connecting so it applies even if the
-    // first connection attempt fails and later auto-reconnects.
     hub.invoke("SetPlayer", player.id);
     hub.start().catch(console.error);
     return () => {
@@ -36,64 +31,42 @@ export default function PlayerCard(
     };
   }, [player.id, state.token]);
 
-  return (
-    <div class="player-card bg-base-200/50 w-full rounded-lg p-2 shadow-md backdrop-blur
-             backdrop-contrast-100 backdrop-saturate-100 sm:p-4">
-      <div class="m-2 flex flex-col gap-2 sm:m-3 sm:flex-row sm:items-center sm:justify-between">
-        <div class="bg-base-300 rounded-lg px-2 py-1 text-base font-medium sm:text-xl">
-          Portfolio Value
-        </div>
-        {isStreamer && (
-          <a
-            href={`/creators/${player.slug}`}
-            class="bg-primary hover:bg-primary/80 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white transition-colors sm:text-sm"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-3 w-3 sm:h-4 sm:w-4"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <p>Switch to streamer profile</p>
-          </a>
-        )}
-      </div>
-      <div class="chart-container relative mb-3 h-36 w-full sm:mb-4 sm:h-48">
-        <BigChart value={value.value} history={history.value} />
-      </div>
+  const change = calculatePercentChange(history.value);
+  const changeClass = change > 0
+    ? "bg-green-500/15 text-green-500"
+    : change < 0
+    ? "bg-red-500/15 text-red-500"
+    : "bg-gray-500/15 text-gray-500";
 
-      <div class="flex items-center justify-between px-1 sm:px-2">
-        <div class="flex items-center gap-1.5 sm:gap-3">
-          <img
-            src={player.avatar_url}
-            alt="Avatar"
-            class="h-8 w-8 rounded-full border-2 border-white object-cover shadow-lg sm:h-12 sm:w-12"
-          />
-          <div class="flex flex-col">
-            <span class="text-sm font-semibold sm:text-lg">
-              {player.name}
+  return (
+    <div class="bg-base-200/50 w-full rounded-2xl bg-clip-padding p-4 shadow-md backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
+      <div class="mb-4 flex flex-col items-center justify-between sm:flex-row">
+        <div class="flex w-full flex-row items-center justify-between px-3">
+          <div class="flex flex-row items-center gap-3">
+            <img
+              src={player.avatar_url}
+              alt=""
+              class="h-12 w-12 rounded-full border-2 border-white object-cover shadow-lg"
+            />
+            <div class="flex flex-col">
+              <span class="text-lg font-semibold">{player.name}</span>
+              <span class="text-xs opacity-60">Investor</span>
+            </div>
+          </div>
+          <div class="relative flex flex-col items-center text-center">
+            <CurrentValue value={value.value} />
+            <p class="text-xs opacity-60">Portfolio Value</p>
+            <span
+              class={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${changeClass}`}
+            >
+              {change > 0 ? "▲" : change < 0 ? "▼" : "—"}{" "}
+              {Math.abs(change).toFixed(2)}%
             </span>
           </div>
         </div>
-
-        <div class="flex flex-row gap-8 text-right">
-          <div class="flex flex-col text-center">
-            <CurrentValue value={value.value} />
-            <p class="text-sm">Portfolio Value</p>
-          </div>
-          <div class="flex flex-col text-center">
-            <h1 class="text-xl font-bold">
-              {formatValue(player.credits)}
-            </h1>
-            <p class="text-sm">Credits</p>
-          </div>
-        </div>
+      </div>
+      <div class="h-[400px] w-full rounded-2xl border border-gray-200/15 p-4">
+        <BigChart value={value.value} history={history.value} />
       </div>
     </div>
   );

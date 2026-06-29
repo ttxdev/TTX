@@ -1,9 +1,8 @@
 import { useEffect, useRef } from "preact/hooks";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import Confetti from "confetti-js";
 import { formatTicker, formatValue } from "@/lib/formatting.ts";
 import {
-  type CreatorPartialDto,
   type LootBoxResultDto,
   Rarity,
 } from "@/lib/api.ts";
@@ -43,7 +42,7 @@ export default function WinnerModal({ result, onClose }: {
           253,
           224,
           71,
-        ]], // Match your theme
+        ]],
         clock: 25,
       });
       confetti.render();
@@ -80,7 +79,7 @@ export default function WinnerModal({ result, onClose }: {
             opacity: 1,
             transition: {
               type: "spring",
-              damping: 12, // Lower damping = more "elastic" bounce
+              damping: 12,
               stiffness: 100,
               delay: 0.2,
             },
@@ -93,7 +92,7 @@ export default function WinnerModal({ result, onClose }: {
           </h2>
 
           <div
-            className="flex w-full flex-col items-center rounded-3xl border-2 bg-gradient-to-b from-slate-900 to-black p-8 shadow-[0_0_50px_rgba(124,58,237,0.4)]"
+            className="flex w-full flex-col items-center rounded-2xl border-2 bg-gradient-to-b from-slate-900 to-black p-8 shadow-[0_0_50px_rgba(124,58,237,0.4)]"
             style={{ borderColor: rarityColors[rarity] }}
           >
             <div className="mb-6 bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-300 bg-clip-text text-4xl font-bold text-transparent">

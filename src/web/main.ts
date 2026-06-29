@@ -1,6 +1,6 @@
 import { App, staticFiles } from "fresh";
 import type { State } from "./utils.ts";
-import { getSession } from "./lib/auth/sessions.ts";
+import { getSession, removeSession } from "./lib/auth/sessions.ts";
 import { trace } from "npm:@opentelemetry/api@1";
 
 export const app = new App<State>();
@@ -15,7 +15,7 @@ app.use(async (ctx) => {
   }
 
   return await ctx.next();
-})
+});
 
 app.use(async (ctx) => {
   const session = getSession(ctx.req.headers);
@@ -25,8 +25,15 @@ app.use(async (ctx) => {
   ctx.state.discordId = ctx.url.host == `${clientId}.discordsays.com`
     ? clientId
     : null;
+  ctx.state.auth = { unauthorized: false };
 
-  return await ctx.next();
+  const res = await ctx.next();
+
+  if (ctx.state.auth.unauthorized && ctx.state.token) {
+    removeSession(res.headers);
+  }
+
+  return res;
 });
 
 app.get("/:slug", (ctx) => ctx.redirect(`/creators/${ctx.params.slug}`, 301));

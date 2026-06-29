@@ -21,7 +21,6 @@ const AnimatedNumber = ({ mv }: { mv: any }) => {
   return <span ref={ref}>{formatValue(mv.get())}</span>;
 };
 
-// Svelte's custom easing re-implemented for Motion
 const customEase = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
@@ -33,7 +32,6 @@ export default function CurrentValue({ value }: { value: number }) {
   const previousValue = useRef(value);
   const diffTimeout = useRef<number | null>(null);
 
-  // Create the MotionValue for the number tween
   const displayValueMv = useMotionValue(value);
 
   useEffect(() => {
@@ -43,7 +41,6 @@ export default function CurrentValue({ value }: { value: number }) {
     previousValue.current = current;
 
     if (diff !== 0) {
-      // 1. Handle Difference Popup
       if (diffTimeout.current) clearTimeout(diffTimeout.current);
       setDisplayedDiff(diff);
       setShowDiff(true);
@@ -52,9 +49,7 @@ export default function CurrentValue({ value }: { value: number }) {
         3000,
       );
 
-      // 2. Trigger Pulse Direction
       setDirection(diff > 0 ? "up" : "down");
-      // Reset direction state after animation duration
       setTimeout(() => setDirection("none"), 1500);
 
       // 3. Animate the display value (Svelte's Tween equivalent)
@@ -65,11 +60,10 @@ export default function CurrentValue({ value }: { value: number }) {
     }
   }, [value]);
 
-  // Animation variants for the pulse effect
   const pulseVariants = {
     up: {
       scale: [1, 1.1, 1],
-      color: ["#fff", "#22c55e", "#fff"], // Adjust colors to match your theme
+      color: ["#fff", "#22c55e", "#fff"],
       transition: { duration: 0.5 },
     },
     down: {

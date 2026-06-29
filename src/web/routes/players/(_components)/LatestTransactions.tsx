@@ -1,4 +1,4 @@
-import type { PlayerTransactionDto } from "@/lib/api.ts";
+import { PlayerTransactionDto, TransactionAction } from "@/lib/api.ts";
 import {
   formatName,
   formatShareAmount,
@@ -22,16 +22,19 @@ export default function LatestTransactions(
         <table class="table">
           <tbody>
             {transactions.map((tx) => {
+              const href = `/creators/${tx.creator.slug}`;
+              const actionClass = tx.action === TransactionAction.Buy
+                ? "text-green-500"
+                : tx.action === TransactionAction.Sell
+                ? "text-red-500"
+                : "";
               return (
                 <tr
                   key={`transaction-${tx.id}`}
-                  class="flex flex-row justify-between rounded-md py-1"
+                  class="hover:bg-base-300/40 flex flex-row justify-between rounded-lg py-1 transition-colors md:p-2"
                 >
-                  <td class="flex items-center justify-center gap-3 p-0 py-3">
-                    <a
-                      href={`/creators/${tx.creator.slug}`}
-                      class="flex flex-col"
-                    >
+                  <td class="flex items-center justify-center gap-3">
+                    <a href={href} class="flex flex-col">
                       <img
                         alt={tx.creator.name}
                         src={tx.creator.avatar_url}
@@ -39,19 +42,19 @@ export default function LatestTransactions(
                       />
                     </a>
                     <div class="flex flex-col">
-                      <span class="text-xl font-semibold">
+                      <span class={`text-xl font-semibold ${actionClass}`}>
                         {formatTxAction(tx.action)}
                       </span>
                       <a
-                        href={`/creators/${tx.creator.slug}`}
+                        href={href}
                         class="text-sm text-violet-500 hover:underline"
                       >
                         {formatName(tx.creator.name)}
                       </a>
                     </div>
                   </td>
-                  <td class="flex flex-col items-center justify-center p-2 font-bold">
-                    <span class="w-full text-right text-lg opacity-55">
+                  <td class="flex flex-col items-center justify-center p-2 text-right font-bold">
+                    <span class="text-md md:text-xl">
                       {formatShareAmount(tx.quantity)} @ {formatValue(tx.value)}
                     </span>
                     <div class="w-full text-right opacity-55">

@@ -26,7 +26,7 @@
     "@preact/signals": "npm:@preact/signals@^2.9.2",
     "@fresh/plugin-vite": "jsr:@fresh/plugin-vite@^1.1.2",
     "preact-compat": "npm:preact-compat@^3.19.0",
-    "vite": "npm:vite@^7.1.4",
+    "vite": "npm:vite@~7.1.12",
     "tailwindcss": "npm:tailwindcss@^4.3.1",
     "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.3.1"
   },

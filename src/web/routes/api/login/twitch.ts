@@ -5,8 +5,6 @@ import { getRedir, removeRedir, setSession } from "@/lib/auth/sessions.ts";
 export const handler = define.handlers({
   async GET(ctx) {
     const code = ctx.url.searchParams.get("code");
-    // `state` is optional: the login URL doesn't send one (no CSRF check yet),
-    // so Twitch only echoes back `code`.
     const state = ctx.url.searchParams.get("state") ?? undefined;
     if (!code) {
       return new Response("Missing code", { status: 400 });

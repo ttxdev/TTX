@@ -4,9 +4,6 @@ import {
   formatValue,
 } from "@/lib/formatting.ts";
 import Card from "../../../components/Card.tsx";
-import PlayerPlacement, {
-  Placement,
-} from "../../players/(_components)/PlayerPlacement.tsx";
 import { ICreatorShareDto } from "../../../lib/api.ts";
 
 export default function Shares(
@@ -29,9 +26,12 @@ export default function Shares(
               return (
                 <tr
                   key={`share-${holder.player.id}`}
-                  class="flex flex-row justify-between rounded-md py-1 md:p-2"
+                  class="hover:bg-base-300/40 flex flex-row items-center justify-between rounded-lg py-1 transition-colors md:p-2"
                 >
                   <td class="flex items-center justify-center gap-3">
+                    <span class="w-5 text-center text-sm font-bold opacity-40">
+                      {index + 1}
+                    </span>
                     <a href={href} class="flex flex-col">
                       <img
                         alt={holder.player.name}
@@ -39,14 +39,12 @@ export default function Shares(
                         class="size-10 rounded-full"
                       />
                     </a>
-                    <div class="flex flex-col items-start">
-                      <a
-                        href={`/players/${holder.player.slug}`}
-                        class="text-lg font-semibold text-violet-500 hover:underline"
-                      >
-                        {formatName(holder.player.name)}
-                      </a>
-                    </div>
+                    <a
+                      href={href}
+                      class="text-lg font-semibold text-violet-500 hover:underline"
+                    >
+                      {formatName(holder.player.name)}
+                    </a>
                   </td>
                   <td class="flex flex-col items-center justify-center p-2 text-right font-bold">
                     <span class="text-md md:text-xl">

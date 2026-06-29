@@ -1,8 +1,9 @@
-import { PortfolioSnapshotDto, TransactionAction, VoteDto } from "./api.ts";
+import { TransactionAction } from "./api.ts";
 
 export function formatToChart(
   value: number,
-  history: VoteDto[] | PortfolioSnapshotDto[],
+  // Structural: any time-series point works (VoteDto, PortfolioSnapshotDto, …).
+  history: readonly { time: Date | string; value: number }[],
 ) {
   const labels: string[] = [];
   const values: number[] = [];

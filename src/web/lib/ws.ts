@@ -1,14 +1,3 @@
-/**
- * Lightweight client for the API's websocket hubs (`/hubs/events`,
- * `/hubs/votes`, `/hubs/portfolios`), replacing the former SignalR client.
- *
- * The hubs broadcast every event as a JSON envelope `{ "type": "...", ... }`.
- * Unlike SignalR groups, the server does no per-subject filtering, so
- * `invoke("SetCreator"/"SetPlayer", id)` records a local filter instead — it
- * preserves the old call sites while only delivering the matching subject's
- * events.
- */
-
 type Envelope = { type?: unknown } & Record<string, unknown>;
 export type HubHandler = (payload: Envelope) => void;
 
@@ -22,6 +11,8 @@ export class Hub {
   #playerId: number | null = null;
   #closedByUser = false;
   #reconnectDelay = 1_000;
+  #reconnectTimer: number | null = null;
+  #stableTimer: number | null = null;
 
   constructor(url: string) {
     this.#url = url;
@@ -58,30 +49,53 @@ export class Hub {
 
   stop(): Promise<void> {
     this.#closedByUser = true;
+    this.#clearTimers();
     this.#socket?.close();
     this.#socket = null;
     return Promise.resolve();
   }
 
+  #clearTimers(): void {
+    if (this.#reconnectTimer !== null) {
+      clearTimeout(this.#reconnectTimer);
+      this.#reconnectTimer = null;
+    }
+    if (this.#stableTimer !== null) {
+      clearTimeout(this.#stableTimer);
+      this.#stableTimer = null;
+    }
+  }
+
   #connect(): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (this.#closedByUser) {
+        resolve();
+        return;
+      }
+
       const socket = new WebSocket(this.#url);
       this.#socket = socket;
 
       socket.onopen = () => {
-        this.#reconnectDelay = 1_000;
         resolve();
+        this.#stableTimer = setTimeout(() => {
+          this.#reconnectDelay = 1_000;
+        }, 5_000);
       };
       socket.onmessage = (event) => this.#dispatch(event.data);
       socket.onerror = (event) => reject(event);
       socket.onclose = () => {
+        if (this.#stableTimer !== null) {
+          clearTimeout(this.#stableTimer);
+          this.#stableTimer = null;
+        }
         if (this.#closedByUser) {
           return;
         }
-        // Reconnect with exponential backoff; handlers and filters persist.
         const delay = this.#reconnectDelay;
         this.#reconnectDelay = Math.min(delay * 2, MAX_RECONNECT_DELAY);
-        setTimeout(() => {
+        this.#reconnectTimer = setTimeout(() => {
+          this.#reconnectTimer = null;
           this.#connect().catch(() => {});
         }, delay);
       };
@@ -132,8 +146,6 @@ export function createHub(hub: string, token?: string): Hub {
   const wsBase = base.replace(/^http/, "ws"); // http -> ws, https -> wss
   let url = `${wsBase}/hubs/${hub}`;
   if (token) {
-    // The current server does not authenticate the websocket, but pass the
-    // token along (as SignalR did) for forward compatibility.
     url += `?access_token=${encodeURIComponent(token)}`;
   }
   return new Hub(url);

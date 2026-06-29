@@ -32,9 +32,14 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
   };
 
+  const matchActive = (path: string) =>
+    urls.find(({ url: u }) => u === "/" ? path === u : path.startsWith(u))
+      ?.url ?? "";
+  const activeUrl = useSignal(matchActive(url.pathname));
+
   return (
     <header>
-      <div class="navbar max-w-250 fixed left-1/2 z-20 mx-auto w-full mt-4 w-[95%] -translate-x-1/2 rounded-xl bg-clip-padding p-6 shadow-sm backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
+      <div class="navbar max-w-250 fixed left-1/2 z-20 mx-auto mt-4 w-[95%] -translate-x-1/2 rounded-2xl border border-white/15 bg-base-100/50 p-6 backdrop-blur-xl backdrop-saturate-150 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.18),0_10px_30px_-12px_rgba(0,0,0,0.25)]">
         <div class="navbar-start">
           <a href="/" class="btn btn-ghost rounded-2xl text-xl">
             <img class="w-4 lg:w-8" src="/ttx-logo-only.png" alt="TTX Logo" />
@@ -44,21 +49,14 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
 
         <nav class="navbar-center hidden md:flex">
           <ul class="menu menu-horizontal relative px-1">
-            <div
-              class="absolute rounded-2xl bg-purple-400/20 duration-100 animate-all"
-              style="left: {indicatorLeft.current}px; width: {indicatorWidth.current}px; top: 0; bottom: 0; z-index: 0;"
-            >
-            </div>
-
             {urls.map(({ url: u, label }) => {
-              const isActive = u === "/"
-                ? url.pathname == u
-                : url.pathname.startsWith(u);
+              const isActive = activeUrl.value === u;
 
               return (
                 <li key={u} className="relative">
                   <a
                     href={u}
+                    onClick={() => activeUrl.value = u}
                     class="relative z-10 hover:bg-transparent"
                   >
                     {label}
@@ -171,7 +169,7 @@ export default function Nav({ url, state }: { url: URL; state: State }) {
                 href={`/api/login?from=${from}`}
                 class="flex items-center justify-center gap-2"
               >
-                <div class="btn rounded-md bg-black px-3 py-2 text-white shadow">
+                <div class="btn rounded-lg border-none bg-purple-600 px-3 py-2 text-white shadow hover:bg-purple-700">
                   <svg
                     width="16"
                     height="16"

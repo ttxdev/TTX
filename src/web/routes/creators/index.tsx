@@ -1,21 +1,22 @@
 import {
-  CreatorDtoPaginationDto,
   CreatorOrderBy,
   OrderDirection,
+  PaginationDto_CreatorDto,
 } from "@/lib/api.ts";
 import { define } from "@/utils.ts";
 import { Head, Partial } from "fresh/runtime";
-import MiniChart from "./(_islands)/MiniChart.tsx";
+import MiniChart from "@/islands/MiniChart.tsx";
 import { formatTicker, formatValue } from "@/lib/formatting.ts";
 import { getApiClient } from "@/lib/index.ts";
 import { calculatePercentChange } from "@/lib/math.ts";
+import { nav } from "@/lib/url.ts";
 
 const TAKE = 20;
 
 export const handler = define.handlers({
   async GET(ctx) {
-    const client = getApiClient(ctx.state.token);
-    const index = Number(ctx.url.searchParams.get("page") ?? "1");
+    const client = getApiClient(ctx.state.token, ctx.state.auth);
+    const index = Number(ctx.url.searchParams.get("page")) || 1;
     const orderDir =
       ctx.url.searchParams.get("orderDir") == OrderDirection.Ascending
         ? OrderDirection.Ascending
@@ -43,11 +44,13 @@ export const handler = define.handlers({
       orderDir,
     );
 
-    return { data: { page, orderBy, orderDir, index } };
+    return { data: { page, orderBy, orderDir, index, search } };
   },
 });
 
 export default define.page<typeof handler>((ctx) => {
+  const { page, orderBy, orderDir, index, search } = ctx.data;
+
   return (
     <div>
       <Head>
@@ -57,15 +60,24 @@ export default define.page<typeof handler>((ctx) => {
           content="View the vast array of creators that you can pump and dump... I mean.... INVEST your hard earned tokens in on TTX"
         />
       </Head>
-      <div class="mx-auto flex w-full max-w-250 flex-col space-y-12 p-4 max-md:my-2 max-md:space-y-6">
-        <div class="flex items-center justify-between gap-4 max-md:flex-col max-md:gap-2">
-          <p class="font-display self-start text-center text-5xl max-md:text-3xl">
-            Creators
-          </p>
-          <div class="flex flex-col gap-2 max-md:flex-col max-md:items-start max-md:justify-start">
+      <div class="mx-auto flex w-full max-w-250 flex-col space-y-10 p-4 max-md:my-2 max-md:space-y-6">
+        <div class="flex items-end justify-between gap-4 max-md:flex-col max-md:items-stretch max-md:gap-3">
+          <div class="flex flex-col gap-1">
+            <span class="text-xs font-semibold tracking-widest text-purple-500 uppercase">
+              Market
+            </span>
+            <h1 class="font-display text-5xl max-md:text-3xl">Creators</h1>
+            <p class="text-sm opacity-60">
+              Buy and sell shares of your favorite streamers.
+            </p>
+          </div>
+          <div class="flex flex-col gap-1.5 max-md:w-full">
             <search>
-              <form method="get" class="join max-w-md">
-                <label class="input-bordered input flex-1 rounded-l-2xl border-purple-400 focus:outline-none">
+              <form method="get" class="join w-full max-w-md">
+                {/* Preserve the active sort when running a search. */}
+                <input type="hidden" name="orderBy" value={orderBy} />
+                <input type="hidden" name="orderDir" value={orderDir} />
+                <label class="input join-item flex-1 rounded-l-2xl border-purple-500/40 focus-within:border-purple-500 focus:outline-none">
                   <svg
                     class="h-[1em] opacity-50"
                     xmlns="http://www.w3.org/2000/svg"
@@ -84,202 +96,246 @@ export default define.page<typeof handler>((ctx) => {
                   </svg>
                   <input
                     type="text"
-                    class=" focus:outline-none"
+                    class="focus:outline-none"
                     placeholder="Search by Channel Name"
                     name="search"
+                    value={search}
                   />
                 </label>
                 <button
                   type="submit"
-                  class="btn rounded-r-2xl border-purple-400 bg-purple-400 text-white"
+                  class="btn join-item rounded-r-2xl border-purple-600 bg-purple-600 text-white hover:bg-purple-700"
                 >
                   Search
                 </button>
               </form>
             </search>
-            <span class="w-full text-right text-xs opacity-50">
-              {ctx.data.page.total}{"  "}
-              {ctx.data.page.total === 1 ? "Creator" : "Creators"}
+            <span class="text-right text-xs opacity-50">
+              {page.total} {page.total === 1 ? "Creator" : "Creators"}
             </span>
           </div>
         </div>
 
         <Partial name="creators">
-          {ctx.data.page.data.length > 0 && (
-            <CreatorTable
-              url={ctx.url}
-              creators={ctx.data.page}
-              index={ctx.data.index}
-              orderBy={ctx.data.orderBy}
-              orderDir={ctx.data.orderDir}
-            />
-          )}
-          {ctx.data.page.data.length === 0 && <p>No channels available</p>}
+          {page.data.length > 0
+            ? (
+              <CreatorTable
+                url={ctx.url}
+                creators={page}
+                index={index}
+                orderBy={orderBy}
+                orderDir={orderDir}
+              />
+            )
+            : (
+              <div class="border-base-content/10 rounded-2xl border border-dashed py-16 text-center">
+                <p class="font-display text-xl">No creators found</p>
+                <p class="mt-1 text-sm opacity-60">
+                  {search
+                    ? `No channels match “${search}”.`
+                    : "No channels available right now."}
+                </p>
+                {search && (
+                  <a
+                    href="/creators"
+                    class="mt-4 inline-block font-semibold text-purple-500 hover:underline"
+                  >
+                    Clear search
+                  </a>
+                )}
+              </div>
+            )}
         </Partial>
       </div>
     </div>
   );
 });
 
+function PageLink(
+  { url, page, disabled, label, extra }: {
+    url: URL;
+    page: number;
+    disabled: boolean;
+    label: string;
+    extra: string;
+  },
+) {
+  return (
+    <a
+      class={`join-item btn border-base-content/10 bg-base-200/40 hover:bg-base-200/70 ${extra} ${
+        disabled ? "btn-disabled" : ""
+      }`}
+      href={disabled ? undefined : nav(url, { page })}
+      aria-disabled={disabled ? "true" : undefined}
+      aria-label={label === "«" ? "Previous page" : "Next page"}
+    >
+      {label}
+    </a>
+  );
+}
+
+function SortHeader(
+  { url, label, col, orderBy, orderDir, class: cls }: {
+    url: URL;
+    label: string;
+    col: CreatorOrderBy;
+    orderBy: CreatorOrderBy;
+    orderDir: OrderDirection;
+    class?: string;
+  },
+) {
+  const active = orderBy === col;
+  const dir = active && orderDir === OrderDirection.Descending
+    ? OrderDirection.Ascending
+    : OrderDirection.Descending;
+
+  return (
+    <th class={cls}>
+      <a
+        href={nav(url, { page: 1, orderBy: col, orderDir: dir })}
+        class={`inline-flex items-center gap-1 transition-colors hover:text-purple-500 ${
+          active ? "text-purple-500" : ""
+        }`}
+      >
+        {label}
+        {active && (
+          <span>{orderDir === OrderDirection.Ascending ? "↑" : "↓"}</span>
+        )}
+      </a>
+    </th>
+  );
+}
+
+function Change({ change }: { change: number }) {
+  const up = change > 0;
+  const down = change < 0;
+  return (
+    <span
+      class={`flex items-center gap-0.5 text-xs font-semibold ${
+        up ? "text-green-500" : down ? "text-red-500" : "opacity-50"
+      }`}
+    >
+      {up && "▲"}
+      {down && "▼"}
+      {change.toFixed(2)}%
+    </span>
+  );
+}
+
+function StatusBadge({ live }: { live: boolean }) {
+  if (live) {
+    return (
+      <span class="badge badge-sm gap-1 border-none bg-red-500/15 font-semibold text-red-500">
+        <span class="inline-block size-2 animate-pulse rounded-full bg-red-500" />
+        LIVE
+      </span>
+    );
+  }
+  return (
+    <span class="badge badge-sm bg-base-content/10 border-none font-semibold opacity-60">
+      Offline
+    </span>
+  );
+}
+
 function CreatorTable(props: {
   url: URL;
-  creators: CreatorDtoPaginationDto;
+  creators: PaginationDto_CreatorDto;
   index: number;
   orderBy: CreatorOrderBy;
   orderDir: OrderDirection;
 }) {
-  const oppositeDir = props.orderDir === OrderDirection.Ascending
-    ? OrderDirection.Descending
-    : OrderDirection.Ascending;
   const totalPages = Math.max(
     1,
     Math.floor((props.creators.total - 1) / TAKE) + 1,
   );
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
-  const isAscending = props.orderDir == OrderDirection.Ascending;
-
-  function nav(
-    params: {
-      index?: number;
-      orderBy?: CreatorOrderBy;
-      orderDir?: OrderDirection;
-    },
-  ) {
-    const url = new URL(props.url.origin + "/creators");
-    url.searchParams.set(
-      "page",
-      params.index?.toString() ?? props.index.toString(),
-    );
-    url.searchParams.set("orderBy", params.orderBy ?? props.orderBy);
-    url.searchParams.set(
-      "orderDir",
-      params.orderDir ?? props.orderDir.toString(),
-    );
-
-    return url.toString();
-  }
 
   return (
-    <div>
-      <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm dark:border-gray-800">
-        <table class="table w-full max-md:text-sm">
-          <thead class="sticky top-0 z-10 bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-50">
-            <tr class="border-b text-sm max-md:text-sm">
-              <th class="rounded-tl-2xl py-4 text-center max-md:px-2">
-                <a
-                  href={nav({
-                    orderBy: CreatorOrderBy.Name,
-                    orderDir: oppositeDir,
-                  })}
-                >
-                  Creator
-                  {props.orderBy === CreatorOrderBy.Name && (
-                    <span class="ml-1">
-                      {isAscending ? "↑" : "↓"}
-                    </span>
-                  )}
-                </a>
+    <div class="flex flex-col gap-8">
+      <div class="border-base-content/10 overflow-hidden rounded-2xl border">
+        <table class="table w-full">
+          <thead class="bg-base-200/50 text-sm">
+            <tr class="border-base-content/10 border-b">
+              <SortHeader
+                url={props.url}
+                label="Creator"
+                col={CreatorOrderBy.Name}
+                orderBy={props.orderBy}
+                orderDir={props.orderDir}
+                class="py-4 text-left"
+              />
+              <SortHeader
+                url={props.url}
+                label="Price"
+                col={CreatorOrderBy.Value}
+                orderBy={props.orderBy}
+                orderDir={props.orderDir}
+                class="py-4 pr-4 text-right"
+              />
+              <th class="py-4 text-center font-medium opacity-50 max-md:hidden">
+                Chart
               </th>
-              <th class="py-4 text-center max-md:px-2">
-                <a
-                  href={nav({
-                    orderBy: CreatorOrderBy.Value,
-                    orderDir: oppositeDir,
-                  })}
-                >
-                  Price
-                  {props.orderBy === CreatorOrderBy.Value && (
-                    <span class="ml-1">
-                      {isAscending ? "↑" : "↓"}
-                    </span>
-                  )}
-                </a>
-              </th>
-              <th class="py-4 text-center max-md:hidden">Chart</th>
-              <th class="rounded-tr-2xl py-4 text-center max-md:px-2">
-                <a
-                  href={nav({
-                    orderBy: CreatorOrderBy.IsLive,
-                    orderDir: oppositeDir,
-                  })}
-                >
-                  Status
-                  {props.orderBy === CreatorOrderBy.IsLive && (
-                    <span class="ml-1">
-                      {isAscending ? "↑" : "↓"}
-                    </span>
-                  )}
-                </a>
-              </th>
+              <SortHeader
+                url={props.url}
+                label="Status"
+                col={CreatorOrderBy.IsLive}
+                orderBy={props.orderBy}
+                orderDir={props.orderDir}
+                class="py-4 pr-4 text-right"
+              />
             </tr>
           </thead>
           <tbody>
             {props.creators.data.map((creator) => {
-              const creatorHref = `/creators/${creator.slug}`;
-              const percentageChange = calculatePercentChange(creator.history);
+              const href = `/creators/${creator.slug}`;
+              const change = calculatePercentChange(creator.history);
+              const live = creator.stream_status.is_live;
 
               return (
-                <tr class="group cursor-pointer border-b border-gray-100 transition-colors hover:bg-gray-50/50 dark:border-gray-800 dark:hover:bg-gray-800/50">
-                  <td class="py-4 max-md:px-2">
-                    <a
-                      href={creatorHref}
-                      rel="noopener noreferrer"
-                      class="block"
-                    >
-                      <div class="flex items-center gap-2">
-                        <div class="relative shrink-0">
-                          <img
-                            src={creator.avatar_url}
-                            alt={creator.name}
-                            class="size-12 rounded-full object-cover ring-2 ring-gray-200 transition-all group-hover:ring-purple-400 max-md:size-8 dark:ring-gray-700"
-                          />
-                          {creator.stream_status.is_live && (
-                            <span class="absolute -top-1 -right-1 rounded-full bg-red-400 px-2 py-0.5 text-[10px] font-bold text-white dark:bg-red-500">
-                              LIVE
-                            </span>
-                          )}
-                        </div>
-                        <div class="flex min-w-0 flex-col">
-                          <div class="truncate font-semibold max-md:text-sm">
-                            {creator.name}
-                          </div>
-                          <div class="flex items-center gap-1">
-                            <span class="text-xs text-gray-500">
-                              {formatTicker(creator.ticker)}
-                            </span>
-                            <span
-                              class={`${
-                                percentageChange > 0
-                                  ? "text-green-500"
-                                  : percentageChange < 0
-                                  ? "text-red-500"
-                                  : "text-gray-500"
-                              } text-xs font-semibold text-nowrap`}
-                            >
-                              {percentageChange > 0 && "↗"}
-                              {percentageChange < 0 && "↘"}
-                              {percentageChange.toFixed(2)}%
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
+                <tr class="group border-base-content/5 hover:bg-base-200/40 border-b transition-colors last:border-0">
+                  <td class="py-3">
+                    <div class="flex items-center gap-3 max-md:px-1">
+                      <a href={href} class="relative shrink-0">
+                        <img
+                          src={creator.avatar_url}
+                          alt={creator.name}
+                          class={`size-11 rounded-full object-cover ring-2 transition-all ${
+                            live
+                              ? "ring-red-500/60"
+                              : "ring-base-content/10 group-hover:ring-purple-500/50"
+                          }`}
+                        />
+                        {live && (
+                          <span class="border-base-100 absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 bg-red-500" />
+                        )}
+                      </a>
+                      <a href={href} class="flex min-w-0 flex-col">
+                        <span class="truncate font-semibold transition-colors group-hover:text-purple-500">
+                          {creator.name}
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                          <span class="font-mono text-xs opacity-50">
+                            {formatTicker(creator.ticker)}
+                          </span>
+                          <Change change={change} />
+                        </span>
+                      </a>
+                    </div>
                   </td>
-                  <td class="py-4 text-center max-md:px-2 max-md:text-sm max-md:font-semibold">
+                  <td class="py-3 pr-4 text-right">
                     <a
-                      href={creatorHref}
-                      rel="noopener noreferrer"
-                      class="block"
+                      href={href}
+                      class="font-display text-lg max-md:text-base"
                     >
                       {formatValue(creator.value)}
                     </a>
                   </td>
-                  <td class="flex items-center justify-center py-4 max-md:hidden">
+                  <td class="py-3 max-md:hidden">
                     <a
-                      href={creatorHref}
-                      rel="noopener noreferrer"
-                      class="block h-16 w-32"
-                      aria-label="View Chart"
+                      href={href}
+                      class="mx-auto block h-12 w-32"
+                      aria-label="View chart"
                     >
                       <MiniChart
                         value={creator.value}
@@ -287,22 +343,9 @@ function CreatorTable(props: {
                       />
                     </a>
                   </td>
-                  <td class="py-4 text-center max-md:px-2">
-                    <a
-                      href={creatorHref}
-                      rel="noopener noreferrer"
-                      class="block"
-                    >
-                      {creator.stream_status.is_live && (
-                        <span class="inline-flex items-center rounded-full bg-red-400 px-2 py-0.5 text-[10px] font-bold text-white dark:bg-red-500">
-                          LIVE
-                        </span>
-                      )}
-                      {!creator.stream_status.is_live && (
-                        <span class="inline-flex items-center rounded-full bg-gray-400 px-2 py-0.5 text-[10px] font-bold text-white dark:bg-gray-500">
-                          OFFLINE
-                        </span>
-                      )}
+                  <td class="py-3 pr-4 text-right">
+                    <a href={href}>
+                      <StatusBadge live={live} />
                     </a>
                   </td>
                 </tr>
@@ -311,40 +354,42 @@ function CreatorTable(props: {
           </tbody>
         </table>
       </div>
+
       {totalPages > 1 && (
-        <div class="mt-8 flex flex-col items-center gap-4 max-md:gap-3">
-          <div class="text-sm text-gray-500 max-md:text-center max-md:text-sm dark:text-gray-400">
-            {`Showing ${(props.index - 1) * 20 + 1} to ${
-              Math.min(props.index * TAKE, props.creators.total)
-            } of ${props.creators.total} creators`}
+        <div class="flex flex-col items-center gap-4">
+          <div class="text-sm opacity-50">
+            Showing {(props.index - 1) * TAKE + 1} to{" "}
+            {Math.min(props.index * TAKE, props.creators.total)} of{" "}
+            {props.creators.total} creators
           </div>
-          <div class="join max-md:scale-90 max-md:flex-wrap max-md:justify-center">
-            <a
-              href={nav({ index: props.index - 1 })}
-              aria-label="Previous page"
-              class="join-item btn rounded-l-2xl border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700"
-            >
-              «
-            </a>
+          <div class="join max-md:flex-wrap max-md:justify-center">
+            <PageLink
+              url={props.url}
+              page={props.index - 1}
+              disabled={props.index <= 1}
+              label="«"
+              extra="rounded-l-2xl"
+            />
             {pageNumbers.map((p) => (
               <a
-                href={nav({ index: p })}
-                class={`join-item btn border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700 ${
-                  props.index ===
-                      p
-                    ? "border-purple-400 bg-purple-400/80 text-white hover:bg-[#8f44fb]"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                class={`join-item btn border-base-content/10 ${
+                  props.index === p
+                    ? "border-purple-600 bg-purple-600 text-white hover:bg-purple-700"
+                    : "bg-base-200/40 hover:bg-base-200/70"
                 }`}
+                href={nav(props.url, { page: p })}
+                aria-current={props.index === p ? "page" : undefined}
               >
                 {p}
               </a>
             ))}
-            <a
-              href={nav({ index: props.index + 1 })}
-              class="join-item btn rounded-r-2xl border-gray-200 max-md:px-2 max-md:text-sm dark:border-gray-700"
-            >
-              »
-            </a>
+            <PageLink
+              url={props.url}
+              page={props.index + 1}
+              disabled={props.index >= totalPages}
+              label="»"
+              extra="rounded-r-2xl"
+            />
           </div>
         </div>
       )}

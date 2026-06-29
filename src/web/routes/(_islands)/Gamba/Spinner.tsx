@@ -28,7 +28,7 @@ export default function Spinner(
     (r) => r.creator.id === result.result.creator.id,
   );
 
-  const repeats = 3;
+  const repeats = 10;
   const items = Array.from(
     { length: repeats },
     () => result.rarities,
@@ -50,8 +50,8 @@ export default function Spinner(
     const targetX = -(winnerLeft + winnerMid - containerMid);
 
     animate(x, targetX, {
-      duration: 8,
-      ease: [0.2, 0.8, 0.2, 1],
+      duration: 7,
+      ease: [0.22, 1, 0.36, 1],
       onComplete: () => {
         setIsFinished(true);
         onComplete();

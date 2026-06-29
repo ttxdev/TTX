@@ -43,6 +43,37 @@
   height: auto;
 }
 
+:root {
+  --ttx-grid-line: color-mix(in oklch, var(--color-base-content) 4%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ttx-grid-line: color-mix(
+      in oklch,
+      var(--color-base-content) 11%,
+      transparent
+    );
+  }
+}
+
+body {
+  background-color: var(--color-base-100);
+  background-image:
+    radial-gradient(
+    75% 55% at 50% 0%,
+    hsla(278, 100%, 58%, 0.4),
+    hsla(278, 100%, 50%, 0.1) 45%,
+    transparent 72%
+  ),
+    linear-gradient(to right, var(--ttx-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ttx-grid-line) 1px, transparent 1px);
+  background-size: 100% 100%, 56px 56px, 56px 56px;
+  background-position: top center, center, center;
+  background-repeat: no-repeat, repeat, repeat;
+  background-attachment: fixed;
+}
+
 /* Prevent layout shift from scrollbar appearing/disappearing */
 html {
   scrollbar-gutter: stable;

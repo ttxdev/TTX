@@ -12,7 +12,7 @@ export default function ToastContainer() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
             layout
-            className={`pointer-events-auto min-w-[200px] rounded-lg px-4 py-3 shadow-lg text-white font-medium ${
+            className={`pointer-events-auto min-w-[200px] rounded-xl px-4 py-3 shadow-lg text-white font-medium ${
               t.type === "success"
                 ? "bg-green-500"
                 : t.type === "error"

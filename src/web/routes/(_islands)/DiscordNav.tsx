@@ -7,10 +7,6 @@ export function DiscordNav(
     let cancelled = false;
 
     (async () => {
-      // Load the Discord SDK on demand. It's ~150KB and only needed at runtime
-      // inside the Discord activity, so a dynamic import keeps it out of the
-      // island's initial chunk — this page hydrates instantly and fetches the
-      // SDK in the background.
       const { DiscordSDK } = await import("@discord/embedded-app-sdk");
       if (cancelled) {
         return;

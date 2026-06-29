@@ -1,8 +1,9 @@
 import { CreatorDto, VoteDto } from "../../../lib/api.ts";
 import ExternalLink from "@/components/ExternalLink.tsx";
 import { formatTicker } from "../../../lib/formatting.ts";
+import { calculatePercentChange } from "../../../lib/math.ts";
 import CurrentValue from "@/islands/CurrentValue.tsx";
-import BigChart from "../(_islands)/BigChart.tsx";
+import BigChart from "@/islands/BigChart.tsx";
 import { State } from "../../../utils.ts";
 
 export default function CreatorCard({ state, creator, value, history }: {
@@ -11,8 +12,15 @@ export default function CreatorCard({ state, creator, value, history }: {
   value: number;
   history: VoteDto[];
 }) {
+  const change = calculatePercentChange(history);
+  const changeClass = change > 0
+    ? "bg-green-500/15 text-green-500"
+    : change < 0
+    ? "bg-red-500/15 text-red-500"
+    : "bg-gray-500/15 text-gray-500";
+
   return (
-    <div class="bg-base-200/50 w-full rounded-lg bg-clip-padding p-4 shadow-md backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
+    <div class="bg-base-200/50 w-full rounded-2xl bg-clip-padding p-4 shadow-md backdrop-blur backdrop-contrast-100 backdrop-saturate-100 backdrop-filter">
       <div class="mb-4 flex flex-col items-center justify-between sm:flex-row">
         <div class="flex w-full flex-row items-center justify-between px-3">
           <div class="flex flex-row gap-3">
@@ -53,16 +61,20 @@ export default function CreatorCard({ state, creator, value, history }: {
               </span>
             </div>
           </div>
-          <div class="relative flex flex-col text-center">
+          <div class="relative flex flex-col items-center text-center">
             <CurrentValue value={value} />
-            <p class="w-24 text-sm">Current Price</p>
+            <p class="text-xs opacity-60">Current Price</p>
+            <span
+              class={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${changeClass}`}
+            >
+              {change > 0 ? "▲" : change < 0 ? "▼" : "—"}{" "}
+              {Math.abs(change).toFixed(2)}%
+            </span>
           </div>
         </div>
       </div>
-      <div class="relative min-h-[400px] w-full">
-        <div class="absolute h-3/4 w-full rounded-lg border border-gray-200/15 p-4">
-          <BigChart value={value} history={history} />
-        </div>
+      <div class="h-[400px] w-full rounded-2xl border border-gray-200/15 p-4">
+        <BigChart value={value} history={history} />
       </div>
     </div>
   );

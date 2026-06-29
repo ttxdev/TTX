@@ -1,5 +1,5 @@
 import Card from "@/components/Card.tsx";
-import { CreatorTransactionDto } from "@/lib/api.ts";
+import { CreatorTransactionDto, TransactionAction } from "@/lib/api.ts";
 import {
   formatShareAmount,
   formatTxAction,
@@ -25,10 +25,15 @@ export default function LatestTransactions(
               new Date(a.created_at).getTime()
             ).map((tx) => {
               const href = `/players/${tx.player.slug}`;
+              const actionClass = tx.action === TransactionAction.Buy
+                ? "text-green-500"
+                : tx.action === TransactionAction.Sell
+                ? "text-red-500"
+                : "";
               return (
                 <tr
                   key={`tx-${tx.id}`}
-                  class="flex flex-row justify-between rounded-md py-1 md:p-2"
+                  class="hover:bg-base-300/40 flex flex-row justify-between rounded-lg py-1 transition-colors md:p-2"
                 >
                   <td class="flex items-center justify-center gap-3">
                     <a
@@ -42,7 +47,7 @@ export default function LatestTransactions(
                       />
                     </a>
                     <div class="flex flex-col">
-                      <span class="text-xl font-semibold">
+                      <span class={`text-xl font-semibold ${actionClass}`}>
                         {formatTxAction(tx.action)}
                       </span>
                       <a

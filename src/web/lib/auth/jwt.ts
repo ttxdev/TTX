@@ -32,8 +32,6 @@ export function parseJwt(token: string) {
 export function parseUserToken(token: string): UserData {
   const jsonPayload = parseJwt(token);
 
-  // Claims issued by the Rust API (see `src/api/src/auth.rs`). The C# tokens
-  // used .NET ClaimTypes URIs; these are the ported short names.
   return {
     userId: Number(jsonPayload.sub),
     slug: jsonPayload.name,
