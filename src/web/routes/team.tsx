@@ -8,7 +8,7 @@ type TeamMember = {
   role: string;
   bio: string;
   socials: {
-    twitch: string;
+    twitch?: string;
     twitter?: string;
     github?: string;
   };
@@ -115,6 +115,16 @@ const TEAM_MEMBERS: TeamMember[] = [
       twitch: "https://twitch.tv/highsecurity_",
     },
   },
+  {
+    name: "Darn",
+    image: "/darn.webp",
+    role: "Chief Number Agent",
+    bio: "Moved some numbers up and some numbers down. Didn’t actually do much of anything",
+    socials: {
+      twitch: "https://twitch.tv/darn1t",
+      github: "https://github.com/smhurt158"
+    }
+  }
 ];
 
 const THANK_YOU: [name: string, href: string][] = [
