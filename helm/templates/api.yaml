@@ -36,7 +36,7 @@ spec:
           {{- end }}
           envFrom:
             - secretRef:
-                name: {{ .Values.config.name }}
+                name: {{ .Values.api.config.name }}
           {{- with .Values.api.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

@@ -27,13 +27,17 @@ spec:
         - name: jobs
           image: "{{ .Values.jobs.image.repository }}:{{ .Values.jobs.image.tag }}"
           imagePullPolicy: {{ .Values.jobs.image.pullPolicy }}
+          {{- with .Values.jobs.run }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.jobs.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           envFrom:
             - secretRef:
-                name: {{ .Values.config.name }}
+                name: {{ .Values.jobs.config.name }}
           {{- with .Values.jobs.env }}
           env:
             {{- toYaml . | nindent 12 }}

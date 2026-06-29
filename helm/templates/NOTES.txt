@@ -29,10 +29,15 @@ Ingress hosts:
 Check rollout status with:
   kubectl get pods -n {{ .Values.namespace | default .Release.Namespace }}
 
-NOTE: the {{ .Values.config.name }} secret ships with empty values for the
+Config secrets (one per component, mirroring each src/<component>/.env.example):
+  - {{ .Values.api.config.name }}
+  - {{ .Values.web.config.name }}
+  - {{ .Values.jobs.config.name }}
+
+NOTE: the {{ .Values.api.config.name }} secret ships with empty values for the
 Twitch OAuth credentials and the JWT signing key. APP_ENV=production makes a
 missing JWT_KEY fatal, so override them per-environment, e.g.:
   helm upgrade --install {{ .Release.Name }} . \
-    --set config.stringData.JWT_KEY=... \
-    --set config.stringData.TWITCH_CLIENT_ID=... \
-    --set config.stringData.TWITCH_CLIENT_SECRET=...
+    --set api.config.stringData.JWT_KEY=... \
+    --set api.config.stringData.TWITCH_CLIENT_ID=... \
+    --set api.config.stringData.TWITCH_CLIENT_SECRET=...
