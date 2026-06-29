@@ -31,6 +31,10 @@ impl TransactionService {
         action: TransactionAction,
         quantity: Quantity,
     ) -> Result<Id> {
+        // Serialize concurrent balance writes for this player so the leaderboard
+        // ordering (credits/portfolio) can't be corrupted by a lost update.
+        let _guard = self.db.lock_player(actor_id).await?;
+
         let Some(mut player) = self.db.player_by_id(actor_id).await? else {
             return Err(Error::not_found("Player"));
         };

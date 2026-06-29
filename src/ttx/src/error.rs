@@ -15,6 +15,7 @@ pub enum Error {
     InvalidRequest(Vec<ValidationFailure>),
     Database(String),
     External(String),
+    Busy(String),
 }
 
 impl Error {
@@ -32,6 +33,7 @@ impl fmt::Display for Error {
             Error::InvalidRequest(_) => write!(f, "Invalid Request"),
             Error::Database(msg) => write!(f, "{msg}"),
             Error::External(msg) => write!(f, "{msg}"),
+            Error::Busy(msg) => write!(f, "{msg}"),
         }
     }
 }

@@ -9,6 +9,7 @@ use crate::cache::{Cache, InMemoryCache};
 use crate::error::{Error, Result};
 
 const KEY_PREFIX: &str = "ttx:cache:";
+const LOCK_PREFIX: &str = "ttx:lock:";
 
 fn ext(e: impl std::fmt::Display) -> Error {
     Error::External(e.to_string())
@@ -47,6 +48,44 @@ impl Cache for RedisCache {
         let secs = ttl.as_secs().max(1);
         if let Err(err) = conn.set_ex::<_, _, ()>(&namespaced, value, secs).await {
             tracing::warn!(%key, error = %err, "redis cache set failed");
+        }
+    }
+
+    async fn lock(&self, key: &str, token: &str, ttl: Duration) -> bool {
+        let mut conn = self.conn.clone();
+        let namespaced = format!("{LOCK_PREFIX}{key}");
+        let ms = (ttl.as_millis() as u64).max(1);
+        let acquired: redis::RedisResult<Option<String>> = redis::cmd("SET")
+            .arg(&namespaced)
+            .arg(token)
+            .arg("NX")
+            .arg("PX")
+            .arg(ms)
+            .query_async(&mut conn)
+            .await;
+        match acquired {
+            Ok(reply) => reply.is_some(),
+            Err(err) => {
+                tracing::warn!(%key, error = %err, "redis lock failed");
+                false
+            }
+        }
+    }
+
+    async fn unlock(&self, key: &str, token: &str) {
+        let mut conn = self.conn.clone();
+        let namespaced = format!("{LOCK_PREFIX}{key}");
+        let script = redis::Script::new(
+            "if redis.call('get', KEYS[1]) == ARGV[1] then \
+             return redis.call('del', KEYS[1]) else return 0 end",
+        );
+        if let Err(err) = script
+            .key(&namespaced)
+            .arg(token)
+            .invoke_async::<()>(&mut conn)
+            .await
+        {
+            tracing::warn!(%key, error = %err, "redis unlock failed");
         }
     }
 }

@@ -41,6 +41,10 @@ impl IntoResponse for ApiError {
                 StatusCode::BAD_GATEWAY,
                 json!({ "error": "External", "message": msg }),
             ),
+            DomainError::Busy(msg) => (
+                StatusCode::CONFLICT,
+                json!({ "error": "Busy", "message": msg }),
+            ),
             DomainError::InvalidAction(msg) | DomainError::InvalidValueObject(msg) => (
                 StatusCode::BAD_REQUEST,
                 json!({ "error": "InvalidAction", "message": msg }),

@@ -7,7 +7,6 @@ use tokio_util::sync::CancellationToken;
 use crate::data::Db;
 use crate::error::Result;
 use crate::events::EventDispatcher;
-use crate::players::PortfolioSnapshot;
 use crate::players::events::UpdatePlayerPortfolioEvent;
 use crate::primitives::{Credits, Id};
 
@@ -73,23 +72,36 @@ impl CalculatePlayerPortfolioJob {
             .map(|c| (c.id(), c.value))
             .collect();
 
-        let mut players = self.db.all_players().await?;
-        let mut snapshots: Vec<PortfolioSnapshot> = Vec::with_capacity(players.len());
+        let players = self.db.all_players().await?;
 
-        for player in players.iter_mut() {
+        for mut player in players {
+            let guard = match self.db.lock_player(player.id()).await {
+                Ok(guard) => guard,
+                Err(err) => {
+                    tracing::warn!(
+                        player_id = player.id(),
+                        %err,
+                        "skipping portfolio recompute; player is locked"
+                    );
+                    continue;
+                }
+            };
+
             player.transactions = self.db.player_transactions(player.id()).await?;
             let snapshot = player
                 .take_portfolio_snapshot(|id| creator_values.get(&id).copied().unwrap_or(0.0));
-            snapshots.push(snapshot);
-        }
 
-        self.db
-            .commit_portfolio_snapshots(&players, &snapshots)
-            .await?;
+            self.db
+                .commit_portfolio_snapshots(
+                    std::slice::from_ref(&player),
+                    std::slice::from_ref(&snapshot),
+                )
+                .await?;
 
-        for (player, snapshot) in players.iter().zip(snapshots.iter()) {
+            drop(guard);
+
             self.events
-                .dispatch(&UpdatePlayerPortfolioEvent::create(snapshot, player))
+                .dispatch(&UpdatePlayerPortfolioEvent::create(&snapshot, &player))
                 .await?;
         }
 

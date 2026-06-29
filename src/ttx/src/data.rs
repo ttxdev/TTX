@@ -2,7 +2,7 @@ pub mod portfolio;
 
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::Duration as StdDuration;
+use std::time::{Duration as StdDuration, Instant};
 
 use chrono::{DateTime, Duration, Utc};
 use serde::Serialize;
@@ -10,10 +10,11 @@ use serde::de::DeserializeOwned;
 use sqlx::postgres::PgRow;
 use sqlx::{PgPool, Row};
 
-use crate::cache::{Cache, InMemoryCache};
+use crate::cache::lock::{LOCK_BACKOFF, LOCK_TTL, LOCK_WAIT, new_token};
+use crate::cache::{Cache, InMemoryCache, LockGuard};
 use crate::creators::{Creator, Vote};
 use crate::dto::portfolio::TimeStep;
-use crate::error::Result;
+use crate::error::{Error, Result};
 use crate::platforms::Platform;
 use crate::players::{Player, PortfolioSnapshot};
 use crate::primitives::{Id, Meta};
@@ -91,6 +92,38 @@ impl Db {
 
     fn history_key(kind: &str, id: Id, step: &TimeStep, before: &Duration) -> String {
         format!("hist:{kind}:{id}:{step:?}:{}", before.num_seconds())
+    }
+
+    /// Acquire a distributed lock on `key`, waiting up to `wait` for it to free
+    /// up. Returns [`Error::Busy`] if it stays contended past the deadline.
+    pub(crate) async fn lock(
+        &self,
+        key: &str,
+        ttl: StdDuration,
+        wait: StdDuration,
+    ) -> Result<LockGuard> {
+        let token = new_token();
+        let deadline = Instant::now() + wait;
+        loop {
+            if self.cache.lock(key, &token, ttl).await {
+                return Ok(LockGuard::new(
+                    self.cache.clone(),
+                    key.to_string(),
+                    token,
+                ));
+            }
+            if Instant::now() >= deadline {
+                return Err(Error::Busy(format!(
+                    "'{key}' is busy, please try again"
+                )));
+            }
+            tokio::time::sleep(LOCK_BACKOFF).await;
+        }
+    }
+
+    /// Lock a single player's balances for the duration of a read-modify-write.
+    pub(crate) async fn lock_player(&self, id: Id) -> Result<LockGuard> {
+        self.lock(&format!("player:{id}"), LOCK_TTL, LOCK_WAIT).await
     }
 
     pub async fn creator_history(
