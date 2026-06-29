@@ -101,13 +101,13 @@ fn close_schema(schema: &mut RefOr<Schema>) {
 
 pub(crate) fn history_params(before: Duration) -> HistoryParams {
     let step = if before.num_days() > 30 {
-        TimeStep::Month
-    } else if before.num_days() > 7 {
         TimeStep::Week
-    } else if before.num_days() > 1 {
+    } else if before.num_days() > 7 {
         TimeStep::Day
-    } else if before.num_hours() > 1 {
+    } else if before.num_days() > 1 {
         TimeStep::Hour
+    } else if before.num_hours() > 1 {
+        TimeStep::FifteenMinute
     } else {
         TimeStep::Minute
     };
@@ -206,11 +206,17 @@ mod tests {
         use ttx::dto::portfolio::TimeStep;
 
         assert_eq!(history_params(Duration::hours(1)).step, TimeStep::Minute);
-        assert_eq!(history_params(Duration::hours(6)).step, TimeStep::Hour);
-        assert_eq!(history_params(Duration::hours(24)).step, TimeStep::Hour);
-        assert_eq!(history_params(Duration::days(3)).step, TimeStep::Day);
-        assert_eq!(history_params(Duration::days(10)).step, TimeStep::Week);
-        assert_eq!(history_params(Duration::days(40)).step, TimeStep::Month);
+        assert_eq!(
+            history_params(Duration::hours(6)).step,
+            TimeStep::FifteenMinute
+        );
+        assert_eq!(
+            history_params(Duration::hours(24)).step,
+            TimeStep::FifteenMinute
+        );
+        assert_eq!(history_params(Duration::days(3)).step, TimeStep::Hour);
+        assert_eq!(history_params(Duration::days(10)).step, TimeStep::Day);
+        assert_eq!(history_params(Duration::days(40)).step, TimeStep::Week);
     }
 
     #[test]

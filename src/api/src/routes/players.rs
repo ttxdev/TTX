@@ -54,7 +54,7 @@ pub(crate) struct ShowQuery {
 
 fn daily() -> HistoryParams {
     HistoryParams {
-        step: TimeStep::ThirtyMinute,
+        step: TimeStep::FifteenMinute,
         before: Duration::days(1),
     }
 }

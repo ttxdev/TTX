@@ -89,7 +89,7 @@ pub(crate) async fn index(
         },
         min_value: None,
         history_params: HistoryParams {
-            step: TimeStep::ThirtyMinute,
+            step: TimeStep::FifteenMinute,
             before: Duration::days(1),
         },
     };
