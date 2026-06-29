@@ -55,12 +55,10 @@ web:
 jobs:
     cargo run
 
-# Run the jobs runner with the closed-source `TTX.Private` overrides (VADER
-# analyzer + baseline value processor) compiled in.
 [group("jobs")]
-[working-directory("src/jobs")]
-jobs-private:
-    cargo run --features private
+[working-directory("src/private")]
+private:
+    cargo run
 
 [group("web")]
 [working-directory("src/web")]
