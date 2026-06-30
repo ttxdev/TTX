@@ -35,7 +35,7 @@ export default function LatestTransactions(
                   key={`tx-${tx.id}`}
                   class="hover:bg-base-300/40 flex flex-row justify-between rounded-lg py-1 transition-colors md:p-2"
                 >
-                  <td class="flex items-center justify-center gap-3">
+                  <td class="flex min-w-0 flex-1 items-center gap-3">
                     <a
                       href={href}
                       class="flex shrink-0 flex-col"
@@ -46,19 +46,19 @@ export default function LatestTransactions(
                         class="size-10 shrink-0 rounded-full object-cover"
                       />
                     </a>
-                    <div class="flex flex-col">
+                    <div class="flex min-w-0 flex-col">
                       <span class={`text-xl font-semibold ${actionClass}`}>
                         {formatTxAction(tx.action)}
                       </span>
                       <a
                         href={href}
-                        class="text-sm text-violet-500 hover:underline"
+                        class="truncate text-sm text-violet-500 hover:underline"
                       >
                         {tx.player.name}
                       </a>
                     </div>
                   </td>
-                  <td class="flex flex-col items-center justify-center p-2 text-right font-bold">
+                  <td class="flex shrink-0 flex-col items-end justify-center p-2 text-right font-bold">
                     <span class="text-md md:text-xl">
                       {formatShareAmount(tx.quantity)} @ {formatValue(tx.value)}
                     </span>

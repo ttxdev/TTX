@@ -27,8 +27,8 @@ export default function Shares(props: { shares: PlayerShareDto[] }) {
                   key={`share-${share.creator.id}`}
                   class="hover:bg-base-300/40 flex flex-row items-center justify-between rounded-lg py-1 transition-colors md:p-2"
                 >
-                  <td class="flex items-center justify-center gap-3">
-                    <span class="w-5 text-center text-sm font-bold opacity-40">
+                  <td class="flex min-w-0 flex-1 items-center gap-3">
+                    <span class="w-5 shrink-0 text-center text-sm font-bold opacity-40">
                       {index + 1}
                     </span>
                     <a href={href} class="flex shrink-0 flex-col">
@@ -40,12 +40,12 @@ export default function Shares(props: { shares: PlayerShareDto[] }) {
                     </a>
                     <a
                       href={href}
-                      class="text-lg font-semibold text-violet-500 hover:underline"
+                      class="min-w-0 truncate text-lg font-semibold text-violet-500 hover:underline"
                     >
                       {formatName(share.creator.name)}
                     </a>
                   </td>
-                  <td class="flex flex-col items-center justify-center p-2 text-right font-bold">
+                  <td class="flex shrink-0 flex-col items-end justify-center p-2 text-right font-bold">
                     <span class="text-md md:text-xl">
                       {formatValue(share.quantity * share.creator.value)}
                     </span>

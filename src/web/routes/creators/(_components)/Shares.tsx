@@ -28,8 +28,8 @@ export default function Shares(
                   key={`share-${holder.player.id}`}
                   class="hover:bg-base-300/40 flex flex-row items-center justify-between rounded-lg py-1 transition-colors md:p-2"
                 >
-                  <td class="flex items-center justify-center gap-3">
-                    <span class="w-5 text-center text-sm font-bold opacity-40">
+                  <td class="flex min-w-0 flex-1 items-center gap-3">
+                    <span class="w-5 shrink-0 text-center text-sm font-bold opacity-40">
                       {index + 1}
                     </span>
                     <a href={href} class="flex shrink-0 flex-col">
@@ -41,12 +41,12 @@ export default function Shares(
                     </a>
                     <a
                       href={href}
-                      class="text-lg font-semibold text-violet-500 hover:underline"
+                      class="min-w-0 truncate text-lg font-semibold text-violet-500 hover:underline"
                     >
                       {formatName(holder.player.name)}
                     </a>
                   </td>
-                  <td class="flex flex-col items-center justify-center p-2 text-right font-bold">
+                  <td class="flex shrink-0 flex-col items-end justify-center p-2 text-right font-bold">
                     <span class="text-md md:text-xl">
                       {formatValue(holder.quantity * price)}
                     </span>
