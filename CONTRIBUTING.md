@@ -5,6 +5,9 @@ frontend is a separate [Deno](https://deno.com/) project. Local services
 (Postgres/TimescaleDB and Redis) run via [`compose.yaml`](./compose.yaml), and
 common tasks are wrapped in the [`Justfile`](./Justfile).
 
+- [Swagger UI](https://api.ttx.gg/swagger-ui)
+- [OpenAPI JSON](https://api.ttx.gg/api-docs/openapi.json)
+
 ## Layout
 
 - [`src/ttx`](./src/ttx) — Core domain crate: creators, players, shares,

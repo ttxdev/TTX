@@ -5,8 +5,8 @@
 **Invest in your favorite Creators**
 
 - Check it out at https://ttx.gg
-- API Documentation https://api.ttx.gg/swagger/index.html
-- See `CONTRIBUTING.md` for Development
+- API Documentation https://api.ttx.gg/swagger-ui
+- See [`CONTRIBUTING.md`](CONTRIBUTING.md) for Development
 
 ## How it Works
 
