@@ -38,12 +38,12 @@ export default function LatestTransactions(
                   <td class="flex items-center justify-center gap-3">
                     <a
                       href={href}
-                      class="flex flex-col"
+                      class="flex shrink-0 flex-col"
                     >
                       <img
                         alt=""
                         src={tx.player.avatar_url}
-                        class="size-10 rounded-full"
+                        class="size-10 shrink-0 rounded-full object-cover"
                       />
                     </a>
                     <div class="flex flex-col">

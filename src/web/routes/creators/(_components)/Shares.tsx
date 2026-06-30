@@ -32,11 +32,11 @@ export default function Shares(
                     <span class="w-5 text-center text-sm font-bold opacity-40">
                       {index + 1}
                     </span>
-                    <a href={href} class="flex flex-col">
+                    <a href={href} class="flex shrink-0 flex-col">
                       <img
                         alt={holder.player.name}
                         src={holder.player.avatar_url}
-                        class="size-10 rounded-full"
+                        class="size-10 shrink-0 rounded-full object-cover"
                       />
                     </a>
                     <a

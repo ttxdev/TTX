@@ -34,11 +34,11 @@ export default function LatestTransactions(
                   class="hover:bg-base-300/40 flex flex-row justify-between rounded-lg py-1 transition-colors md:p-2"
                 >
                   <td class="flex items-center justify-center gap-3">
-                    <a href={href} class="flex flex-col">
+                    <a href={href} class="flex shrink-0 flex-col">
                       <img
                         alt={tx.creator.name}
                         src={tx.creator.avatar_url}
-                        class="size-10 rounded-full"
+                        class="size-10 shrink-0 rounded-full object-cover"
                       />
                     </a>
                     <div class="flex flex-col">

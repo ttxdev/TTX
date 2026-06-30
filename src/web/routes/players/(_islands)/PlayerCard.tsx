@@ -46,7 +46,7 @@ export default function PlayerCard(
             <img
               src={player.avatar_url}
               alt=""
-              class="h-12 w-12 rounded-full border-2 border-white object-cover shadow-lg"
+              class="h-12 w-12 shrink-0 rounded-full border-2 border-white object-cover shadow-lg"
             />
             <div class="flex flex-col">
               <span class="text-lg font-semibold">{player.name}</span>

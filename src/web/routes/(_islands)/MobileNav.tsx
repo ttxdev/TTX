@@ -106,7 +106,7 @@ export default function MobileNav(
                           <img
                             src={user.avatarUrl}
                             alt=""
-                            class="size-6 rounded-full"
+                            class="size-6 shrink-0 rounded-full object-cover"
                           />
                           {user.name}
                         </div>

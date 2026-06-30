@@ -233,7 +233,7 @@ export default function OrderModal(
             <img
               src={props.creator.avatar_url}
               alt=""
-              className="size-11 shrink-0 rounded-full"
+              className="size-11 shrink-0 rounded-full object-cover"
             />
             <div className="flex min-w-0 flex-col">
               <span className="truncate font-semibold">

@@ -70,7 +70,7 @@ function Item({ creator }: { creator: CreatorPartialDto }) {
           <img
             src={creator.avatar_url}
             alt=""
-            class={`size-11 shrink-0 rounded-full ${
+            class={`size-11 shrink-0 rounded-full object-cover ${
               isLive ? "ring-2 ring-red-500/60" : ""
             }`}
           />
